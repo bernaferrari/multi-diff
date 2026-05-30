@@ -1,0 +1,31 @@
+import { type ButtonHTMLAttributes, type ReactNode } from "react"
+
+import { getTreeRowIndent } from "./file-tree-row-state"
+
+type TreeRowButtonProps = {
+  children: ReactNode
+  depth: number
+  selected?: boolean
+} & ButtonHTMLAttributes<HTMLButtonElement>
+
+export function TreeRowButton({
+  children,
+  className,
+  depth,
+  selected = false,
+  style,
+  ...props
+}: TreeRowButtonProps) {
+  return (
+    <button
+      {...props}
+      type="button"
+      role="treeitem"
+      aria-selected={selected}
+      className={className}
+      style={{ ...getTreeRowIndent(depth), ...style }}
+    >
+      {children}
+    </button>
+  )
+}
