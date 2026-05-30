@@ -5,6 +5,7 @@ import {
   CodeView,
   type CodeViewHandle,
   type CodeViewItem,
+  FileDiff,
   type FileDiffMetadata,
 } from "@pierre/diffs/react"
 import {
@@ -15,6 +16,7 @@ import { useTheme } from "next-themes"
 import { toast } from "sonner"
 import {
   AlignLeft,
+  ChevronLeft,
   Check,
   Clipboard,
   Columns3,
@@ -25,21 +27,19 @@ import {
   Folder,
   FolderOpen,
   Hash,
-  Layers,
   Link2,
   MoreHorizontal,
   Minus,
   Moon,
   PanelLeft,
-  PanelLeftClose,
   RotateCcw,
   Rows3,
   Search,
+  SlidersHorizontal,
   SplitSquareHorizontal,
   StickyNote,
   Sun,
   Trash2,
-  Unlink,
   Upload,
   WrapText,
 } from "lucide-react"
@@ -61,6 +61,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Switch } from "@/components/ui/switch"
 import {
   Tooltip,
   TooltipContent,
@@ -568,6 +577,48 @@ function estimateCodeHeight(view: PaneView) {
   }, 0)
 }
 
+function copyFilePath(path: string) {
+  toast.success("Copied file path", {
+    description: path,
+  })
+  void navigator.clipboard?.writeText(path).catch(() => {
+    // clipboard blocked
+  })
+}
+
+function routeWheelToScroller(event: React.WheelEvent, scroller: HTMLElement) {
+  const horizontalDelta = event.shiftKey ? event.deltaY : event.deltaX
+  const verticalDelta = event.shiftKey ? 0 : event.deltaY
+  const preferHorizontal =
+    Math.abs(horizontalDelta) > Math.abs(verticalDelta) ||
+    (event.shiftKey && horizontalDelta !== 0)
+
+  if (preferHorizontal) {
+    const maxLeft = scroller.scrollWidth - scroller.clientWidth
+    if (maxLeft <= 0) return
+
+    const nextLeft = Math.min(
+      Math.max(scroller.scrollLeft + horizontalDelta, 0),
+      maxLeft
+    )
+    if (nextLeft === scroller.scrollLeft) return
+    event.preventDefault()
+    scroller.scrollLeft = nextLeft
+    return
+  }
+
+  const maxTop = scroller.scrollHeight - scroller.clientHeight
+  if (maxTop <= 0) return
+
+  const nextTop = Math.min(
+    Math.max(scroller.scrollTop + verticalDelta, 0),
+    maxTop
+  )
+  if (nextTop === scroller.scrollTop) return
+  event.preventDefault()
+  scroller.scrollTop = nextTop
+}
+
 type Layout = "columns" | "rows"
 type DiffStyle = "split" | "unified"
 
@@ -589,9 +640,6 @@ export function DiffWorkbench() {
   const [focusFile, setFocusFile] = useState<string | null>(null)
   const [activeFile, setActiveFile] = useState<string | null>(null)
   const [hiddenFiles, setHiddenFiles] = useState<Set<string>>(new Set())
-  const [laneActiveFiles, setLaneActiveFiles] = useState<
-    Partial<Record<LaneId, string>>
-  >({})
   const [notes, setNotes] = useState("")
   const [notesOpen, setNotesOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
@@ -743,8 +791,6 @@ export function DiffWorkbench() {
     contributing > 1
       ? fileRows.filter((r) => r.presentIn.length === contributing).length
       : 0
-  const totalAdditions = fileRows.reduce((t, row) => t + row.additions, 0)
-  const totalDeletions = fileRows.reduce((t, row) => t + row.deletions, 0)
   const hasErrors = parsed.some((pane) => pane.error)
   const indexActiveFile = focused ?? activeFile
 
@@ -763,13 +809,6 @@ export function DiffWorkbench() {
     setHiddenFiles((cur) => new Set([...cur, ...nameSet]))
     setFocusFile((cur) => (cur && nameSet.has(cur) ? null : cur))
     setActiveFile((cur) => (cur && nameSet.has(cur) ? null : cur))
-    setLaneActiveFiles((cur) => {
-      const next = { ...cur }
-      for (const [id, activeName] of Object.entries(next)) {
-        if (activeName && nameSet.has(activeName)) delete next[id]
-      }
-      return next
-    })
   }
 
   function showFiles(names: string[]) {
@@ -865,12 +904,6 @@ export function DiffWorkbench() {
       spyFile.current = activeName
       setActiveFile(activeName)
     }
-    setLaneActiveFiles((current) =>
-      current[sourceId] === activeName
-        ? current
-        : { ...current, [sourceId]: activeName }
-    )
-
     // Throttle to one propagation per frame and ignore the scroll events that
     // our own scrollTo calls trigger on the target lanes.
     if (!syncScroll || syncing.current) return
@@ -881,11 +914,6 @@ export function DiffWorkbench() {
       const inst = viewerRefs.current[pane.id]?.getInstance()
       const targetId = paneViews[pane.id]?.idByName.get(activeName)
       if (!inst || !targetId) continue
-      setLaneActiveFiles((current) =>
-        current[pane.id] === activeName
-          ? current
-          : { ...current, [pane.id]: activeName }
-      )
       inst.scrollTo({
         type: "item",
         id: targetId,
@@ -972,6 +1000,11 @@ export function DiffWorkbench() {
 
   const columnsTemplate = `repeat(${Math.max(1, displayedPanes.length)}, minmax(0, 1fr))`
 
+  function handleRowsWheel(event: React.WheelEvent<HTMLElement>) {
+    if (layout !== "rows") return
+    routeWheelToScroller(event, event.currentTarget)
+  }
+
   return (
     <main className="bg-grid flex h-svh flex-col overflow-hidden bg-background text-foreground">
       <input
@@ -1037,16 +1070,15 @@ export function DiffWorkbench() {
               activeFile={indexActiveFile}
               query={fileQuery}
               sharedCount={sharedCount}
-              totalAdditions={totalAdditions}
-              totalDeletions={totalDeletions}
               onQuery={setFileQuery}
               onToggleLane={toggleLane}
               onHideFiles={hideFiles}
               onShowFiles={showFiles}
               onShowAllFiles={() => setHiddenFiles(new Set())}
               onOverview={() => setFocusFile(null)}
-              onFocus={(name) => setFocusFile(name)}
-              onClose={() => setSidebarOpen(false)}
+              onFocus={(name) =>
+                setFocusFile((cur) => (cur === name ? null : name))
+              }
             />
           </div>
         </div>
@@ -1063,8 +1095,9 @@ export function DiffWorkbench() {
               "min-h-0 flex-1",
               layout === "columns"
                 ? "h-full overflow-hidden p-3"
-                : "scroll-thin overflow-y-auto p-3"
+                : "scroll-thin overflow-y-auto px-3 pt-0 pb-3"
             )}
+            onWheelCapture={handleRowsWheel}
           >
             {displayedPanes.length === 0 ? (
               <div className="grid h-full place-items-center text-sm text-muted-foreground">
@@ -1090,12 +1123,6 @@ export function DiffWorkbench() {
                     key={pane.id}
                     pane={pane}
                     view={paneViews[pane.id]}
-                    activeFileName={
-                      focused ??
-                      laneActiveFiles[pane.id] ??
-                      paneViews[pane.id].files[0]?.name ??
-                      null
-                    }
                     layout={layout}
                     diffStyle={diffStyle}
                     wrap={wrap}
@@ -1153,32 +1180,23 @@ function Toolbar(props: {
   return (
     <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/70 bg-card/80 px-3 py-2 backdrop-blur">
       <div className="flex items-center gap-2">
-        <AppTooltip
-          label={props.sidebarOpen ? "Hide files panel" : "Show files panel"}
+        <button
+          type="button"
+          onClick={() => props.setSidebarOpen(!props.sidebarOpen)}
+          aria-pressed={props.sidebarOpen}
+          aria-label={
+            props.sidebarOpen ? "Hide files panel" : "Show files panel"
+          }
+          className={cn(
+            "-ml-1 grid size-8 place-items-center rounded-md transition-colors hover:bg-muted",
+            props.sidebarOpen
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          )}
         >
-          <button
-            type="button"
-            onClick={() => props.setSidebarOpen(!props.sidebarOpen)}
-            aria-pressed={props.sidebarOpen}
-            aria-label={
-              props.sidebarOpen ? "Hide files panel" : "Show files panel"
-            }
-            className={cn(
-              "grid size-8 place-items-center rounded-lg border transition-colors",
-              props.sidebarOpen
-                ? "border-foreground/15 bg-foreground/10 text-foreground"
-                : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-          >
-            <PanelLeft className="size-4" />
-          </button>
-        </AppTooltip>
-        <div className="grid size-7 place-items-center rounded-lg bg-foreground text-background">
-          <span className="text-[13px] font-black tracking-tighter">3</span>
-        </div>
-        <span className="hidden text-sm font-semibold tracking-tight sm:inline">
-          Triptych
-        </span>
+          <PanelLeft className="size-4" />
+        </button>
+        <span className="text-sm font-semibold tracking-tight">Juxta</span>
       </div>
 
       <div className="ml-auto flex flex-wrap items-center gap-1.5">
@@ -1188,14 +1206,12 @@ function Toolbar(props: {
             onClick={() => props.setLayout("columns")}
             icon={<Columns3 className="size-3.5" />}
             label="Columns"
-            tooltip="Compare the three diffs side by side"
           />
           <Seg
             active={props.layout === "rows"}
             onClick={() => props.setLayout("rows")}
             icon={<Rows3 className="size-3.5" />}
             label="Rows"
-            tooltip="Stack the three diffs vertically"
           />
         </Segmented>
 
@@ -1205,61 +1221,71 @@ function Toolbar(props: {
             onClick={() => props.setDiffStyle("unified")}
             icon={<AlignLeft className="size-3.5" />}
             label="Unified"
-            tooltip="Show additions and deletions inline"
           />
           <Seg
             active={props.diffStyle === "split"}
             onClick={() => props.setDiffStyle("split")}
             icon={<SplitSquareHorizontal className="size-3.5" />}
             label="Split"
-            tooltip="Show old and new lines side by side"
           />
         </Segmented>
 
-        <div className="flex items-center gap-1">
-          <Toggle
-            active={props.wrap}
-            onClick={() => props.setWrap(!props.wrap)}
-            icon={<WrapText className="size-3.5" />}
-            label="Wrap lines"
-            tooltip={props.wrap ? "Disable line wrapping" : "Wrap long lines"}
-          />
-          <Toggle
-            active={props.lineNumbers}
-            onClick={() => props.setLineNumbers(!props.lineNumbers)}
-            icon={<Hash className="size-3.5" />}
-            label="Line numbers"
-            tooltip={
-              props.lineNumbers ? "Hide line numbers" : "Show line numbers"
+        <Popover>
+          <PopoverTrigger
+            render={
+              <button
+                type="button"
+                aria-label="Display options"
+                title="Display options"
+                className="grid size-8 place-items-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-popup-open:bg-muted data-popup-open:text-foreground"
+              >
+                <SlidersHorizontal className="size-4" />
+              </button>
             }
           />
-          <Toggle
-            active={props.showFilenames}
-            onClick={() => props.setShowFilenames(!props.showFilenames)}
-            icon={<FileText className="size-3.5" />}
-            label="File headers"
-            tooltip={
-              props.showFilenames ? "Hide file headers" : "Show file headers"
-            }
-          />
-          <Toggle
-            active={props.syncScroll}
-            onClick={() => props.setSyncScroll(!props.syncScroll)}
-            icon={
-              props.syncScroll ? (
-                <Link2 className="size-3.5" />
-              ) : (
-                <Unlink className="size-3.5" />
-              )
-            }
-            label="Sync scroll across lanes"
-            tooltip={
-              props.syncScroll
-                ? "Stop syncing scroll between diffs"
-                : "Sync scroll between diffs"
-            }
-          />
-        </div>
+          <PopoverContent align="end" sideOffset={8} className="w-72 gap-3 p-3">
+            <PopoverHeader className="gap-1 border-b border-border/70 pb-2">
+              <PopoverTitle className="flex items-center gap-2 text-sm">
+                <SlidersHorizontal className="size-4 text-muted-foreground" />
+                Display
+              </PopoverTitle>
+              <PopoverDescription className="text-xs">
+                Tune how diffs are rendered.
+              </PopoverDescription>
+            </PopoverHeader>
+
+            <div className="grid gap-1">
+              <DisplaySwitch
+                checked={props.wrap}
+                description="Keep long lines inside the panel."
+                icon={<WrapText className="size-4" />}
+                label="Wrap lines"
+                onCheckedChange={props.setWrap}
+              />
+              <DisplaySwitch
+                checked={props.lineNumbers}
+                description="Show original and modified line positions."
+                icon={<Hash className="size-4" />}
+                label="Line numbers"
+                onCheckedChange={props.setLineNumbers}
+              />
+              <DisplaySwitch
+                checked={props.showFilenames}
+                description="Show filename bars inside each diff."
+                icon={<FileText className="size-4" />}
+                label="File headers"
+                onCheckedChange={props.setShowFilenames}
+              />
+              <DisplaySwitch
+                checked={props.syncScroll}
+                description="Keep matching files aligned while scrolling."
+                icon={<Link2 className="size-4" />}
+                label="Sync scroll"
+                onCheckedChange={props.setSyncScroll}
+              />
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <div className="mx-0.5 h-6 w-px bg-border" />
 
@@ -1331,61 +1357,27 @@ function Seg({
   onClick: () => void
   icon: React.ReactNode
   label: string
-  tooltip: string
-}) {
-  return (
-    <AppTooltip label={tooltip}>
-      <button
-        type="button"
-        onClick={onClick}
-        aria-pressed={active}
-        title={tooltip}
-        className={cn(
-          "flex items-center gap-1.5 rounded-[7px] px-2.5 py-1 text-xs font-medium transition-colors",
-          active
-            ? "bg-primary text-primary-foreground shadow-sm"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-        )}
-      >
-        {icon}
-        {label}
-      </button>
-    </AppTooltip>
-  )
-}
-
-function Toggle({
-  active,
-  onClick,
-  icon,
-  label,
-  tooltip = label,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
   tooltip?: string
 }) {
-  return (
-    <AppTooltip label={tooltip}>
-      <button
-        type="button"
-        onClick={onClick}
-        aria-pressed={active}
-        aria-label={label}
-        title={tooltip}
-        className={cn(
-          "grid size-8 place-items-center rounded-lg border transition-colors",
-          active
-            ? "border-foreground/15 bg-foreground/10 text-foreground"
-            : "border-border bg-background text-muted-foreground/70 hover:bg-muted hover:text-foreground"
-        )}
-      >
-        {icon}
-      </button>
-    </AppTooltip>
+  const button = (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      title={tooltip}
+      className={cn(
+        "flex items-center gap-1.5 rounded-[7px] px-2.5 py-1 text-xs font-medium transition-colors",
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}
+    >
+      {icon}
+      {label}
+    </button>
   )
+
+  return tooltip ? <AppTooltip label={tooltip}>{button}</AppTooltip> : button
 }
 
 function AppTooltip({
@@ -1403,6 +1395,42 @@ function AppTooltip({
   )
 }
 
+function DisplaySwitch({
+  checked,
+  description,
+  icon,
+  label,
+  onCheckedChange,
+}: {
+  checked: boolean
+  description: string
+  icon: React.ReactNode
+  label: string
+  onCheckedChange: (checked: boolean) => void
+}) {
+  return (
+    <label className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/65">
+      <span
+        className={cn(
+          "grid size-8 shrink-0 place-items-center rounded-md border",
+          checked
+            ? "border-primary/20 bg-primary/10 text-primary"
+            : "border-border bg-background text-muted-foreground"
+        )}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm leading-none font-medium">{label}</span>
+        <span className="mt-1 block text-xs leading-snug text-muted-foreground">
+          {description}
+        </span>
+      </span>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} size="sm" />
+    </label>
+  )
+}
+
 /* ------------------------------------------------------------ FilesPanel */
 
 function FilesPanel({
@@ -1415,8 +1443,6 @@ function FilesPanel({
   activeFile,
   query,
   sharedCount,
-  totalAdditions,
-  totalDeletions,
   onQuery,
   onToggleLane,
   onHideFiles,
@@ -1424,7 +1450,6 @@ function FilesPanel({
   onShowAllFiles,
   onOverview,
   onFocus,
-  onClose,
 }: {
   rows: FileRow[]
   hiddenFileRows: FileRow[]
@@ -1435,8 +1460,6 @@ function FilesPanel({
   activeFile: string | null
   query: string
   sharedCount: number
-  totalAdditions: number
-  totalDeletions: number
   onQuery: (q: string) => void
   onToggleLane: (id: LaneId) => void
   onHideFiles: (names: string[]) => void
@@ -1444,7 +1467,6 @@ function FilesPanel({
   onShowAllFiles: () => void
   onOverview: () => void
   onFocus: (name: string) => void
-  onClose: () => void
 }) {
   const listRef = useRef<HTMLDivElement>(null)
   const [contextFile, setContextFile] = useState<string | null>(null)
@@ -1456,13 +1478,22 @@ function FilesPanel({
   const filteredRows = useMemo(() => {
     const needle = query.trim().toLowerCase()
     if (!needle) return rows
-    return rows.filter((row) => row.name.toLowerCase().includes(needle))
+    return rows.filter((row) => {
+      const filename = row.name.split("/").pop() ?? row.name
+      return filename.toLowerCase().includes(needle)
+    })
   }, [query, rows])
   const treeRows = useMemo(
     () => buildVisibleFileTreeRows(filteredRows, collapsedDirs),
     [filteredRows, collapsedDirs]
   )
   const laneIds = useMemo(() => panes.map((pane) => pane.id), [panes])
+  const treeLaneIds = useMemo(
+    () => laneIds.filter((id) => !hidden.has(id)),
+    [hidden, laneIds]
+  )
+  const showTreeLaneBadges = query.trim().length !== 1 && treeLaneIds.length > 1
+  const visibleCount = rows.length - hiddenFileRows.length
   const restorableRows = hiddenFileRows.filter(
     (row) => row.name !== contextFile
   )
@@ -1490,25 +1521,6 @@ function FilesPanel({
         dangerouslySetInnerHTML={{ __html: TREE_ICON_SPRITE }}
       />
       <div className="flex flex-col gap-2 border-b border-border/70 p-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            <Layers className="size-3.5" />
-            Files
-            <span className="font-mono text-[11px] text-muted-foreground/70 normal-case tabular-nums">
-              {rows.length - hiddenFileRows.length}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Collapse files panel"
-            title="Collapse files panel"
-            className="grid size-6 place-items-center rounded-md text-muted-foreground/60 hover:bg-muted hover:text-foreground"
-          >
-            <PanelLeftClose className="size-4" />
-          </button>
-        </div>
-
         {/* Lane visibility */}
         <div
           className="grid gap-1"
@@ -1550,29 +1562,36 @@ function FilesPanel({
             className="h-8 w-full rounded-md border border-border bg-background pr-2 pl-8 text-xs transition-colors outline-none focus:border-ring"
           />
         </div>
+      </div>
 
-        {/* Overview row */}
-        <button
-          type="button"
-          onClick={onOverview}
-          className={cn(
-            "flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-left transition-colors",
-            !focusFile
-              ? "border-foreground/15 bg-foreground/10 text-foreground"
-              : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
-          )}
-        >
-          <span className="flex-1 text-xs font-medium">All files</span>
-          {sharedCount > 0 ? (
-            <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground tabular-nums">
-              {sharedCount} shared
+      {/* Tree section header — turns into a back link while focused */}
+      <div className="flex h-7 items-center gap-2 px-3 pt-2 pb-1">
+        {focusFile ? (
+          <button
+            type="button"
+            onClick={onOverview}
+            className="-ml-0.5 flex h-4 items-center gap-0.5 rounded px-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground/70 uppercase transition-colors hover:text-foreground"
+          >
+            <ChevronLeft className="size-3" />
+            All files
+          </button>
+        ) : (
+          <>
+            <span className="text-[10px] font-semibold tracking-wide text-muted-foreground/70 uppercase">
+              Files
             </span>
-          ) : null}
-          <span className="font-mono text-[10px] tabular-nums">
-            <span className="text-add">+{totalAdditions}</span>{" "}
-            <span className="text-del">−{totalDeletions}</span>
-          </span>
-        </button>
+            <span
+              title={
+                sharedCount > 0
+                  ? `${sharedCount} file${sharedCount === 1 ? "" : "s"} changed in every lane`
+                  : undefined
+              }
+              className="grid h-4 min-w-4 place-items-center rounded-full bg-muted px-1 text-[10px] font-medium text-muted-foreground tabular-nums"
+            >
+              {visibleCount}
+            </span>
+          </>
+        )}
       </div>
 
       {/* File tree */}
@@ -1622,8 +1641,9 @@ function FilesPanel({
                             partiallyHidden={
                               hiddenCount > 0 && hiddenCount < fileNames.length
                             }
-                            laneIds={laneIds}
+                            laneIds={treeLaneIds}
                             node={node}
+                            showLaneBadges={showTreeLaneBadges}
                             onContextDirectory={() => {
                               setContextFile(null)
                               setContextDirectory({
@@ -1642,8 +1662,10 @@ function FilesPanel({
                         focusFile={focusFile}
                         activeFile={activeFile}
                         hidden={hiddenFiles.has(node.row?.name ?? "")}
-                        laneIds={laneIds}
+                        laneIds={treeLaneIds}
                         node={node}
+                        query={query}
+                        showLaneBadges={showTreeLaneBadges}
                         onContextFile={(name) => {
                           setContextDirectory(null)
                           setContextFile(name)
@@ -1779,7 +1801,7 @@ function FilesPanel({
 
 function LaneBadges({ laneIds, row }: { laneIds: LaneId[]; row: FileRow }) {
   return (
-    <span className="flex shrink-0 gap-0.5">
+    <span className="flex w-11 shrink-0 justify-end gap-0.5">
       {laneIds.map((id) => {
         const style = laneStyle(id)
         return (
@@ -1802,8 +1824,8 @@ function LaneBadges({ laneIds, row }: { laneIds: LaneId[]; row: FileRow }) {
 
 function DiffStats({ row }: { row: FileRow }) {
   return (
-    <span className="w-10 shrink-0 text-right font-mono text-[10px] leading-none tabular-nums">
-      <span className="text-add">+{row.additions}</span>{" "}
+    <span className="flex w-16 shrink-0 items-center justify-end gap-1.5 text-right font-mono text-[10px] leading-none tabular-nums">
+      <span className="text-add">+{row.additions}</span>
       <span className="text-del">−{row.deletions}</span>
     </span>
   )
@@ -1860,12 +1882,37 @@ function FileTypeIcon({ path }: { path: string }) {
   )
 }
 
+function HighlightMatch({ text, query }: { text: string; query: string }) {
+  const needle = query.trim().toLowerCase()
+  if (!needle) return <>{text}</>
+  const lower = text.toLowerCase()
+  const out: React.ReactNode[] = []
+  let cursor = 0
+  let match = lower.indexOf(needle)
+  while (match !== -1) {
+    if (match > cursor) out.push(text.slice(cursor, match))
+    out.push(
+      <mark
+        key={match}
+        className="rounded-[2px] bg-amber-300/55 text-inherit dark:bg-amber-400/30"
+      >
+        {text.slice(match, match + needle.length)}
+      </mark>
+    )
+    cursor = match + needle.length
+    match = lower.indexOf(needle, cursor)
+  }
+  if (cursor < text.length) out.push(text.slice(cursor))
+  return <>{out}</>
+}
+
 function DirectoryTreeRow({
   collapsed,
   depth,
   fullyHidden,
   laneIds,
   node,
+  showLaneBadges,
   onContextDirectory,
   onToggle,
   partiallyHidden,
@@ -1875,6 +1922,7 @@ function DirectoryTreeRow({
   fullyHidden: boolean
   laneIds: LaneId[]
   node: FileTreeNode
+  showLaneBadges: boolean
   onContextDirectory: () => void
   onToggle: () => void
   partiallyHidden: boolean
@@ -1904,7 +1952,7 @@ function DirectoryTreeRow({
       ) : (
         <FolderOpen className="size-3.5 shrink-0" />
       )}
-      <span className="min-w-0 flex-1 truncate font-mono">{node.name}</span>
+      <span className="min-w-0 flex-1 truncate">{node.name}</span>
       {fullyHidden || partiallyHidden ? (
         <EyeOff
           className={cn(
@@ -1915,8 +1963,10 @@ function DirectoryTreeRow({
       ) : null}
       {collapsed && summary ? (
         <>
-          <LaneBadges laneIds={laneIds} row={summary} />
           <DiffStats row={summary} />
+          {showLaneBadges ? (
+            <LaneBadges laneIds={laneIds} row={summary} />
+          ) : null}
         </>
       ) : null}
     </button>
@@ -1930,6 +1980,8 @@ function FileTreeRow({
   hidden,
   laneIds,
   node,
+  query,
+  showLaneBadges,
   onContextFile,
   onFocus,
 }: {
@@ -1939,6 +1991,8 @@ function FileTreeRow({
   hidden: boolean
   laneIds: LaneId[]
   node: FileTreeNode
+  query: string
+  showLaneBadges: boolean
   onContextFile: (name: string) => void
   onFocus: (name: string) => void
 }) {
@@ -1973,10 +2027,12 @@ function FileTreeRow({
       style={{ paddingLeft: 6 + depth * 12 }}
     >
       <FileTypeIcon path={row.name} />
-      <span className="min-w-0 flex-1 truncate font-mono">{node.name}</span>
+      <span className="min-w-0 flex-1 truncate">
+        <HighlightMatch text={node.name} query={query} />
+      </span>
       {hidden ? <EyeOff className="size-3 shrink-0" /> : null}
-      <LaneBadges laneIds={laneIds} row={row} />
       <DiffStats row={row} />
+      {showLaneBadges ? <LaneBadges laneIds={laneIds} row={row} /> : null}
     </button>
   )
 }
@@ -1984,7 +2040,6 @@ function FileTreeRow({
 /* ------------------------------------------------------------------ Lane */
 
 function Lane({
-  activeFileName,
   pane,
   view,
   layout,
@@ -1999,7 +2054,6 @@ function Lane({
   onImport,
   onClear,
 }: {
-  activeFileName: string | null
   pane: ParsedPane
   view: PaneView
   layout: Layout
@@ -2017,28 +2071,25 @@ function Lane({
   const style = laneStyle(pane.id)
   const isEmpty = !pane.text.trim()
   const importInputRef = useRef<HTMLInputElement>(null)
-  const columnHeight =
-    44 +
-    (showFilenames && activeFileName && !isEmpty ? 28 : 0) +
-    (isEmpty ? 224 : estimateCodeHeight(view))
+  const columnHeight = 44 + (isEmpty ? 148 : estimateCodeHeight(view))
 
-  function copyPath(path: string) {
-    toast.success("Copied file path", {
-      description: path,
-    })
-    void navigator.clipboard?.writeText(path).catch(() => {
-      // clipboard blocked
-    })
+  function handleColumnWheel(event: React.WheelEvent<HTMLDivElement>) {
+    if (layout !== "columns") return
+    const scroller =
+      event.currentTarget.querySelector<HTMLElement>(".overflow-auto")
+    if (!scroller) return
+    routeWheelToScroller(event, scroller)
   }
 
   return (
     <section
       data-lane={pane.id}
       className={cn(
-        "flex min-h-0 flex-col overflow-hidden rounded-xl border bg-card shadow-sm",
+        "flex min-h-0 flex-col rounded-xl border bg-card shadow-sm",
         style.border,
-        layout === "columns" && "max-h-full",
-        layout === "rows" && "max-h-[72vh]"
+        isEmpty && "border-dashed bg-card/55",
+        layout === "columns" && "max-h-full overflow-hidden",
+        layout === "rows" && "h-auto overflow-visible"
       )}
       style={
         layout === "columns"
@@ -2048,14 +2099,14 @@ function Lane({
           : undefined
       }
     >
-      <header className="relative flex min-h-11 shrink-0 items-center gap-2 border-b border-border/70 bg-background/40 pr-1.5 pl-3">
+      <header className="relative flex min-h-11 shrink-0 items-center gap-2 overflow-hidden rounded-t-xl border-b border-border/70 bg-background/40 pr-1.5 pl-3">
         <span
           className={cn("absolute top-0 bottom-0 left-0 w-1", style.bar)}
           aria-hidden
         />
         <span
           className={cn(
-            "grid size-5 shrink-0 place-items-center rounded-md text-[11px] leading-none font-bold text-white",
+            "grid size-5 shrink-0 place-items-center rounded-md text-[11px] leading-none font-bold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.28),inset_0_-1px_0_rgb(0_0_0/0.16)]",
             style.dot
           )}
         >
@@ -2066,10 +2117,12 @@ function Lane({
             {pane.label}
           </span>
         </div>
-        <span className="shrink-0 font-mono text-xs tabular-nums">
-          <span className="text-add">+{view.additions}</span>{" "}
-          <span className="text-del">−{view.deletions}</span>
-        </span>
+        {!isEmpty && view.items.length > 0 ? (
+          <span className="shrink-0 font-mono text-xs tabular-nums">
+            <span className="text-add">+{view.additions}</span>{" "}
+            <span className="text-del">−{view.deletions}</span>
+          </span>
+        ) : null}
         <input
           ref={importInputRef}
           type="file"
@@ -2114,27 +2167,57 @@ function Lane({
         </DropdownMenu>
       </header>
 
-      {showFilenames && activeFileName && !isEmpty ? (
-        <div className="flex min-h-7 shrink-0 items-center gap-2 border-b border-border/70 bg-muted/35 px-3 font-mono text-[11px] text-muted-foreground">
-          <FileTypeIcon path={activeFileName} />
-          <span className="min-w-0 truncate">{activeFileName}</span>
-        </div>
-      ) : null}
-
       <div
         className={cn(
-          "flex min-h-0 overflow-hidden",
+          "min-h-0",
           isEmpty
-            ? "shrink-0"
-            : layout === "columns"
-              ? "relative flex-1"
-              : "flex-1"
+            ? "flex shrink-0 overflow-hidden"
+            : layout === "rows"
+              ? "block overflow-visible"
+              : "flex flex-1 overflow-hidden"
         )}
+        onWheelCapture={isEmpty ? undefined : handleColumnWheel}
       >
         {pane.error ? (
           <div className="p-4 text-sm text-destructive">{pane.error}</div>
         ) : isEmpty ? (
           <LaneDropzone style={style} onImport={onImport} />
+        ) : layout === "rows" ? (
+          <div className="min-w-0 bg-card">
+            {view.files.map((fileDiff) => (
+              <div key={fileDiff.name} data-row-file-name={fileDiff.name}>
+                {showFilenames ? (
+                  <RowFileHeader fileDiff={fileDiff} paneId={pane.id} />
+                ) : null}
+                <FileDiff
+                  fileDiff={fileDiff}
+                  options={{
+                    diffStyle,
+                    overflow: wrap ? "wrap" : "scroll",
+                    disableLineNumbers: !lineNumbers,
+                    disableFileHeader: false,
+                    diffIndicators: "bars",
+                    lineDiffType: "word-alt",
+                    hunkSeparators: "line-info",
+                    collapsedContextThreshold: 20,
+                    expansionLineCount: 30,
+                    theme: { light: "pierre-light", dark: "pierre-dark" },
+                    themeType: codeTheme,
+                    enableLineSelection: true,
+                  }}
+                  renderCustomHeader={() => null}
+                  className="block bg-card"
+                  style={
+                    {
+                      "--diffs-font-family": "var(--font-mono)",
+                      "--diffs-font-size": "12.5px",
+                      "--diffs-line-height": "20px",
+                    } as React.CSSProperties
+                  }
+                />
+              </div>
+            ))}
+          </div>
         ) : (
           <CodeView
             ref={refCallback}
@@ -2160,31 +2243,35 @@ function Lane({
                 paddingTop: 0,
               },
             }}
-            renderCustomHeader={(item) => {
-              if (item.type !== "diff") return null
-              const additions = additionsFor(item.fileDiff)
-              const deletions = deletionsFor(item.fileDiff)
-              return (
-                <div className="group flex min-h-10 items-center gap-2 border-y border-border/70 bg-muted/45 px-3 text-foreground">
-                  <FileTypeIcon path={item.fileDiff.name} />
-                  <button
-                    type="button"
-                    title={`Copy ${item.fileDiff.name}`}
-                    onClick={() => void copyPath(item.fileDiff.name)}
-                    className="min-w-0 flex-1 cursor-pointer truncate text-left font-mono text-[11px] underline-offset-4 group-hover:underline group-hover:decoration-dashed"
-                  >
-                    {item.fileDiff.name}
-                  </button>
-                  <span className="shrink-0 font-mono text-[10px] tabular-nums">
-                    <span className="text-add">+{additions}</span>{" "}
-                    <span className="text-del">-{deletions}</span>
-                  </span>
-                </div>
-              )
-            }}
+            renderCustomHeader={
+              showFilenames
+                ? (item) => {
+                    if (item.type !== "diff") return null
+                    const additions = additionsFor(item.fileDiff)
+                    const deletions = deletionsFor(item.fileDiff)
+                    return (
+                      <div className="group flex min-h-10 items-center gap-2 border-y border-border/70 bg-muted/45 px-3 text-foreground">
+                        <FileTypeIcon path={item.fileDiff.name} />
+                        <button
+                          type="button"
+                          title={`Copy ${item.fileDiff.name}`}
+                          onClick={() => void copyFilePath(item.fileDiff.name)}
+                          className="min-w-0 flex-1 cursor-pointer truncate text-left font-mono text-[11px] underline-offset-4 group-hover:underline group-hover:decoration-dashed"
+                        >
+                          {item.fileDiff.name}
+                        </button>
+                        <span className="shrink-0 font-mono text-[10px] tabular-nums">
+                          <span className="text-add">+{additions}</span>{" "}
+                          <span className="text-del">-{deletions}</span>
+                        </span>
+                      </div>
+                    )
+                  }
+                : undefined
+            }
             className={cn(
               "scroll-thin min-h-0 overflow-auto bg-card",
-              layout === "columns" ? "absolute inset-0 w-full" : "h-full flex-1"
+              "h-full w-full flex-1"
             )}
             style={
               {
@@ -2200,6 +2287,44 @@ function Lane({
   )
 }
 
+function RowFileHeader({
+  fileDiff,
+  paneId,
+}: {
+  fileDiff: FileDiffMetadata
+  paneId: LaneId
+}) {
+  const additions = additionsFor(fileDiff)
+  const deletions = deletionsFor(fileDiff)
+  const style = laneStyle(paneId)
+
+  return (
+    <div className="group sticky top-0 z-20 flex min-h-10 items-center gap-2 border-y border-border/70 bg-muted/45 px-3 text-foreground backdrop-blur-sm">
+      <span
+        className={cn(
+          "grid size-5 shrink-0 place-items-center rounded-md text-[11px] leading-none font-bold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.28),inset_0_-1px_0_rgb(0_0_0/0.16)]",
+          style.dot
+        )}
+      >
+        {laneLabel(paneId)}
+      </span>
+      <FileTypeIcon path={fileDiff.name} />
+      <button
+        type="button"
+        title={`Copy ${fileDiff.name}`}
+        onClick={() => copyFilePath(fileDiff.name)}
+        className="min-w-0 flex-1 cursor-pointer truncate text-left font-mono text-[11px] underline-offset-4 group-hover:underline group-hover:decoration-dashed"
+      >
+        {fileDiff.name}
+      </button>
+      <span className="shrink-0 font-mono text-[10px] tabular-nums">
+        <span className="text-add">+{additions}</span>{" "}
+        <span className="text-del">-{deletions}</span>
+      </span>
+    </div>
+  )
+}
+
 function LaneDropzone({
   style,
   onImport,
@@ -2210,8 +2335,8 @@ function LaneDropzone({
   return (
     <label
       className={cn(
-        "m-3 grid flex-1 cursor-pointer place-items-center rounded-lg border-2 border-dashed text-center transition-colors hover:bg-muted/40",
-        style.border
+        "grid flex-1 cursor-pointer place-items-center text-center transition-colors hover:bg-muted/30",
+        style.text
       )}
     >
       <input
@@ -2223,7 +2348,7 @@ function LaneDropzone({
           e.target.value = ""
         }}
       />
-      <div className="px-6 py-10">
+      <div className="px-6 pt-4 pb-0">
         <div
           className={cn(
             "mx-auto mb-3 grid size-10 place-items-center rounded-xl",
@@ -2338,7 +2463,7 @@ function DropOverlay() {
         </div>
         <div className="text-base font-semibold">Drop to import</div>
         <div className="text-sm text-muted-foreground">
-          Up to 3 files → lanes A, B, C · drop on a lane to target it
+          Up to 5 diffs → lanes A–E · drop on a lane to target it
         </div>
       </div>
     </div>
