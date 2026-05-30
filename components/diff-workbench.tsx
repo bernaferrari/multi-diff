@@ -1095,7 +1095,7 @@ export function DiffWorkbench() {
               "min-h-0 flex-1",
               layout === "columns"
                 ? "h-full overflow-hidden p-3"
-                : "scroll-thin overflow-y-auto px-3 pt-0 pb-3"
+                : "scroll-thin overflow-y-auto px-3 pt-3 pb-3"
             )}
             onWheelCapture={handleRowsWheel}
           >
@@ -1409,10 +1409,10 @@ function DisplaySwitch({
   onCheckedChange: (checked: boolean) => void
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/65">
+    <label className="flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/65">
       <span
         className={cn(
-          "grid size-8 shrink-0 place-items-center rounded-md border",
+          "mt-0.5 grid size-8 shrink-0 place-items-center rounded-md border",
           checked
             ? "border-primary/20 bg-primary/10 text-primary"
             : "border-border bg-background text-muted-foreground"
@@ -1426,7 +1426,12 @@ function DisplaySwitch({
           {description}
         </span>
       </span>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} size="sm" />
+      <Switch
+        checked={checked}
+        className="self-center"
+        onCheckedChange={onCheckedChange}
+        size="sm"
+      />
     </label>
   )
 }
@@ -1801,7 +1806,7 @@ function FilesPanel({
 
 function LaneBadges({ laneIds, row }: { laneIds: LaneId[]; row: FileRow }) {
   return (
-    <span className="flex w-11 shrink-0 justify-end gap-0.5">
+    <span className="ml-1 flex shrink-0 justify-end gap-0.5">
       {laneIds.map((id) => {
         const style = laneStyle(id)
         return (
