@@ -47,6 +47,15 @@ import { type ReactElement, useEffect, useMemo, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -538,6 +547,27 @@ function buildVisibleFileTreeRows(
   return visible
 }
 
+function collectFileTreeNames(node: FileTreeNode): string[] {
+  if (node.kind === "file") return node.row ? [node.row.name] : []
+
+  const names: string[] = []
+  for (const child of node.children.values()) {
+    names.push(...collectFileTreeNames(child))
+  }
+  return names
+}
+
+function estimateCodeHeight(view: PaneView) {
+  if (view.files.length === 0) return 96
+
+  return view.files.reduce((total, file) => {
+    const changedLines = additionsFor(file) + deletionsFor(file)
+    const hunkContext = Math.max(4, file.hunks.length * 6)
+    const renderedLines = Math.max(6, changedLines + hunkContext)
+    return total + 42 + renderedLines * 20
+  }, 0)
+}
+
 type Layout = "columns" | "rows"
 type DiffStyle = "split" | "unified"
 
@@ -558,6 +588,7 @@ export function DiffWorkbench() {
   const [fileQuery, setFileQuery] = useState("")
   const [focusFile, setFocusFile] = useState<string | null>(null)
   const [activeFile, setActiveFile] = useState<string | null>(null)
+  const [hiddenFiles, setHiddenFiles] = useState<Set<string>>(new Set())
   const [laneActiveFiles, setLaneActiveFiles] = useState<
     Partial<Record<LaneId, string>>
   >({})
@@ -652,7 +683,15 @@ export function DiffWorkbench() {
   )
   // The file list only reflects the lanes that are currently visible: hide a
   // lane and the files unique to it disappear from the navigator.
-  const fileRows = useMemo(() => buildFileRows(visiblePanes), [visiblePanes])
+  const allFileRows = useMemo(() => buildFileRows(visiblePanes), [visiblePanes])
+  const fileRows = useMemo(
+    () => allFileRows.filter((row) => !hiddenFiles.has(row.name)),
+    [allFileRows, hiddenFiles]
+  )
+  const hiddenFileRows = useMemo(
+    () => allFileRows.filter((row) => hiddenFiles.has(row.name)),
+    [allFileRows, hiddenFiles]
+  )
   const fileNameSet = useMemo(
     () => new Set(fileRows.map((r) => r.name)),
     [fileRows]
@@ -678,7 +717,7 @@ export function DiffWorkbench() {
     for (const pane of parsed) {
       const files = focused
         ? pane.files.filter((f) => f.name === focused)
-        : pane.files
+        : pane.files.filter((f) => !hiddenFiles.has(f.name))
       const idByName = new Map<string, string>()
       const items = files.map((fileDiff, index) => {
         const id = itemId(pane.id, fileDiff.name, index)
@@ -695,15 +734,17 @@ export function DiffWorkbench() {
       }
     }
     return out
-  }, [parsed, focused])
+  }, [parsed, focused, hiddenFiles])
 
-  const contributing = visiblePanes.filter((p) => p.files.length > 0).length
+  const contributing = visiblePanes.filter((p) =>
+    p.files.some((file) => !hiddenFiles.has(file.name))
+  ).length
   const sharedCount =
     contributing > 1
       ? fileRows.filter((r) => r.presentIn.length === contributing).length
       : 0
-  const totalAdditions = visiblePanes.reduce((t, p) => t + p.additions, 0)
-  const totalDeletions = visiblePanes.reduce((t, p) => t + p.deletions, 0)
+  const totalAdditions = fileRows.reduce((t, row) => t + row.additions, 0)
+  const totalDeletions = fileRows.reduce((t, row) => t + row.deletions, 0)
   const hasErrors = parsed.some((pane) => pane.error)
   const indexActiveFile = focused ?? activeFile
 
@@ -712,6 +753,31 @@ export function DiffWorkbench() {
       const next = new Set(cur)
       if (next.has(id)) next.delete(id)
       else if (next.size < panes.length - 1) next.add(id)
+      return next
+    })
+  }
+
+  function hideFiles(names: string[]) {
+    const nameSet = new Set(names)
+    if (nameSet.size === 0) return
+    setHiddenFiles((cur) => new Set([...cur, ...nameSet]))
+    setFocusFile((cur) => (cur && nameSet.has(cur) ? null : cur))
+    setActiveFile((cur) => (cur && nameSet.has(cur) ? null : cur))
+    setLaneActiveFiles((cur) => {
+      const next = { ...cur }
+      for (const [id, activeName] of Object.entries(next)) {
+        if (activeName && nameSet.has(activeName)) delete next[id]
+      }
+      return next
+    })
+  }
+
+  function showFiles(names: string[]) {
+    const nameSet = new Set(names)
+    if (nameSet.size === 0) return
+    setHiddenFiles((cur) => {
+      const next = new Set(cur)
+      for (const name of nameSet) next.delete(name)
       return next
     })
   }
@@ -764,6 +830,7 @@ export function DiffWorkbench() {
       return next
     })
     setHidden(new Set())
+    setHiddenFiles(new Set())
   }
 
   // Anchored sync: scrolling one lane re-aligns the others on whichever file
@@ -938,6 +1005,7 @@ export function DiffWorkbench() {
         onReset={() => {
           setPanes(initialPanes)
           setHidden(new Set())
+          setHiddenFiles(new Set())
           setFocusFile(null)
         }}
       />
@@ -960,7 +1028,9 @@ export function DiffWorkbench() {
             )}
           >
             <FilesPanel
-              rows={fileRows}
+              rows={allFileRows}
+              hiddenFileRows={hiddenFileRows}
+              hiddenFiles={hiddenFiles}
               panes={parsed}
               hidden={hidden}
               focusFile={focused}
@@ -971,6 +1041,9 @@ export function DiffWorkbench() {
               totalDeletions={totalDeletions}
               onQuery={setFileQuery}
               onToggleLane={toggleLane}
+              onHideFiles={hideFiles}
+              onShowFiles={showFiles}
+              onShowAllFiles={() => setHiddenFiles(new Set())}
               onOverview={() => setFocusFile(null)}
               onFocus={(name) => setFocusFile(name)}
               onClose={() => setSidebarOpen(false)}
@@ -1334,6 +1407,8 @@ function AppTooltip({
 
 function FilesPanel({
   rows,
+  hiddenFileRows,
+  hiddenFiles,
   panes,
   hidden,
   focusFile,
@@ -1344,11 +1419,16 @@ function FilesPanel({
   totalDeletions,
   onQuery,
   onToggleLane,
+  onHideFiles,
+  onShowFiles,
+  onShowAllFiles,
   onOverview,
   onFocus,
   onClose,
 }: {
   rows: FileRow[]
+  hiddenFileRows: FileRow[]
+  hiddenFiles: Set<string>
   panes: ParsedPane[]
   hidden: Set<LaneId>
   focusFile: string | null
@@ -1359,11 +1439,19 @@ function FilesPanel({
   totalDeletions: number
   onQuery: (q: string) => void
   onToggleLane: (id: LaneId) => void
+  onHideFiles: (names: string[]) => void
+  onShowFiles: (names: string[]) => void
+  onShowAllFiles: () => void
   onOverview: () => void
   onFocus: (name: string) => void
   onClose: () => void
 }) {
   const listRef = useRef<HTMLDivElement>(null)
+  const [contextFile, setContextFile] = useState<string | null>(null)
+  const [contextDirectory, setContextDirectory] = useState<{
+    label: string
+    names: string[]
+  } | null>(null)
   const [collapsedDirs, setCollapsedDirs] = useState<Set<string>>(new Set())
   const filteredRows = useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -1375,6 +1463,9 @@ function FilesPanel({
     [filteredRows, collapsedDirs]
   )
   const laneIds = useMemo(() => panes.map((pane) => pane.id), [panes])
+  const restorableRows = hiddenFileRows.filter(
+    (row) => row.name !== contextFile
+  )
 
   useEffect(() => {
     if (!activeFile) return
@@ -1404,7 +1495,7 @@ function FilesPanel({
             <Layers className="size-3.5" />
             Files
             <span className="font-mono text-[11px] text-muted-foreground/70 normal-case tabular-nums">
-              {rows.length}
+              {rows.length - hiddenFileRows.length}
             </span>
           </div>
           <button
@@ -1441,12 +1532,6 @@ function FilesPanel({
                     : cn("border-transparent", style.soft, style.text)
                 )}
               >
-                <span
-                  className={cn(
-                    "size-2 rounded-full",
-                    isHidden ? "bg-muted-foreground/40" : style.dot
-                  )}
-                />
                 <span>{laneLabel(pane.id)}</span>
                 {isHidden ? <EyeOff className="size-3" /> : null}
               </button>
@@ -1491,45 +1576,203 @@ function FilesPanel({
       </div>
 
       {/* File tree */}
-      <div
-        ref={listRef}
-        className="scroll-thin min-h-0 flex-1 overflow-y-auto p-1.5"
-      >
-        {rows.length === 0 ? (
-          <div className="px-2 py-6 text-center text-xs text-muted-foreground">
-            No files yet — import or drop diffs anywhere.
-          </div>
-        ) : treeRows.length === 0 ? (
-          <div className="px-2 py-6 text-center text-xs text-muted-foreground">
-            No files match your filter.
-          </div>
-        ) : (
-          <div aria-label="Changed files" role="tree">
-            {treeRows.map(({ depth, node }) =>
-              node.kind === "directory" ? (
-                <DirectoryTreeRow
-                  key={node.path}
-                  collapsed={collapsedDirs.has(node.path)}
-                  depth={depth}
-                  laneIds={laneIds}
-                  node={node}
-                  onToggle={() => toggleDirectory(node.path)}
-                />
+      <ContextMenu>
+        <ContextMenuTrigger
+          render={
+            <div
+              ref={listRef}
+              className="scroll-thin min-h-0 flex-1 overflow-y-auto p-1.5"
+              onContextMenu={(event) => {
+                if (
+                  !(event.target as HTMLElement).closest(
+                    "[data-file-row],[data-dir-row]"
+                  )
+                ) {
+                  setContextFile(null)
+                  setContextDirectory(null)
+                }
+              }}
+            >
+              {rows.length === 0 ? (
+                <div className="px-2 py-6 text-center text-xs text-muted-foreground">
+                  No files yet — import or drop diffs anywhere.
+                </div>
+              ) : treeRows.length === 0 ? (
+                <div className="px-2 py-6 text-center text-xs text-muted-foreground">
+                  No files match your filter.
+                </div>
               ) : (
-                <FileTreeRow
-                  key={node.path}
-                  depth={depth}
-                  focusFile={focusFile}
-                  activeFile={activeFile}
-                  laneIds={laneIds}
-                  node={node}
-                  onFocus={onFocus}
-                />
-              )
-            )}
-          </div>
-        )}
-      </div>
+                <div aria-label="Changed files" role="tree">
+                  {treeRows.map(({ depth, node }) =>
+                    node.kind === "directory" ? (
+                      (() => {
+                        const fileNames = collectFileTreeNames(node)
+                        const hiddenCount = fileNames.filter((name) =>
+                          hiddenFiles.has(name)
+                        ).length
+                        return (
+                          <DirectoryTreeRow
+                            key={node.path}
+                            collapsed={collapsedDirs.has(node.path)}
+                            depth={depth}
+                            fullyHidden={
+                              fileNames.length > 0 &&
+                              hiddenCount === fileNames.length
+                            }
+                            partiallyHidden={
+                              hiddenCount > 0 && hiddenCount < fileNames.length
+                            }
+                            laneIds={laneIds}
+                            node={node}
+                            onContextDirectory={() => {
+                              setContextFile(null)
+                              setContextDirectory({
+                                label: node.path,
+                                names: fileNames,
+                              })
+                            }}
+                            onToggle={() => toggleDirectory(node.path)}
+                          />
+                        )
+                      })()
+                    ) : (
+                      <FileTreeRow
+                        key={node.path}
+                        depth={depth}
+                        focusFile={focusFile}
+                        activeFile={activeFile}
+                        hidden={hiddenFiles.has(node.row?.name ?? "")}
+                        laneIds={laneIds}
+                        node={node}
+                        onContextFile={(name) => {
+                          setContextDirectory(null)
+                          setContextFile(name)
+                        }}
+                        onFocus={onFocus}
+                      />
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          }
+        />
+        {contextFile || contextDirectory || hiddenFileRows.length > 0 ? (
+          <ContextMenuContent className="w-72 p-1.5">
+            {contextFile ? (
+              <ContextMenuGroup>
+                <ContextMenuLabel className="px-2 text-[10px] tracking-wide uppercase">
+                  File
+                </ContextMenuLabel>
+                <div className="mx-1 mb-1 flex min-w-0 items-center gap-2 rounded-md bg-muted/45 px-2 py-1.5">
+                  <FileTypeIcon path={contextFile} />
+                  <span className="min-w-0 truncate font-mono text-[11px] text-muted-foreground">
+                    {contextFile}
+                  </span>
+                </div>
+                {hiddenFiles.has(contextFile) ? (
+                  <ContextMenuItem onClick={() => onShowFiles([contextFile])}>
+                    <Eye className="size-4" />
+                    Show file
+                  </ContextMenuItem>
+                ) : (
+                  <ContextMenuItem onClick={() => onHideFiles([contextFile])}>
+                    <EyeOff className="size-4" />
+                    Hide file
+                  </ContextMenuItem>
+                )}
+              </ContextMenuGroup>
+            ) : null}
+
+            {contextDirectory ? (
+              <ContextMenuGroup>
+                <ContextMenuLabel className="px-2 text-[10px] tracking-wide uppercase">
+                  Folder
+                </ContextMenuLabel>
+                <div className="mx-1 mb-1 flex min-w-0 items-center gap-2 rounded-md bg-muted/45 px-2 py-1.5">
+                  <Folder className="size-3.5 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">
+                    {contextDirectory.label}
+                  </span>
+                  <span className="shrink-0 text-[10px] text-muted-foreground/70 tabular-nums">
+                    {contextDirectory.names.length}
+                  </span>
+                </div>
+                {contextDirectory.names.every((name) =>
+                  hiddenFiles.has(name)
+                ) ? (
+                  <ContextMenuItem
+                    onClick={() => onShowFiles(contextDirectory.names)}
+                  >
+                    <Eye className="size-4" />
+                    Show folder
+                  </ContextMenuItem>
+                ) : (
+                  <ContextMenuItem
+                    onClick={() => onHideFiles(contextDirectory.names)}
+                  >
+                    <EyeOff className="size-4" />
+                    Hide folder
+                  </ContextMenuItem>
+                )}
+                {contextDirectory.names.some((name) => hiddenFiles.has(name)) &&
+                !contextDirectory.names.every((name) =>
+                  hiddenFiles.has(name)
+                ) ? (
+                  <ContextMenuItem
+                    onClick={() =>
+                      onShowFiles(
+                        contextDirectory.names.filter((name) =>
+                          hiddenFiles.has(name)
+                        )
+                      )
+                    }
+                  >
+                    <Eye className="size-4" />
+                    Show hidden children
+                  </ContextMenuItem>
+                ) : null}
+              </ContextMenuGroup>
+            ) : null}
+
+            {(contextFile || contextDirectory) && restorableRows.length > 0 ? (
+              <ContextMenuSeparator />
+            ) : null}
+
+            {restorableRows.length > 0 ? (
+              <ContextMenuGroup>
+                <ContextMenuLabel className="px-2 text-[10px] tracking-wide uppercase">
+                  Restore
+                </ContextMenuLabel>
+                {hiddenFileRows.length > 1 ? (
+                  <ContextMenuItem onClick={onShowAllFiles}>
+                    <RotateCcw className="size-4" />
+                    Show all hidden files
+                  </ContextMenuItem>
+                ) : null}
+                {restorableRows.slice(0, 6).map((row) => (
+                  <ContextMenuItem
+                    key={row.name}
+                    onClick={() => onShowFiles([row.name])}
+                    className="min-w-0"
+                  >
+                    <Eye className="size-4" />
+                    <span className="truncate font-mono text-xs">
+                      {row.name}
+                    </span>
+                  </ContextMenuItem>
+                ))}
+                {hiddenFileRows.length > 6 ? (
+                  <ContextMenuItem onClick={onShowAllFiles}>
+                    <RotateCcw className="size-4" />
+                    Show all {hiddenFileRows.length} hidden files
+                  </ContextMenuItem>
+                ) : null}
+              </ContextMenuGroup>
+            ) : null}
+          </ContextMenuContent>
+        ) : null}
+      </ContextMenu>
     </aside>
   )
 }
@@ -1620,15 +1863,21 @@ function FileTypeIcon({ path }: { path: string }) {
 function DirectoryTreeRow({
   collapsed,
   depth,
+  fullyHidden,
   laneIds,
   node,
+  onContextDirectory,
   onToggle,
+  partiallyHidden,
 }: {
   collapsed: boolean
   depth: number
+  fullyHidden: boolean
   laneIds: LaneId[]
   node: FileTreeNode
+  onContextDirectory: () => void
   onToggle: () => void
+  partiallyHidden: boolean
 }) {
   const summary = node.summary
 
@@ -1636,11 +1885,18 @@ function DirectoryTreeRow({
     <button
       type="button"
       role="treeitem"
+      data-dir-row=""
       aria-expanded={!collapsed}
       aria-selected="false"
       title={collapsed ? `Expand ${node.path}` : `Collapse ${node.path}`}
       onClick={onToggle}
-      className="group flex h-7 w-full items-center gap-1.5 rounded-md pr-1 text-left text-[12px] font-medium text-muted-foreground transition-colors hover:bg-muted/55 hover:text-foreground"
+      onContextMenu={onContextDirectory}
+      className={cn(
+        "group flex h-7 w-full items-center gap-1.5 rounded-md pr-1 text-left text-[12px] font-medium transition-colors",
+        fullyHidden
+          ? "text-muted-foreground/45 opacity-60 hover:bg-muted/35 hover:opacity-80"
+          : "text-muted-foreground hover:bg-muted/55 hover:text-foreground"
+      )}
       style={{ paddingLeft: 6 + depth * 12 }}
     >
       {collapsed ? (
@@ -1649,6 +1905,14 @@ function DirectoryTreeRow({
         <FolderOpen className="size-3.5 shrink-0" />
       )}
       <span className="min-w-0 flex-1 truncate font-mono">{node.name}</span>
+      {fullyHidden || partiallyHidden ? (
+        <EyeOff
+          className={cn(
+            "size-3 shrink-0",
+            partiallyHidden && !fullyHidden && "opacity-55"
+          )}
+        />
+      ) : null}
       {collapsed && summary ? (
         <>
           <LaneBadges laneIds={laneIds} row={summary} />
@@ -1663,15 +1927,19 @@ function FileTreeRow({
   activeFile,
   depth,
   focusFile,
+  hidden,
   laneIds,
   node,
+  onContextFile,
   onFocus,
 }: {
   activeFile: string | null
   depth: number
   focusFile: string | null
+  hidden: boolean
   laneIds: LaneId[]
   node: FileTreeNode
+  onContextFile: (name: string) => void
   onFocus: (name: string) => void
 }) {
   const row = node.row
@@ -1684,24 +1952,29 @@ function FileTreeRow({
     <button
       type="button"
       role="treeitem"
+      data-file-row=""
       aria-selected={isFocused}
       data-active={isActive ? "" : undefined}
       title={`${row.name}\nin ${row.presentIn
         .map(laneLabel)
         .join(", ")} · +${row.additions} −${row.deletions}`}
       onClick={() => onFocus(row.name)}
+      onContextMenu={() => onContextFile(row.name)}
       className={cn(
         "group mb-0.5 flex h-7 w-full items-center gap-1.5 rounded-md border pr-1.5 text-left text-[12px] transition-colors",
-        isFocused
-          ? "border-foreground/20 bg-foreground/10 text-foreground"
-          : isActive
-            ? "border-transparent bg-muted text-foreground"
-            : "border-transparent text-foreground hover:bg-muted/60"
+        hidden
+          ? "border-transparent text-muted-foreground/45 opacity-60 hover:bg-muted/35 hover:opacity-80"
+          : isFocused
+            ? "border-foreground/20 bg-foreground/10 text-foreground"
+            : isActive
+              ? "border-transparent bg-muted text-foreground"
+              : "border-transparent text-foreground hover:bg-muted/60"
       )}
       style={{ paddingLeft: 6 + depth * 12 }}
     >
       <FileTypeIcon path={row.name} />
       <span className="min-w-0 flex-1 truncate font-mono">{node.name}</span>
+      {hidden ? <EyeOff className="size-3 shrink-0" /> : null}
       <LaneBadges laneIds={laneIds} row={row} />
       <DiffStats row={row} />
     </button>
@@ -1744,6 +2017,10 @@ function Lane({
   const style = laneStyle(pane.id)
   const isEmpty = !pane.text.trim()
   const importInputRef = useRef<HTMLInputElement>(null)
+  const columnHeight =
+    44 +
+    (showFilenames && activeFileName && !isEmpty ? 28 : 0) +
+    (isEmpty ? 224 : estimateCodeHeight(view))
 
   function copyPath(path: string) {
     toast.success("Copied file path", {
@@ -1760,9 +2037,16 @@ function Lane({
       className={cn(
         "flex min-h-0 flex-col overflow-hidden rounded-xl border bg-card shadow-sm",
         style.border,
-        layout === "columns" && "h-full",
+        layout === "columns" && "max-h-full",
         layout === "rows" && "max-h-[72vh]"
       )}
+      style={
+        layout === "columns"
+          ? ({
+              height: `min(100%, ${columnHeight}px)`,
+            } as React.CSSProperties)
+          : undefined
+      }
     >
       <header className="relative flex min-h-11 shrink-0 items-center gap-2 border-b border-border/70 bg-background/40 pr-1.5 pl-3">
         <span
