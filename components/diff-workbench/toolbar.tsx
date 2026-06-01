@@ -46,13 +46,14 @@ export function Toolbar({
     <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/70 bg-card/80 px-3 py-2 backdrop-blur">
       <div className="flex items-center gap-2">
         <ToolbarIconButton
+          variant="ghost"
           onClick={() => actions.setSidebarOpen(!settings.sidebarOpen)}
           aria-pressed={settings.sidebarOpen}
           aria-label={
             settings.sidebarOpen ? "Hide files panel" : "Show files panel"
           }
           className={cn(
-            "-ml-1 rounded-md border-transparent bg-transparent",
+            "-ml-1 rounded-md",
             settings.sidebarOpen
               ? "text-foreground"
               : "text-muted-foreground hover:text-foreground"

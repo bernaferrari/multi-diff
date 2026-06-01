@@ -26,14 +26,16 @@ export function ToolbarTooltip({
 export function ToolbarIconButton({
   className,
   openState,
+  variant = "outline",
   ...props
 }: ComponentPropsWithoutRef<"button"> & {
   openState?: boolean
+  variant?: "ghost" | "outline"
 }) {
   return (
     <Button
       type="button"
-      variant="outline"
+      variant={variant}
       size="icon-xs"
       {...props}
       className={cn(
