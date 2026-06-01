@@ -1,5 +1,5 @@
 import type { PaneView } from "./types"
-import { changedLinesFor } from "./diff-data"
+import { changedLinesFor } from "./diff-totals"
 import {
   DIFF_EMPTY_CODE_HEIGHT,
   DIFF_FILE_HEADER_HEIGHT,
@@ -22,8 +22,6 @@ export function estimateCodeHeight(view: PaneView) {
       DIFF_MIN_RENDERED_LINES,
       changedLines + hunkContext
     )
-    return (
-      total + DIFF_FILE_HEADER_HEIGHT + renderedLines * DIFF_LINE_HEIGHT_PX
-    )
+    return total + DIFF_FILE_HEADER_HEIGHT + renderedLines * DIFF_LINE_HEIGHT_PX
   }, 0)
 }

@@ -1,12 +1,13 @@
 "use client"
 
 import { Check, Clipboard, Minus, StickyNote } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 
 import { copyTextToClipboard } from "./clipboard"
-import { getNotepadState } from "./notepad-state"
+
+const NOTE_COPY_FEEDBACK_MS = 1400
 
 type NotepadProps = {
   open: boolean
@@ -14,6 +15,14 @@ type NotepadProps = {
   onChange: (value: string) => void
   onOpen: () => void
   onClose: () => void
+}
+
+function getNotepadState({ copied, value }: { copied: boolean; value: string }) {
+  return {
+    characterCount: value.length,
+    copyLabel: copied ? "Notes copied" : "Copy notes",
+    hasContent: value.trim().length > 0,
+  }
 }
 
 export function Notepad({
@@ -24,13 +33,31 @@ export function Notepad({
   onClose,
 }: NotepadProps) {
   const [copied, setCopied] = useState(false)
+  const copyResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const display = getNotepadState({ copied, value })
+
+  useEffect(
+    () => () => {
+      if (copyResetTimer.current) clearTimeout(copyResetTimer.current)
+    },
+    []
+  )
 
   async function copy() {
     if ((await copyTextToClipboard(value)) === "copied") {
+      clearCopyResetTimer()
       setCopied(true)
-      setTimeout(() => setCopied(false), display.copyFeedbackMs)
+      copyResetTimer.current = setTimeout(() => {
+        setCopied(false)
+        copyResetTimer.current = null
+      }, NOTE_COPY_FEEDBACK_MS)
     }
+  }
+
+  function clearCopyResetTimer() {
+    if (!copyResetTimer.current) return
+    clearTimeout(copyResetTimer.current)
+    copyResetTimer.current = null
   }
 
   if (!open) {

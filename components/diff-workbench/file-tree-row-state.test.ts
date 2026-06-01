@@ -1,46 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import {
-  getDirectoryHiddenState,
-  getDirectoryTreeRowChrome,
-  getFileTreeRowChrome,
-  getTreeRowIndent,
-} from "./file-tree-row-state"
+import { getFileTreeRowChrome } from "./file-tree-row-state"
 import type { FileRow } from "./types"
 
 describe("file tree row state", () => {
-  it("distinguishes visible, partially hidden, and fully hidden directories", () => {
-    expect(getDirectoryHiddenState(["a.ts", "b.ts"], new Set())).toMatchObject({
-      fullyHidden: false,
-      hiddenCount: 0,
-      partiallyHidden: false,
-    })
-
-    expect(
-      getDirectoryHiddenState(["a.ts", "b.ts"], new Set(["a.ts"]))
-    ).toMatchObject({
-      fullyHidden: false,
-      hiddenCount: 1,
-      partiallyHidden: true,
-    })
-
-    expect(
-      getDirectoryHiddenState(["a.ts", "b.ts"], new Set(["a.ts", "b.ts"]))
-    ).toMatchObject({
-      fullyHidden: true,
-      hiddenCount: 2,
-      partiallyHidden: false,
-    })
-  })
-
-  it("does not treat an empty directory as fully hidden", () => {
-    expect(getDirectoryHiddenState([], new Set())).toMatchObject({
-      fullyHidden: false,
-      hiddenCount: 0,
-      partiallyHidden: false,
-    })
-  })
-
   it("builds a compact file title from row metadata", () => {
     const row: FileRow = {
       additions: 12,
@@ -61,40 +24,6 @@ describe("file tree row state", () => {
       ariaLabel: "app/search.ts, changed in A, C, 12 additions, 3 deletions",
       title: "app/search.ts\nin A, C · +12 −3",
     })
-  })
-
-  it("formats directory titles by expansion state", () => {
-    expect(
-      getDirectoryTreeRowChrome({
-        collapsed: true,
-        fullyHidden: false,
-        hasSummary: false,
-        partiallyHidden: false,
-        path: "app/api",
-      })
-    ).toMatchObject({
-      ariaLabel: "Expand folder app/api",
-        className: expect.stringContaining("font-medium"),
-        title: "Expand app/api",
-    })
-
-    expect(
-      getDirectoryTreeRowChrome({
-        collapsed: false,
-        fullyHidden: false,
-        hasSummary: false,
-        partiallyHidden: false,
-        path: "app/api",
-      })
-    ).toMatchObject({
-      ariaLabel: "Collapse folder app/api",
-      title: "Collapse app/api",
-    })
-  })
-
-  it("keeps tree indentation consistent", () => {
-    expect(getTreeRowIndent(0)).toEqual({ paddingLeft: 6 })
-    expect(getTreeRowIndent(2)).toEqual({ paddingLeft: 30 })
   })
 
   it("prioritizes hidden, focused, and active row tones", () => {
@@ -142,66 +71,36 @@ describe("file tree row state", () => {
     ).toContain("var(--lane-a)")
   })
 
-  it("maps directory hidden states to visual classes", () => {
-    expect(
-      getDirectoryTreeRowChrome({
-        collapsed: false,
-        fullyHidden: true,
-        hasSummary: false,
-        partiallyHidden: false,
-        path: "components",
-      }).className
-    ).toContain("opacity-60")
-    expect(
-      getDirectoryTreeRowChrome({
-        collapsed: false,
-        fullyHidden: false,
-        hasSummary: false,
-        partiallyHidden: true,
-        path: "components",
-      }).hiddenIconClass
-    ).toContain("opacity-55")
-    expect(
-      getDirectoryTreeRowChrome({
-        collapsed: false,
-        fullyHidden: true,
-        hasSummary: false,
-        partiallyHidden: false,
-        path: "components",
-      }).hiddenIconClass
-    ).toBe("size-3 shrink-0")
-  })
+  it("builds active border gradients from fallback or active lanes", () => {
+    const fallbackStyle = getFileTreeRowChrome({
+      activeFile: "a.ts",
+      activeLaneIds: [],
+      focusFile: null,
+      hidden: false,
+      row: {
+        ...testRow("a.ts"),
+        presentIn: ["c"],
+      },
+    }).activeBorderStyle
 
-  it("builds directory row chrome from expansion and hidden state", () => {
-    expect(
-      getDirectoryTreeRowChrome({
-        collapsed: true,
-        fullyHidden: false,
-        hasSummary: true,
-        partiallyHidden: true,
-        path: "components",
-      })
-    ).toMatchObject({
-      ariaLabel: "Expand folder components",
-      hiddenIconClass: "size-3 shrink-0 opacity-55",
-      showSummary: true,
-      title: "Expand components",
-    })
+    expect(fallbackStyle?.background).toContain("var(--lane-c)")
+    expect(fallbackStyle?.padding).toBe(1)
+    expect(fallbackStyle?.maskComposite).toBe("exclude")
 
-    expect(
-      getDirectoryTreeRowChrome({
-        collapsed: false,
-        fullyHidden: true,
-        hasSummary: true,
-        partiallyHidden: false,
-        path: "components",
-      })
-    ).toMatchObject({
-      ariaLabel: "Collapse folder components",
-      hiddenIconClass: "size-3 shrink-0",
-      showSummary: false,
-      title: "Collapse components",
-    })
+    const activeStyle = getFileTreeRowChrome({
+      activeFile: null,
+      activeLaneIds: ["a", "a", "b", "c", "d", "e"],
+      focusFile: null,
+      hidden: false,
+      row: {
+        ...testRow("a.ts"),
+        presentIn: ["c"],
+      },
+    }).activeBorderStyle
+
+    expect(activeStyle?.background).toContain("var(--lane-a)")
+    expect(activeStyle?.background).toContain("var(--lane-e)")
+    expect(activeStyle?.background).not.toContain("var(--lane-c), var(--lane-c)")
   })
 })
 

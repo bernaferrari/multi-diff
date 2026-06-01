@@ -1,82 +1,13 @@
-import { CodeView, type CodeViewHandle, FileDiff } from "@pierre/diffs/react"
+import { CodeView, type CodeViewHandle } from "@pierre/diffs/react"
 import { type Ref } from "react"
 
 import { cn } from "@/lib/utils"
 
-import { diffTotalsFor } from "./diff-data"
+import { diffTotalsFor } from "./diff-totals"
 import { DiffFileHeader } from "./diff-file-header"
-import { codeViewOptions, fileDiffOptions } from "./diff-render-options"
+import { codeViewOptions } from "./diff-render-options"
 import { diffStyleVariables } from "./diff-styles"
-import type { DiffRenderSettings, LaneId, PaneView } from "./types"
-
-const rowDiffMetrics = {
-  diffHeaderHeight: 0,
-  hunkLineCount: 50,
-  hunkSeparatorHeight: 4,
-  lineHeight: 20,
-  paddingBottom: 0,
-  paddingTop: 0,
-  spacing: 0,
-}
-
-export function RowDiffList({
-  paneId,
-  settings,
-  view,
-}: {
-  paneId: LaneId
-  settings: DiffRenderSettings
-  view: PaneView
-}) {
-  return (
-    <div className="min-w-0 bg-card">
-      {view.files.map((fileDiff, index) => (
-        <RowFileDiff
-          key={fileDiff.name}
-          fileDiff={fileDiff}
-          isLast={index === view.files.length - 1}
-          paneId={paneId}
-          settings={settings}
-        />
-      ))}
-    </div>
-  )
-}
-
-function RowFileDiff({
-  fileDiff,
-  isLast,
-  paneId,
-  settings,
-}: {
-  fileDiff: PaneView["files"][number]
-  isLast: boolean
-  paneId: LaneId
-  settings: DiffRenderSettings
-}) {
-  const totals = diffTotalsFor(fileDiff)
-
-  return (
-    <div data-row-file-name={fileDiff.name} data-row-lane-id={paneId}>
-      <DiffFileHeader
-        additions={totals.additions}
-        deletions={totals.deletions}
-        fileName={fileDiff.name}
-        paneId={paneId}
-        compact
-        sticky
-      />
-      <FileDiff
-        fileDiff={fileDiff}
-        metrics={rowDiffMetrics}
-        options={fileDiffOptions(settings)}
-        renderCustomHeader={() => null}
-        className={cn("block bg-card", isLast && "overflow-hidden rounded-b-xl")}
-        style={diffStyleVariables}
-      />
-    </div>
-  )
-}
+import type { DiffRenderSettings, PaneView } from "./types"
 
 export function ColumnCodeView({
   containerRef,

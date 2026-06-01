@@ -7,6 +7,7 @@ import {
   DIFF_MIN_HUNK_CONTEXT_LINES,
   DIFF_MIN_RENDERED_LINES,
   DIFF_RENDERED_LINES_PER_HUNK,
+  ROW_DIFF_METRICS,
 } from "./diff-render-metrics"
 
 describe("diff render metrics", () => {
@@ -17,5 +18,17 @@ describe("diff render metrics", () => {
     expect(DIFF_MIN_HUNK_CONTEXT_LINES).toBe(4)
     expect(DIFF_MIN_RENDERED_LINES).toBe(6)
     expect(DIFF_RENDERED_LINES_PER_HUNK).toBe(6)
+  })
+
+  it("keeps row diff library metrics centralized", () => {
+    expect(ROW_DIFF_METRICS).toEqual({
+      diffHeaderHeight: 0,
+      hunkLineCount: 50,
+      hunkSeparatorHeight: 4,
+      lineHeight: 20,
+      paddingBottom: 0,
+      paddingTop: 0,
+      spacing: 0,
+    })
   })
 })

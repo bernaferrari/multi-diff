@@ -3,6 +3,7 @@ import { Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { DIFF_FILE_ACCEPT_LABEL, DiffFileInput } from "./diff-file-input"
+import type { ImportFileSource } from "./import-staging-state"
 import { type LaneStyle } from "./lanes"
 
 export function LaneDropzone({
@@ -10,7 +11,7 @@ export function LaneDropzone({
   onImport,
 }: {
   style: LaneStyle
-  onImport: (files: FileList | null) => void
+  onImport: (files: ImportFileSource) => void
 }) {
   return (
     <label

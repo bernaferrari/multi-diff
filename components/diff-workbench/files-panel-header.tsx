@@ -6,16 +6,8 @@ import { formatFileCount } from "./file-count-format"
 import { FilesLaneFilter } from "./files-lane-filter"
 import type { LaneId, LanePane } from "./types"
 
-type FilesHeaderStatus =
-  | { mode: "focused"; label: "All files" }
-  | {
-      count: number
-      mode: "overview"
-      title: string | undefined
-    }
-
 export function FilesPanelHeader({
-  activeFile,
+  focusTarget,
   focusFile,
   focusMode,
   hidden,
@@ -28,7 +20,7 @@ export function FilesPanelHeader({
   onToggleLane,
   onToggleFocusMode,
 }: {
-  activeFile: string | null
+  focusTarget: string | null
   focusFile: string | null
   focusMode: boolean
   hidden: Set<LaneId>
@@ -46,6 +38,7 @@ export function FilesPanelHeader({
     sharedCount,
     visibleCount,
   })
+  const focusButton = getFocusButtonState({ focusMode, focusTarget })
 
   return (
     <>
@@ -69,17 +62,12 @@ export function FilesPanelHeader({
             />
           </div>
           <Button
-            variant={focusMode ? "secondary" : "outline"}
+            variant={focusButton.variant}
             size="sm"
             aria-pressed={focusMode}
-            aria-label={focusMode ? "Turn off file focus" : "Turn on file focus"}
-            title={
-              focusMode
-                ? "Return to normal file navigation"
-                : activeFile
-                  ? `Focus ${activeFile}`
-                  : "Click a file to focus it"
-            }
+            aria-label={focusButton.ariaLabel}
+            disabled={focusButton.disabled}
+            title={focusButton.title}
             onClick={onToggleFocusMode}
             className="h-8 px-2 text-xs"
           >
@@ -116,6 +104,14 @@ export function FilesPanelHeader({
   )
 }
 
+type FilesHeaderStatus =
+  | { mode: "focused"; label: "All files" }
+  | {
+      count: number
+      mode: "overview"
+      title: string | undefined
+    }
+
 function getFilesHeaderStatus({
   focusFile,
   sharedCount,
@@ -131,6 +127,30 @@ function getFilesHeaderStatus({
     count: visibleCount,
     mode: "overview",
     title: getSharedCountTitle(sharedCount),
+  }
+}
+
+function getFocusButtonState({
+  focusMode,
+  focusTarget,
+}: {
+  focusMode: boolean
+  focusTarget: string | null
+}) {
+  if (focusMode) {
+    return {
+      ariaLabel: "Turn off file focus",
+      disabled: false,
+      title: "Return to normal file navigation",
+      variant: "secondary" as const,
+    }
+  }
+
+  return {
+    ariaLabel: "Turn on file focus",
+    disabled: !focusTarget,
+    title: focusTarget ? `Focus ${focusTarget}` : "No visible file to focus",
+    variant: "outline" as const,
   }
 }
 

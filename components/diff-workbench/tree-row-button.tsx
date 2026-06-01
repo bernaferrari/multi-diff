@@ -1,7 +1,5 @@
 import { type ButtonHTMLAttributes, type ReactNode } from "react"
 
-import { getTreeRowIndent } from "./file-tree-row-state"
-
 type TreeRowButtonProps = {
   children: ReactNode
   depth: number
@@ -28,4 +26,8 @@ export function TreeRowButton({
       {children}
     </button>
   )
+}
+
+function getTreeRowIndent(depth: number) {
+  return { paddingLeft: 6 + depth * 12 }
 }

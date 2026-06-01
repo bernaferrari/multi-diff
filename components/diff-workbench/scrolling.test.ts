@@ -3,9 +3,10 @@ import { describe, expect, it, vi } from "vitest"
 import {
   clampScrollPosition,
   routeWheelToScroller,
-  type ScrollTarget,
-  type WheelLike,
 } from "./scrolling"
+
+type WheelLike = Parameters<typeof routeWheelToScroller>[0]
+type ScrollTarget = Parameters<typeof routeWheelToScroller>[1]
 
 function wheel(input: Partial<WheelLike> = {}) {
   return {

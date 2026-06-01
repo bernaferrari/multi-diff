@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 
 import type { LaneMarkerStyle, Layout } from "./types"
 
-export type DisplayToggleKey =
+type DisplayToggleKey =
   | "wrap"
   | "lineNumbers"
 

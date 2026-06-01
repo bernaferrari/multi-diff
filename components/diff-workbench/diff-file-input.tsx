@@ -1,11 +1,13 @@
 import { forwardRef, type ChangeEvent } from "react"
 
+import type { ImportFileSource } from "./import-staging-state"
+
 export const DIFF_FILE_ACCEPT = ".diff,.patch,.txt"
 export const DIFF_FILE_ACCEPT_LABEL = ".diff, .patch, or text"
 
 type DiffFileInputProps = {
   multiple?: boolean
-  onFiles: (files: FileList | null) => void | Promise<void>
+  onFiles: (files: ImportFileSource) => void | Promise<void>
 }
 
 export const DiffFileInput = forwardRef<HTMLInputElement, DiffFileInputProps>(

@@ -1,10 +1,6 @@
 import { cn } from "@/lib/utils"
 
-import {
-  copyTextWithToast,
-  getCopiedFilePathToast,
-  getCopyLabel,
-} from "./clipboard"
+import { copyTextWithToast } from "./clipboard"
 import { FileTypeIcon } from "./file-icons"
 import { DiffStatText } from "./diff-stat-text"
 import { LaneBadge } from "./lane-badge"
@@ -27,7 +23,7 @@ export function DiffFileHeader({
   sticky?: boolean
 }) {
   const style = paneId ? laneStyle(paneId) : null
-  const copyLabel = getCopyLabel(fileName)
+  const copyLabel = getFilePathCopyLabel(fileName)
 
   return (
     <button
@@ -75,10 +71,13 @@ export function DiffFileHeader({
 }
 
 function copyFilePath(path: string) {
-  const toast = getCopiedFilePathToast(path)
   void copyTextWithToast({
-    description: toast.description,
+    description: path,
     text: path,
-    title: toast.title,
+    title: "Copied file path",
   })
+}
+
+function getFilePathCopyLabel(path: string) {
+  return `Copy ${path}`
 }

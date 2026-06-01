@@ -1,16 +1,14 @@
 import { Fragment } from "react"
 
 import { getVisibleDiffStatParts } from "./diff-stat-format"
-import { LaneBadge } from "./lane-badge"
-import { laneStyle } from "./lanes"
-import type { FileRow, LaneId, LaneMarkerStyle, Layout } from "./types"
+import type { FileRow } from "./types"
 
 type TextPart = {
   highlighted: boolean
   text: string
 }
 
-export function splitHighlightedText(text: string, query: string): TextPart[] {
+function splitHighlightedText(text: string, query: string): TextPart[] {
   const needle = query.trim().toLowerCase()
   if (!needle) return [{ highlighted: false, text }]
 
@@ -60,77 +58,6 @@ export function HighlightMatch({
         )
       )}
     </>
-  )
-}
-
-export function LaneBadges({
-  laneIds,
-  layout,
-  markerStyle = "letters",
-  row,
-}: {
-  laneIds: LaneId[]
-  layout: Layout
-  markerStyle?: LaneMarkerStyle
-  row: FileRow
-}) {
-  if (markerStyle === "bars") {
-    return (
-      <span
-        className={
-          layout === "rows"
-            ? "ml-2 flex shrink-0 flex-col items-end justify-center gap-px"
-            : "ml-2 flex shrink-0 justify-end gap-0.5"
-        }
-      >
-        {laneIds.map((id) => (
-          <LaneMarkerBar
-            key={id}
-            id={id}
-            layout={layout}
-            present={Boolean(row.panes[id])}
-          />
-        ))}
-      </span>
-    )
-  }
-
-  return (
-    <span className="ml-1 flex shrink-0 justify-end gap-0.5">
-      {laneIds.map((id) => (
-        <LaneBadge
-          key={id}
-          id={id}
-          present={Boolean(row.panes[id])}
-          size="sm"
-          tone="soft"
-        />
-      ))}
-    </span>
-  )
-}
-
-function LaneMarkerBar({
-  id,
-  layout,
-  present,
-}: {
-  id: LaneId
-  layout: Layout
-  present: boolean
-}) {
-  const style = laneStyle(id)
-  const shape = layout === "rows" ? "h-1 w-3.5" : "h-3 w-1.5"
-
-  return (
-    <span
-      aria-hidden
-      className={
-        present
-          ? `${shape} rounded-[2px] ${style.bar}`
-          : `${shape} rounded-[2px] bg-muted`
-      }
-    />
   )
 }
 

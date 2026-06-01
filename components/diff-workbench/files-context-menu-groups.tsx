@@ -1,7 +1,6 @@
 import { ContextMenuGroup } from "@/components/ui/context-menu"
 
 import {
-  RestoreMenuItem,
   ShowMenuItem,
   VisibilityMenuItem,
 } from "./files-context-menu-items"
@@ -12,7 +11,6 @@ import {
 } from "./files-context-menu-parts"
 import {
   getDirectoryMenuState,
-  type FilesRestoreMenuState,
 } from "./files-context-menu-state"
 import type { DirectoryContext } from "./types"
 
@@ -76,41 +74,6 @@ export function DirectoryContextMenuGroup({
         <ShowMenuItem onClick={() => onShowFiles(hiddenNames)}>
           Show hidden children
         </ShowMenuItem>
-      ) : null}
-    </ContextMenuGroup>
-  )
-}
-
-export function RestoreContextMenuGroup({
-  restoreMenu,
-  onShowAllFiles,
-  onShowFiles,
-}: {
-  restoreMenu: FilesRestoreMenuState
-  onShowAllFiles: () => void
-  onShowFiles: (names: string[]) => void
-}) {
-  const { overflowLabel, restoreRows, showRestoreAll } = restoreMenu
-
-  return (
-    <ContextMenuGroup>
-      <FilesMenuLabel>Restore</FilesMenuLabel>
-      {showRestoreAll ? (
-        <RestoreMenuItem onClick={onShowAllFiles}>
-          Show all hidden files
-        </RestoreMenuItem>
-      ) : null}
-      {restoreRows.map((row) => (
-        <RestoreMenuItem
-          key={row.name}
-          onClick={() => onShowFiles([row.name])}
-          className="min-w-0"
-        >
-          <span className="truncate font-mono text-xs">{row.name}</span>
-        </RestoreMenuItem>
-      ))}
-      {overflowLabel ? (
-        <RestoreMenuItem onClick={onShowAllFiles}>{overflowLabel}</RestoreMenuItem>
       ) : null}
     </ContextMenuGroup>
   )

@@ -10,7 +10,7 @@ type DirectoryMenuState = {
   someHidden: boolean
 }
 
-export type FilesRestoreMenuState = {
+export type RestoreMenuState = {
   overflowLabel: string | null
   restoreRows: FileRow[]
   showRestoreAll: boolean
@@ -19,7 +19,7 @@ export type FilesRestoreMenuState = {
 type FilesContextMenuState = {
   hasPrimaryAction: boolean
   hasRestoreAction: boolean
-  restoreMenu: FilesRestoreMenuState
+  restoreMenu: RestoreMenuState
   shouldRender: boolean
   showSeparator: boolean
 }
@@ -60,28 +60,20 @@ export function getDirectoryMenuState(
   }
 }
 
-function getRestoreMenuRows(restorableRows: FileRow[]) {
-  return restorableRows.slice(0, RESTORE_MENU_LIMIT)
-}
-
-function hasOverflowRestoreAction(hiddenFileRows: FileRow[]) {
-  return hiddenFileRows.length > RESTORE_MENU_LIMIT
-}
-
 function getRestoreMenuState({
   hiddenFileRows,
   restorableRows,
 }: {
   hiddenFileRows: FileRow[]
   restorableRows: FileRow[]
-}): FilesRestoreMenuState {
-  const hasOverflow = hasOverflowRestoreAction(hiddenFileRows)
+}): RestoreMenuState {
+  const hasOverflow = hiddenFileRows.length > RESTORE_MENU_LIMIT
 
   return {
     overflowLabel: hasOverflow
       ? `Show all ${formatHiddenFileCount(hiddenFileRows.length)}`
       : null,
-    restoreRows: getRestoreMenuRows(restorableRows),
+    restoreRows: restorableRows.slice(0, RESTORE_MENU_LIMIT),
     showRestoreAll: hiddenFileRows.length > 1 && !hasOverflow,
   }
 }

@@ -1,11 +1,12 @@
 import { useCallback } from "react"
 
-import { getFileFocusByOffset } from "./file-focus-state"
-import { clearLane, swapLaneContents, toggleHiddenLane } from "./lane-state"
-import type { FileRow, LaneId, Pane } from "./types"
+import type { FileRow, Pane } from "./types"
+import { useFileFocusActions } from "./use-file-focus-actions"
 import { useFileVisibilityActions } from "./use-file-visibility-actions"
 import { useImportActions } from "./use-import-actions"
-import { getWorkbenchActionState } from "./workbench-action-state"
+import { useLaneActions } from "./use-lane-actions"
+import { clearHiddenFileNames } from "./file-visibility-state"
+import { createSamplePanes } from "./sample-panes"
 import type { WorkbenchSetters } from "./workbench-state-model"
 
 type WorkbenchActionSetters = Pick<
@@ -17,8 +18,6 @@ type WorkbenchActionSetters = Pick<
   | "setNotesOpen"
   | "setPanes"
 >
-
-const workbenchActionState = getWorkbenchActionState()
 
 export function useWorkbenchActions({
   activeFile,
@@ -42,12 +41,11 @@ export function useWorkbenchActions({
     setPanes,
   } = setters
 
-  const toggleLane = useCallback(
-    (id: LaneId) => {
-      setHidden((current) => toggleHiddenLane(current, id, panes.length))
-    },
-    [panes.length, setHidden]
-  )
+  const { clearLaneDiff, moveLaneDiff, toggleLane } = useLaneActions({
+    panes,
+    setHidden,
+    setPanes,
+  })
 
   const { hideFiles, showAllFiles, showFiles } = useFileVisibilityActions({
     setActiveFile,
@@ -55,19 +53,13 @@ export function useWorkbenchActions({
     setHiddenFiles,
   })
 
-  const clearLaneDiff = useCallback(
-    (id: LaneId) => {
-      setPanes((current) => clearLane(current, id))
-    },
-    [setPanes]
-  )
-
-  const moveLaneDiff = useCallback(
-    (sourceId: LaneId, targetId: LaneId) => {
-      setPanes((current) => swapLaneContents(current, sourceId, targetId))
-    },
-    [setPanes]
-  )
+  const { clearFocusedFile, focusFileByOffset, toggleFocusFile } =
+    useFileFocusActions({
+      activeFile,
+      fileRows,
+      focusFile,
+      setFocusFile,
+    })
 
   const { importFiles } = useImportActions({
     setHidden,
@@ -75,43 +67,16 @@ export function useWorkbenchActions({
     setPanes,
   })
 
-  const focusFileByOffset = useCallback(
-    (delta: number) => {
-      const next = getFileFocusByOffset({
-        activeFile,
-        delta,
-        focusFile,
-        rows: fileRows,
-      })
-      if (next) setFocusFile(next)
-    },
-    [activeFile, fileRows, focusFile, setFocusFile]
-  )
-
-  const clearFocusedFile = useCallback(() => {
-    setFocusFile(null)
-  }, [setFocusFile])
-
-  const toggleFocusFile = useCallback(
-    (name: string) => {
-      setFocusFile((current) =>
-        workbenchActionState.toggleFileFocus(current, name)
-      )
-    },
-    [setFocusFile]
-  )
-
   const toggleNotes = useCallback(() => {
-    setNotesOpen(workbenchActionState.toggleNotesOpen)
+    setNotesOpen((open) => !open)
   }, [setNotesOpen])
 
   const resetWorkbench = useCallback(() => {
-    const reset = workbenchActionState.getResetState()
-    setPanes(reset.panes)
-    setHidden(reset.hidden)
-    setHiddenFiles(reset.hiddenFiles)
-    setActiveFile(reset.activeFile)
-    setFocusFile(reset.focusFile)
+    setPanes(createSamplePanes())
+    setHidden(new Set())
+    setHiddenFiles(clearHiddenFileNames())
+    setActiveFile(null)
+    setFocusFile(null)
   }, [
     setActiveFile,
     setFocusFile,

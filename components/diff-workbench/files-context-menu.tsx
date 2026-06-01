@@ -6,9 +6,9 @@ import {
 import {
   DirectoryContextMenuGroup,
   FileContextMenuGroup,
-  RestoreContextMenuGroup,
 } from "./files-context-menu-groups"
 import { getFilesContextMenuState } from "./files-context-menu-state"
+import { RestoreContextMenuGroup } from "./restore-context-menu-group"
 import type { DirectoryContext, FileRow } from "./types"
 
 export function FilesContextMenuContent({

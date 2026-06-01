@@ -7,15 +7,12 @@ import { Button } from "@/components/ui/button"
 import { useMounted } from "@/hooks/use-mounted"
 
 import { ToolbarTooltip } from "./toolbar-controls"
-import { getThemeToggleState } from "./toolbar-state"
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
   const mounted = useMounted()
-  const toggle = getThemeToggleState({
-    mounted,
-    resolvedTheme,
-  })
+  const nextTheme = resolvedTheme === "dark" ? "light" : "dark"
+  const showLightThemeIcon = mounted && resolvedTheme === "dark"
 
   return (
     <ToolbarTooltip label="Toggle theme (d)">
@@ -23,10 +20,10 @@ export function ThemeToggle() {
         variant="outline"
         size="icon-xs"
         aria-label="Toggle theme"
-        onClick={() => setTheme(toggle.nextTheme)}
+        onClick={() => setTheme(nextTheme)}
         className="text-muted-foreground"
       >
-        {toggle.showLightThemeIcon ? (
+        {showLightThemeIcon ? (
           <Sun className="size-3.5" />
         ) : (
           <Moon className="size-3.5" />

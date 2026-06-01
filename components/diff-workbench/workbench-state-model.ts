@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from "react"
 
-import type { StoredWorkbenchState } from "./persistence"
 import { createSamplePanes } from "./sample-panes"
 import type { DiffStyle, LaneId, LaneMarkerStyle, Layout, Pane } from "./types"
 
@@ -40,32 +39,6 @@ export type WorkbenchSetters = {
   setWrap: Dispatch<SetStateAction<boolean>>
 }
 
-type DurableWorkbenchState = Pick<
-  WorkbenchState,
-  | "diffStyle"
-  | "layout"
-  | "lineNumbers"
-  | "laneMarkerStyle"
-  | "notes"
-  | "panes"
-  | "sidebarOpen"
-  | "wrap"
->
-
-export type WorkbenchPersistenceState = Required<
-  Pick<
-    StoredWorkbenchState,
-    | "diffStyle"
-    | "layout"
-    | "lineNumbers"
-    | "laneMarkerStyle"
-    | "notes"
-    | "panes"
-    | "sidebarOpen"
-    | "wrap"
-  >
->
-
 export function createInitialWorkbenchState(): WorkbenchState {
   return {
     activeFile: null,
@@ -83,28 +56,5 @@ export function createInitialWorkbenchState(): WorkbenchState {
     panes: createSamplePanes(),
     sidebarOpen: true,
     wrap: true,
-  }
-}
-
-export function getWorkbenchState(state: WorkbenchState): WorkbenchState {
-  return state
-}
-
-export function getWorkbenchSetters(setters: WorkbenchSetters): WorkbenchSetters {
-  return setters
-}
-
-export function getWorkbenchPersistenceState(
-  state: DurableWorkbenchState
-): WorkbenchPersistenceState {
-  return {
-    diffStyle: state.diffStyle,
-    layout: state.layout,
-    lineNumbers: state.lineNumbers,
-    laneMarkerStyle: state.laneMarkerStyle,
-    notes: state.notes,
-    panes: state.panes,
-    sidebarOpen: state.sidebarOpen,
-    wrap: state.wrap,
   }
 }

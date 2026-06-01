@@ -95,7 +95,7 @@ export function FilesTreeList({
   )
 }
 
-export function isTreeRowContextTarget(target: unknown) {
+function isTreeRowContextTarget(target: unknown) {
   return (
     typeof HTMLElement !== "undefined" &&
     target instanceof HTMLElement &&

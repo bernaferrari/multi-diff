@@ -93,7 +93,7 @@ describe("files context menu state", () => {
     })
   })
 
-  it("derives the restore menu view model", () => {
+  it("limits restore rows and uses overflow copy when many files are hidden", () => {
     const rows = Array.from({ length: RESTORE_LIMIT + 1 }, (_, index) =>
       testFileRow(`file-${index}.ts`)
     )
@@ -118,13 +118,17 @@ describe("files context menu state", () => {
         restorableRows: rows,
       }).restoreMenu.restoreRows
     ).toHaveLength(RESTORE_LIMIT)
+  })
+
+  it("offers restore all when there is no overflow", () => {
+    const rows = [testFileRow("a.ts"), testFileRow("b.ts")]
 
     expect(
       getFilesContextMenuState({
         contextDirectory: null,
         contextFile: null,
-        hiddenFileRows: rows.slice(0, 2),
-        restorableRows: rows.slice(0, 2),
+        hiddenFileRows: rows,
+        restorableRows: rows,
       }).restoreMenu
     ).toMatchObject({
       overflowLabel: null,

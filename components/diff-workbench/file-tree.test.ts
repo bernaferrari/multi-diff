@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import {
   buildVisibleFileTreeRows,
-  collectFileTreeNames,
-  isFileTreeNodeHidden,
+  getFirstVisibleFileTreeName,
+  getFirstVisibleFileTreeRowName,
   type VisibleFileTreeRow,
 } from "./file-tree"
 import type { FileRow, LaneId } from "./types"
@@ -111,34 +111,14 @@ describe("file tree helpers", () => {
     })
   })
 
-  it("collects descendant file names for recursive folder actions", () => {
-    const libNode = findNode(buildVisibleFileTreeRows(rows, new Set()), "lib")
-
-    expect(collectFileTreeNames(libNode)).toEqual([
-      "lib/audit.ts",
-      "lib/search.ts",
-    ])
-  })
-
-  it("returns the original file name when collecting from a file node", () => {
-    const routeNode = findNode(
-      buildVisibleFileTreeRows(rows, new Set()),
-      "app/api/search/route.ts"
+  it("returns the first visible file in rendered tree order", () => {
+    expect(getFirstVisibleFileTreeName(rows)).toBe("app/api/search/route.ts")
+    expect(getFirstVisibleFileTreeName(rows, new Set(["app/api/search"]))).toBe(
+      "components/result-list.tsx"
     )
 
-    expect(collectFileTreeNames(routeNode)).toEqual(["app/api/search/route.ts"])
-  })
-
-  it("derives hidden state only for file nodes with rows", () => {
-    const treeRows = buildVisibleFileTreeRows(rows, new Set())
-    const appNode = findNode(treeRows, "app/api/search")
-    const routeNode = findNode(treeRows, "app/api/search/route.ts")
-
-    expect(isFileTreeNodeHidden(appNode, new Set(["app/api/search/route.ts"]))).toBe(
-      false
-    )
     expect(
-      isFileTreeNodeHidden(routeNode, new Set(["app/api/search/route.ts"]))
-    ).toBe(true)
+      getFirstVisibleFileTreeRowName(buildVisibleFileTreeRows(rows, new Set()))
+    ).toBe("app/api/search/route.ts")
   })
 })

@@ -1,14 +1,12 @@
 import { cn } from "@/lib/utils"
 
-import { laneColumnStyle } from "./diff-styles"
-import { estimateCodeHeight } from "./lane-metrics"
-import type { Layout, PaneView } from "./types"
+import type { Layout } from "./types"
 
 const LANE_HEADER_HEIGHT = 44
 const EMPTY_LANE_BODY_HEIGHT = 148
-export type LaneContentKind = "error" | "empty" | "rows" | "columns"
+type LaneContentKind = "error" | "empty" | "rows" | "columns"
 
-export function getLaneContentKind({
+function getLaneContentKind({
   hasError,
   isEmpty,
   layout,
@@ -23,15 +21,15 @@ export function getLaneContentKind({
 }
 
 function getLaneColumnHeight({
+  codeHeight,
   isEmpty,
-  view,
 }: {
+  codeHeight: number
   isEmpty: boolean
-  view: PaneView
 }) {
   return (
     LANE_HEADER_HEIGHT +
-    (isEmpty ? EMPTY_LANE_BODY_HEIGHT : estimateCodeHeight(view))
+    (isEmpty ? EMPTY_LANE_BODY_HEIGHT : codeHeight)
   )
 }
 
@@ -43,6 +41,12 @@ function getLaneSectionStyle({
   layout: Layout
 }) {
   return layout === "columns" ? laneColumnStyle(columnHeight) : undefined
+}
+
+function laneColumnStyle(height: number) {
+  return {
+    height: `min(100%, ${height}px)`,
+  }
 }
 
 function getLaneSectionClass({
@@ -82,18 +86,18 @@ function getLaneBodyClass({
 
 export function getLaneLayoutState({
   borderClass,
+  codeHeight,
   hasError,
   isEmpty,
   layout,
-  view,
 }: {
   borderClass: string
+  codeHeight: number
   hasError: boolean
   isEmpty: boolean
   layout: Layout
-  view: PaneView
 }) {
-  const columnHeight = getLaneColumnHeight({ isEmpty, view })
+  const columnHeight = getLaneColumnHeight({ codeHeight, isEmpty })
 
   return {
     bodyClass: getLaneBodyClass({ isEmpty, layout }),

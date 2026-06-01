@@ -1,15 +1,13 @@
 import { useMemo, useRef, useState } from "react"
 
-import {
-  clearFilesPanelContext,
-  getFilesPanelDerivedState,
-  selectDirectoryContext,
-  selectFileContext,
-  toggleCollapsedDirectory,
-} from "./files-panel-state"
-import type { FilesPanelContextState } from "./files-panel-state"
-import type { VisibleFileTreeRow } from "./file-tree"
-import type { DirectoryContext, FileRow, LaneId, LanePane } from "./types"
+import { getFilesPanelDerivedState } from "./files-panel-derived-state"
+import type { VisibleFileTreeRow } from "./file-tree-types"
+import type { DirectoryContext, FileRow, LaneId } from "./types"
+
+type FilesPanelContextState = {
+  contextDirectory: DirectoryContext | null
+  contextFile: string | null
+}
 
 export type FilesTreeListState = {
   collapsedDirs: Set<string>
@@ -29,15 +27,19 @@ export type FilesTreeListActions = {
 }
 
 export function useFilesPanelState({
+  activeFile,
+  focusableRows,
   hidden,
   hiddenFileRows,
-  panes,
+  laneIds,
   query,
   rows,
 }: {
+  activeFile: string | null
+  focusableRows: FileRow[]
   hidden: Set<LaneId>
   hiddenFileRows: FileRow[]
-  panes: LanePane[]
+  laneIds: LaneId[]
   query: string
   rows: FileRow[]
 }) {
@@ -47,12 +49,13 @@ export function useFilesPanelState({
   )
   const [collapsedDirs, setCollapsedDirs] = useState<Set<string>>(new Set())
 
-  const laneIds = useMemo(() => panes.map((pane) => pane.id), [panes])
   const derived = useMemo(
     () =>
       getFilesPanelDerivedState({
+        activeFile,
         collapsedDirs,
         contextFile: context.contextFile,
+        focusableRows,
         hidden,
         hiddenFileRows,
         laneIds,
@@ -60,8 +63,10 @@ export function useFilesPanelState({
         rows,
       }),
     [
+      activeFile,
       collapsedDirs,
       context.contextFile,
+      focusableRows,
       hidden,
       hiddenFileRows,
       laneIds,
@@ -103,10 +108,40 @@ export function useFilesPanelState({
   }
 
   return {
-    laneIds,
+    focusTarget: derived.focusTarget,
     listRef,
     treeActions,
     treeState,
     visibleCount: derived.visibleCount,
+  }
+}
+
+function toggleCollapsedDirectory(current: Set<string>, path: string) {
+  const next = new Set(current)
+  if (next.has(path)) next.delete(path)
+  else next.add(path)
+  return next
+}
+
+function clearFilesPanelContext(): FilesPanelContextState {
+  return {
+    contextDirectory: null,
+    contextFile: null,
+  }
+}
+
+function selectDirectoryContext(
+  contextDirectory: DirectoryContext
+): FilesPanelContextState {
+  return {
+    contextDirectory,
+    contextFile: null,
+  }
+}
+
+function selectFileContext(contextFile: string): FilesPanelContextState {
+  return {
+    contextDirectory: null,
+    contextFile,
   }
 }

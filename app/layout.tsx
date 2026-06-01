@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata } from "next"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -12,6 +13,11 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  title: "Diff Workbench",
+  description: "Compare multiple unified diff files side by side.",
+}
 
 export default function RootLayout({
   children,

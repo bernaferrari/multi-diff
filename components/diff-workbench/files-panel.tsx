@@ -1,45 +1,12 @@
 "use client"
 
+import { useMemo } from "react"
+
 import { TreeIconSprite } from "./file-icons"
 import { FilesPanelHeader } from "./files-panel-header"
 import { FilesTreeList } from "./files-tree-list"
-import type {
-  ActiveFileByLane,
-  FileRow,
-  LaneId,
-  LaneMarkerStyle,
-  LanePane,
-  Layout,
-} from "./types"
+import type { FilesPanelActions, FilesPanelView } from "./files-panel-model"
 import { useFilesPanelState } from "./use-files-panel-state"
-
-export type FilesPanelView = {
-  activeFileByLane: ActiveFileByLane
-  activeFile: string | null
-  focusMode: boolean
-  focusFile: string | null
-  hidden: Set<LaneId>
-  hiddenFiles: Set<string>
-  hiddenFileRows: FileRow[]
-  laneMarkerStyle: LaneMarkerStyle
-  layout: Layout
-  panes: LanePane[]
-  query: string
-  rows: FileRow[]
-  sharedCount: number
-}
-
-export type FilesPanelActions = {
-  onFilterFile: (name: string) => void
-  onHideFiles: (names: string[]) => void
-  onNavigate: (name: string) => void
-  onOverview: () => void
-  onQuery: (q: string) => void
-  onShowAllFiles: () => void
-  onShowFiles: (names: string[]) => void
-  onToggleLane: (id: LaneId) => void
-  onToggleFocusMode: () => void
-}
 
 type FilesPanelProps = {
   actions: FilesPanelActions
@@ -47,11 +14,14 @@ type FilesPanelProps = {
 }
 
 export function FilesPanel({ actions, view }: FilesPanelProps) {
-  const { listRef, treeActions, treeState, visibleCount } =
+  const laneIds = useMemo(() => view.panes.map((pane) => pane.id), [view.panes])
+  const { focusTarget, listRef, treeActions, treeState, visibleCount } =
     useFilesPanelState({
+      activeFile: view.activeFile,
+      focusableRows: view.focusableRows,
       hidden: view.hidden,
       hiddenFileRows: view.hiddenFileRows,
-      panes: view.panes,
+      laneIds,
       query: view.query,
       rows: view.rows,
     })
@@ -62,7 +32,7 @@ export function FilesPanel({ actions, view }: FilesPanelProps) {
       <FilesPanelHeader
         focusFile={view.focusFile}
         focusMode={view.focusMode}
-        activeFile={view.activeFile}
+        focusTarget={focusTarget}
         hidden={view.hidden}
         panes={view.panes}
         query={view.query}
@@ -71,7 +41,7 @@ export function FilesPanel({ actions, view }: FilesPanelProps) {
         onOverview={actions.onOverview}
         onQuery={actions.onQuery}
         onToggleLane={actions.onToggleLane}
-        onToggleFocusMode={actions.onToggleFocusMode}
+        onToggleFocusMode={() => actions.onToggleFocusMode(focusTarget)}
       />
 
       <FilesTreeList

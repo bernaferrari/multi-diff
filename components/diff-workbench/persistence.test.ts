@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  getWorkbenchPersistenceState,
   readStoredWorkbenchState,
-  restorePane,
-  restoreStringEnum,
   STORAGE_KEY,
   writeStoredWorkbenchState,
 } from "./persistence"
+import { createInitialWorkbenchState } from "./workbench-state-model"
 
 function storageWith(initial?: string) {
   const data = new Map<string, string>()
@@ -26,6 +26,28 @@ function storageWith(initial?: string) {
 }
 
 describe("persistence", () => {
+  it("projects only durable fields into persisted state", () => {
+    const state = createInitialWorkbenchState()
+    state.activeFile = "app/active.ts"
+    state.dragging = true
+    state.fileQuery = "route"
+    state.focusFile = "app/focus.ts"
+    state.hidden.add("b")
+    state.hiddenFiles.add("app/hidden.ts")
+    state.notesOpen = true
+
+    expect(getWorkbenchPersistenceState(state)).toEqual({
+      diffStyle: "unified",
+      laneMarkerStyle: "letters",
+      layout: "columns",
+      lineNumbers: true,
+      notes: "",
+      panes: state.panes,
+      sidebarOpen: true,
+      wrap: true,
+    })
+  })
+
   it("returns null for missing, invalid, or non-object saved state", () => {
     expect(readStoredWorkbenchState(storageWith().storage)).toBeNull()
     expect(
@@ -56,27 +78,6 @@ describe("persistence", () => {
       { id: "d", label: "Diff D", text: "", filename: undefined },
       { id: "e", label: "Diff E", text: "four", filename: undefined },
     ])
-  })
-
-  it("restores an individual pane with canonical lane metadata", () => {
-    expect(
-      restorePane(
-        { id: "wrong", label: "Wrong", text: "diff", filename: "x.patch" },
-        2
-      )
-    ).toEqual({
-      id: "c",
-      label: "Diff C",
-      text: "diff",
-      filename: "x.patch",
-    })
-
-    expect(restorePane(null, 1)).toEqual({
-      id: "b",
-      label: "Diff B",
-      text: "",
-      filename: undefined,
-    })
   })
 
   it("keeps only recognized enum and boolean settings", () => {
@@ -123,14 +124,6 @@ describe("persistence", () => {
       lineNumbers: undefined,
       sidebarOpen: undefined,
     })
-  })
-
-  it("restores only allowed string enum values", () => {
-    expect(restoreStringEnum("rows", ["columns", "rows"] as const)).toBe("rows")
-    expect(
-      restoreStringEnum("grid", ["columns", "rows"] as const)
-    ).toBeUndefined()
-    expect(restoreStringEnum(1, ["columns", "rows"] as const)).toBeUndefined()
   })
 
   it("writes serialized state and ignores storage failures", () => {

@@ -1,11 +1,12 @@
 import { EyeOff, Folder, FolderOpen } from "lucide-react"
 
-import { collectFileTreeNames, type FileTreeNode } from "./file-tree"
+import type { FileTreeNode } from "./file-tree-types"
 import {
   getDirectoryHiddenState,
   getDirectoryTreeRowChrome,
-} from "./file-tree-row-state"
-import { DiffStats, LaneBadges } from "./file-tree-row-parts"
+} from "./directory-tree-row-state"
+import { FileTreeLaneMarkers } from "./file-tree-lane-markers"
+import { DiffStats } from "./file-tree-row-parts"
 import { TreeRowButton } from "./tree-row-button"
 import type { DirectoryContext, LaneId, LaneMarkerStyle, Layout } from "./types"
 
@@ -32,7 +33,7 @@ export function DirectoryTreeBranch({
   onContextDirectory: (context: DirectoryContext) => void
   onToggle: () => void
 }) {
-  const fileNames = collectFileTreeNames(node)
+  const fileNames = node.fileNames ?? []
   const { fullyHidden, partiallyHidden } = getDirectoryHiddenState(
     fileNames,
     hiddenFiles
@@ -118,7 +119,7 @@ function DirectoryTreeRow({
         <>
           <DiffStats row={summary} />
           {showLaneBadges ? (
-            <LaneBadges
+            <FileTreeLaneMarkers
               laneIds={laneIds}
               layout={layout}
               markerStyle={laneMarkerStyle}

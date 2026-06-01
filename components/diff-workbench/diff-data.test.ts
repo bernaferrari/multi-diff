@@ -3,10 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   buildDiffCodeItems,
   buildFileRows,
-  changedLinesFor,
   createPane,
-  diffTotalsFor,
-  diffTotalsForFiles,
   normalizePatchInput,
   parsePane,
 } from "./diff-data"
@@ -54,26 +51,6 @@ describe("diff data helpers", () => {
 
     expect(items.map((item) => item.id)).toEqual(["b-0-a.ts", "b-1-b.ts"])
     expect(idByName.get("b.ts")).toBe("b-1-b.ts")
-  })
-
-  it("computes additions and deletions together", () => {
-    expect(diffTotalsFor(testFileDiff("a.ts", 3, 2))).toEqual({
-      additions: 3,
-      deletions: 2,
-    })
-    expect(changedLinesFor(testFileDiff("a.ts", 3, 2))).toBe(5)
-  })
-
-  it("computes additions and deletions across files", () => {
-    expect(
-      diffTotalsForFiles([
-        testFileDiff("a.ts", 3, 2),
-        testFileDiff("b.ts", 4, 1),
-      ])
-    ).toEqual({
-      additions: 7,
-      deletions: 3,
-    })
   })
 
   it("returns an error payload instead of throwing for invalid patch text", () => {

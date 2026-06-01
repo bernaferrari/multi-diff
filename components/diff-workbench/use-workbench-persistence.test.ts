@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from "vitest"
 
 import { applyStoredWorkbenchState } from "./use-workbench-persistence"
-import type { WorkbenchPersistenceSetters } from "./use-workbench-persistence"
 import type { Pane } from "./types"
+
+type WorkbenchPersistenceSetters = Parameters<
+  typeof applyStoredWorkbenchState
+>[1]
 
 describe("applyStoredWorkbenchState", () => {
   it("does nothing without saved state", () => {

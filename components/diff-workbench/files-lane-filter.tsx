@@ -18,7 +18,7 @@ export function FilesLaneFilter({
   return (
     <div
       className="grid gap-1"
-      style={getLaneFilterGridStyle(panes.length)}
+      style={getEqualColumnGridStyle(panes.length)}
     >
       {panes.map((pane) => (
         <FilesLaneFilterButton
@@ -42,15 +42,15 @@ function FilesLaneFilterButton({
   onToggleLane: (id: LaneId) => void
 }) {
   const style = laneStyle(pane.id)
-  const state = getLaneFilterButtonState({ hidden, pane })
+  const label = `${hidden ? "Show" : "Hide"} ${pane.label}`
 
   return (
     <button
       type="button"
       onClick={() => onToggleLane(pane.id)}
-      aria-label={state.label}
-      aria-pressed={state.pressed}
-      title={state.label}
+      aria-label={label}
+      aria-pressed={!hidden}
+      title={label}
       className={cn(
         "flex flex-1 items-center justify-center gap-1.5 rounded-md border py-1 text-xs font-medium transition-[background-color,border-color,color,opacity]",
         hidden
@@ -62,21 +62,4 @@ function FilesLaneFilterButton({
       {hidden ? <EyeOff className="size-3" /> : null}
     </button>
   )
-}
-
-function getLaneFilterGridStyle(count: number) {
-  return getEqualColumnGridStyle(count)
-}
-
-function getLaneFilterButtonState({
-  hidden,
-  pane,
-}: {
-  hidden: boolean
-  pane: LanePane
-}) {
-  return {
-    label: `${hidden ? "Show" : "Hide"} ${pane.label}`,
-    pressed: !hidden,
-  }
 }

@@ -3,8 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   copyTextToClipboard,
   copyTextWithToast,
-  getCopiedFilePathToast,
-  getCopyLabel,
 } from "./clipboard"
 import { toast } from "sonner"
 
@@ -84,11 +82,4 @@ describe("clipboard", () => {
     })
   })
 
-  it("derives copy labels and file path toast copy", () => {
-    expect(getCopyLabel("app/a.ts")).toBe("Copy app/a.ts")
-    expect(getCopiedFilePathToast("app/a.ts")).toEqual({
-      description: "app/a.ts",
-      title: "Copied file path",
-    })
-  })
 })

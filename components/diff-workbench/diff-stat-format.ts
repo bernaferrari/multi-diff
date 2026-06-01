@@ -1,9 +1,9 @@
-export type DiffStatTotals = {
+type DiffStatTotals = {
   additions: number
   deletions: number
 }
 
-export type DiffStatParts = {
+type DiffStatParts = {
   additions: string | null
   deletions: string | null
 }

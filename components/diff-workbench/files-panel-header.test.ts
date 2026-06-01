@@ -10,9 +10,9 @@ describe("files panel header", () => {
   ) {
     return renderToStaticMarkup(
       createElement(FilesPanelHeader, {
-        activeFile: null,
         focusFile: null,
         focusMode: false,
+        focusTarget: null,
         hidden: new Set<string>(),
         panes: [{ id: "a", label: "Diff A" }],
         query: "",
@@ -58,5 +58,25 @@ describe("files panel header", () => {
 
     expect(html).toContain(">All files</button>")
     expect(html).not.toContain('title="3 files changed in every lane"')
+  })
+
+  it("renders focus button states from the current target and mode", () => {
+    expect(renderHeader({ focusTarget: null })).toContain(
+      'title="No visible file to focus"'
+    )
+    expect(renderHeader({ focusTarget: null })).toContain("disabled=\"\"")
+
+    const enabled = renderHeader({ focusTarget: "app/a.ts" })
+    expect(enabled).toContain('aria-label="Turn on file focus"')
+    expect(enabled).toContain('title="Focus app/a.ts"')
+    expect(enabled).not.toContain("disabled=\"\"")
+
+    const focused = renderHeader({
+      focusMode: true,
+      focusTarget: "app/a.ts",
+    })
+    expect(focused).toContain('aria-label="Turn off file focus"')
+    expect(focused).toContain('aria-pressed="true"')
+    expect(focused).toContain('title="Return to normal file navigation"')
   })
 })

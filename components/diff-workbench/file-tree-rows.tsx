@@ -1,9 +1,10 @@
 import { EyeOff } from "lucide-react"
 
 import { FileTypeIcon } from "./file-icons"
-import type { FileTreeNode } from "./file-tree"
+import type { FileTreeNode } from "./file-tree-types"
+import { FileTreeLaneMarkers } from "./file-tree-lane-markers"
 import { getFileTreeRowChrome } from "./file-tree-row-state"
-import { DiffStats, HighlightMatch, LaneBadges } from "./file-tree-row-parts"
+import { DiffStats, HighlightMatch } from "./file-tree-row-parts"
 import { TreeRowButton } from "./tree-row-button"
 import type { LaneId, LaneMarkerStyle, Layout } from "./types"
 
@@ -74,7 +75,7 @@ export function FileTreeRow({
       {hidden ? <EyeOff className="size-3 shrink-0" /> : null}
       <DiffStats row={row} />
       {showLaneBadges ? (
-        <LaneBadges
+        <FileTreeLaneMarkers
           laneIds={laneIds}
           layout={layout}
           markerStyle={laneMarkerStyle}

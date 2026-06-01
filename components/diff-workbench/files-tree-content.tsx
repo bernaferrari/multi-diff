@@ -1,6 +1,6 @@
 import { DirectoryTreeBranch } from "./directory-tree-row"
 import { FileTreeRow } from "./file-tree-rows"
-import { isFileTreeNodeHidden, type VisibleFileTreeRow } from "./file-tree"
+import type { VisibleFileTreeRow } from "./file-tree-types"
 import type {
   ActiveFileByLane,
   DirectoryContext,
@@ -45,7 +45,10 @@ export function FilesTreeContent({
   onNavigate: (name: string) => void
   onToggleDirectory: (path: string) => void
 }) {
-  const emptyMessage = getFilesTreeEmptyMessage(rows.length, treeRows.length)
+  const emptyMessage = getFilesTreeEmptyMessage({
+    rowCount: rows.length,
+    treeRowCount: treeRows.length,
+  })
   if (emptyMessage) {
     return (
       <div className="px-2 py-6 text-center text-xs text-muted-foreground">
@@ -53,6 +56,7 @@ export function FilesTreeContent({
       </div>
     )
   }
+  const activeLaneIdsByFile = getActiveLaneIdsByFile(activeFileByLane)
 
   return (
     <div aria-label="Changed files" role="tree">
@@ -77,8 +81,10 @@ export function FilesTreeContent({
             depth={depth}
             focusFile={focusFile}
             activeFile={activeFile}
-            activeLaneIds={getActiveLaneIds(activeFileByLane, node.row?.name)}
-            hidden={isFileTreeNodeHidden(node, hiddenFiles)}
+            activeLaneIds={
+              node.row ? (activeLaneIdsByFile.get(node.row.name) ?? []) : []
+            }
+            hidden={node.row ? hiddenFiles.has(node.row.name) : false}
             laneIds={treeLaneIds}
             laneMarkerStyle={laneMarkerStyle}
             layout={layout}
@@ -94,20 +100,26 @@ export function FilesTreeContent({
   )
 }
 
-function getActiveLaneIds(
-  activeFileByLane: ActiveFileByLane,
-  name: string | undefined
-) {
-  if (!name) return []
-  return Object.entries(activeFileByLane)
-    .filter(([, fileName]) => fileName === name)
-    .map(([laneId]) => laneId)
+function getActiveLaneIdsByFile(activeFileByLane: ActiveFileByLane) {
+  const activeLaneIdsByFile = new Map<string, string[]>()
+
+  for (const [laneId, fileName] of Object.entries(activeFileByLane)) {
+    if (!fileName) continue
+    const laneIds = activeLaneIdsByFile.get(fileName)
+    if (laneIds) laneIds.push(laneId)
+    else activeLaneIdsByFile.set(fileName, [laneId])
+  }
+
+  return activeLaneIdsByFile
 }
 
-function getFilesTreeEmptyMessage(
-  rowCount: number,
+function getFilesTreeEmptyMessage({
+  rowCount,
+  treeRowCount,
+}: {
+  rowCount: number
   treeRowCount: number
-) {
+}) {
   if (rowCount === 0) return "No files yet - import or drop diffs anywhere."
   if (treeRowCount === 0) return "No files match your filter."
   return null

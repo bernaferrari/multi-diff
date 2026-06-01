@@ -5,6 +5,7 @@ import {
   hasDraggedFiles,
   laneTargetFromDragEvent,
 } from "./drop-import-state"
+import type { ImportFileSource } from "./import-staging-state"
 import type { LaneId } from "./types"
 
 export function useDiffDropImport({
@@ -12,7 +13,7 @@ export function useDiffDropImport({
   onImport,
 }: {
   onDraggingChange: (dragging: boolean) => void
-  onImport: (files: FileList | null, target?: LaneId) => void
+  onImport: (files: ImportFileSource, target?: LaneId) => void
 }) {
   useEffect(() => {
     let depth = 0

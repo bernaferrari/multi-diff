@@ -35,17 +35,6 @@ export async function copyTextWithToast({
   return result
 }
 
-export function getCopyLabel(target: string) {
-  return `Copy ${target}`
-}
-
-export function getCopiedFilePathToast(path: string) {
-  return {
-    description: path,
-    title: "Copied file path",
-  }
-}
-
 function copyTextWithSelectionFallback(text: string) {
   const document = globalThis.document
   if (!document?.body || !document.execCommand) return false

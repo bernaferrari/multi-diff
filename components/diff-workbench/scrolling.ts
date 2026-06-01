@@ -1,11 +1,11 @@
-export type WheelLike = {
+type WheelLike = {
   deltaX: number
   deltaY: number
   shiftKey: boolean
   preventDefault: () => void
 }
 
-export type ScrollTarget = {
+type ScrollTarget = {
   clientHeight: number
   clientWidth: number
   scrollTo?: (options: { left?: number; top?: number }) => void

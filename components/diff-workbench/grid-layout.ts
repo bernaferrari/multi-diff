@@ -1,4 +1,4 @@
-export function getEqualColumnTemplate(count: number) {
+function getEqualColumnTemplate(count: number) {
   return `repeat(${Math.max(1, count)}, minmax(0, 1fr))`
 }
 

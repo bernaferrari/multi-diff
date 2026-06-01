@@ -1,14 +1,16 @@
 import { createPane } from "./diff-data"
-import { LANE_ORDER, MAX_LANES, laneIdAt, laneIndex, laneTitle } from "./lanes"
+import { getImportLaneAssignments } from "./import-lane-assignment"
+import { MAX_LANES, laneIdAt, laneTitle } from "./lanes"
+import type { ImportFileSource, StagedImportFile } from "./import-staging-state"
 import type { LaneId, Pane } from "./types"
 
-export type ImportedDiffFile = {
+type ImportedDiffFile = {
   name: string
   text: string
 }
 
 export async function readImportFiles(
-  fileList: FileList | null
+  fileList: ImportFileSource
 ): Promise<ImportedDiffFile[]> {
   const files = Array.from(fileList ?? []).slice(0, MAX_LANES)
   return Promise.all(
@@ -19,42 +21,59 @@ export async function readImportFiles(
   )
 }
 
-export function getPostImportVisibilityState() {
-  return {
-    hidden: new Set<LaneId>(),
-    hiddenFiles: new Set<string>(),
-  }
+type ImportPreviewRow = {
+  fileName: string
+  lane: LaneId
+  laneLabel: string
 }
 
-function getImportStart(
-  panes: Pane[],
-  fileCount: number,
+export function getImportPreviewRows({
+  files,
+  panes,
+  target,
+}: {
+  files: StagedImportFile[]
+  panes: Pane[]
   target?: LaneId
-) {
-  if (target) return laneIndex(target)
-  const emptyIndex = panes.findIndex((pane) => !pane.text.trim())
-  return fileCount === 1 && emptyIndex >= 0 ? emptyIndex : 0
+}): ImportPreviewRow[] {
+  const importedFiles = files.slice(0, MAX_LANES)
+  const assignments = getImportLaneAssignments({
+    fileCount: importedFiles.length,
+    panes,
+    target,
+    targets: importedFiles.map((item) => item.targetLane),
+  })
+
+  return importedFiles.map((item, index) => {
+    const lane = assignments.lanes[index]
+    return {
+      fileName: item.file.name,
+      lane,
+      laneLabel: laneTitle(lane),
+    }
+  })
 }
 
 export function applyImportedFiles({
   panes,
   reads,
+  targets,
   target,
 }: {
   panes: Pane[]
   reads: ImportedDiffFile[]
+  targets?: (LaneId | undefined)[]
   target?: LaneId
 }) {
   const importedFiles = reads.slice(0, MAX_LANES)
-  const start = getImportStart(panes, importedFiles.length, target)
-  const laneCount = getImportLaneCount({
+  const assignments = getImportLaneAssignments({
     fileCount: importedFiles.length,
-    paneCount: panes.length,
-    start,
-    targeted: Boolean(target),
+    panes,
+    target,
+    targets,
   })
   const next = Array.from(
-    { length: Math.min(laneCount, MAX_LANES) },
+    { length: Math.min(assignments.laneCount, MAX_LANES) },
     (_, index) => {
       const id = laneIdAt(index)
       return panes[index]
@@ -65,7 +84,7 @@ export function applyImportedFiles({
   const indexByLane = getPaneIndexByLane(next)
 
   importedFiles.forEach((read, index) => {
-    const id = laneIdAt((start + index) % LANE_ORDER.length)
+    const id = assignments.lanes[index]
     const nextIndex = indexByLane.get(id) ?? -1
     if (nextIndex < 0) return
     next[nextIndex] = {
@@ -80,20 +99,4 @@ export function applyImportedFiles({
 
 function getPaneIndexByLane(panes: Pane[]) {
   return new Map(panes.map((pane, index) => [pane.id, index]))
-}
-
-function getImportLaneCount({
-  fileCount,
-  paneCount,
-  start,
-  targeted,
-}: {
-  fileCount: number
-  paneCount: number
-  start: number
-  targeted: boolean
-}) {
-  return targeted || fileCount === 1
-    ? Math.max(paneCount, start + fileCount, 1)
-    : fileCount
 }

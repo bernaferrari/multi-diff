@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   applyImportedFiles,
-  getPostImportVisibilityState,
+  getImportPreviewRows,
 } from "./import-state"
 import type { Pane } from "./types"
 
@@ -43,15 +43,6 @@ describe("import state", () => {
         target: "c",
       }).map((item) => item.filename)
     ).toEqual(["a.patch", "b.patch", "target.patch"])
-  })
-
-  it("resets hidden visibility after a successful import", () => {
-    const reset = getPostImportVisibilityState()
-
-    expect(reset.hidden).toBeInstanceOf(Set)
-    expect(reset.hiddenFiles).toBeInstanceOf(Set)
-    expect(reset.hidden.size).toBe(0)
-    expect(reset.hiddenFiles.size).toBe(0)
   })
 
   it("applies imports to targeted lanes while preserving existing lane order", () => {
@@ -102,6 +93,52 @@ describe("import state", () => {
     expect(next.map((item) => item.filename)).toEqual([
       "a.patch",
       "late.patch",
+      "c.patch",
+    ])
+  })
+
+  it("previews the lanes that staged files will import into", () => {
+    const rows = getImportPreviewRows({
+      panes: [pane("a"), pane("b", ""), pane("c")],
+      files: [
+        { file: new File(["a"], "first.patch") },
+        { file: new File(["b"], "second.patch") },
+      ],
+    })
+
+    expect(rows).toEqual([
+      { fileName: "first.patch", lane: "a", laneLabel: "Diff A" },
+      { fileName: "second.patch", lane: "b", laneLabel: "Diff B" },
+    ])
+
+    expect(
+      getImportPreviewRows({
+        panes: [pane("a"), pane("b", ""), pane("c")],
+        files: [{ file: new File(["b"], "single.patch") }],
+      })
+    ).toEqual([{ fileName: "single.patch", lane: "b", laneLabel: "Diff B" }])
+  })
+
+  it("can pin a staged file to a specific lane", () => {
+    expect(
+      getImportPreviewRows({
+        panes: [pane("a"), pane("b"), pane("c")],
+        files: [{ file: new File(["a"], "a.patch"), targetLane: "c" }],
+      })
+    ).toEqual([{ fileName: "a.patch", lane: "c", laneLabel: "Diff C" }])
+  })
+
+  it("expands panes far enough for explicit staged lane targets", () => {
+    const next = applyImportedFiles({
+      panes: [pane("a")],
+      reads: [{ name: "c.patch", text: "diff c" }],
+      targets: ["c"],
+    })
+
+    expect(next.map((item) => item.id)).toEqual(["a", "b", "c"])
+    expect(next.map((item) => item.filename)).toEqual([
+      "a.patch",
+      undefined,
       "c.patch",
     ])
   })

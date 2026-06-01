@@ -2,11 +2,8 @@ import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 
-import {
-  FilesPanel,
-  type FilesPanelActions,
-  type FilesPanelView,
-} from "./files-panel"
+import { FilesPanel } from "./files-panel"
+import type { FilesPanelActions, FilesPanelView } from "./files-panel-model"
 
 describe("FilesPanel", () => {
   it("fills the sidebar shell height and constrains internal scrolling", () => {
@@ -26,6 +23,7 @@ describe("FilesPanel", () => {
 const emptyView: FilesPanelView = {
   activeFileByLane: {},
   activeFile: null,
+  focusableRows: [],
   focusMode: false,
   focusFile: null,
   hidden: new Set(),

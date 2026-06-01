@@ -3,15 +3,16 @@ import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 
 import { FilesTreeContent } from "./files-tree-content"
-import { isTreeRowContextTarget } from "./files-tree-list"
-import type { VisibleFileTreeRow } from "./file-tree"
+import type { VisibleFileTreeRow } from "./file-tree-types"
 import type { FileRow } from "./types"
 
 describe("files tree list", () => {
   function renderTreeContent({
+    activeFileByLane = {},
     rowCount,
     treeRowCount,
   }: {
+    activeFileByLane?: Record<string, string | undefined>
     rowCount: number
     treeRowCount: number
   }) {
@@ -41,7 +42,7 @@ describe("files tree list", () => {
     return renderToStaticMarkup(
       createElement(FilesTreeContent, {
         activeFile: null,
-        activeFileByLane: {},
+        activeFileByLane,
         collapsedDirs: new Set<string>(),
         focusFile: null,
         hiddenFiles: new Set<string>(),
@@ -79,8 +80,13 @@ describe("files tree list", () => {
     expect(html).toContain('role="tree"')
   })
 
-  it("treats non-DOM context targets as outside the tree", () => {
-    expect(isTreeRowContextTarget(null)).toBe(false)
-    expect(isTreeRowContextTarget({})).toBe(false)
+  it("marks rows active when any lane is currently reading that file", () => {
+    const html = renderTreeContent({
+      activeFileByLane: { a: "file-1.ts", b: "file-1.ts", c: undefined },
+      rowCount: 2,
+      treeRowCount: 2,
+    })
+
+    expect(html).toContain('data-active=""')
   })
 })

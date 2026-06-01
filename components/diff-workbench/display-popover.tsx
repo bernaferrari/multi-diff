@@ -1,5 +1,7 @@
+import type { ReactNode } from "react"
 import { SlidersHorizontal } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import {
   Popover,
   PopoverContent,
@@ -9,16 +11,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { Switch } from "@/components/ui/switch"
 
 import {
   DISPLAY_OPTIONS,
   type DisplayActions,
   type DisplaySettings,
 } from "./display-options"
-import { DisplaySwitch } from "./display-switch"
-import { laneLabel, laneStyle } from "./lanes"
-import type { LaneId, LaneMarkerStyle } from "./types"
+import { LaneMarkerStyleControl } from "./lane-marker-style-control"
 
 export function DisplayPopover({
   actions,
@@ -76,116 +76,43 @@ export function DisplayPopover({
   )
 }
 
-function LaneMarkerStyleControl({
-  layout,
-  value,
-  onValueChange,
-}: {
-  layout: DisplaySettings["layout"]
-  value: LaneMarkerStyle
-  onValueChange: (value: LaneMarkerStyle) => void
-}) {
-  return (
-    <div className="grid gap-2 border-t border-border/70 pt-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="grid gap-0.5">
-          <div className="text-xs font-medium">Sidebar markers</div>
-          <div className="text-xs text-muted-foreground">
-            Choose lane letters or compact color blocks.
-          </div>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1 dark:bg-muted/65">
-        <LaneMarkerButton
-          active={value === "letters"}
-          layout={layout}
-          markerStyle="letters"
-          label="Letters"
-          onClick={() => onValueChange("letters")}
-        />
-        <LaneMarkerButton
-          active={value === "bars"}
-          layout={layout}
-          markerStyle="bars"
-          label="Bars"
-          onClick={() => onValueChange("bars")}
-        />
-      </div>
-    </div>
-  )
-}
-
-function LaneMarkerButton({
-  active,
+function DisplaySwitch({
+  checked,
+  description,
+  icon,
   label,
-  layout,
-  markerStyle,
-  onClick,
+  onCheckedChange,
 }: {
-  active: boolean
+  checked: boolean
+  description: string
+  icon: ReactNode
   label: string
-  layout: DisplaySettings["layout"]
-  markerStyle: LaneMarkerStyle
-  onClick: () => void
+  onCheckedChange: (checked: boolean) => void
 }) {
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        "h-9 justify-center gap-2 rounded-md border border-transparent px-2 text-xs",
-        active
-          ? "bg-background text-foreground shadow-sm hover:bg-background dark:bg-foreground/10 dark:hover:bg-foreground/12"
-          : "text-muted-foreground hover:border-border/60 hover:bg-background/70 hover:text-foreground dark:hover:bg-foreground/8"
-      )}
-    >
-      <LaneMarkerPreview layout={layout} markerStyle={markerStyle} />
-      {label}
-    </Button>
-  )
-}
-
-function LaneMarkerPreview({
-  layout,
-  markerStyle,
-}: {
-  layout: DisplaySettings["layout"]
-  markerStyle: LaneMarkerStyle
-}) {
-  const lanes: LaneId[] = ["a", "b", "c"]
-
-  if (markerStyle === "bars") {
-    return (
+    <label className="flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/65">
       <span
         className={cn(
-          "flex items-center gap-0.5",
-          layout === "rows" && "flex-col gap-px"
+          "mt-0.5 grid size-8 shrink-0 place-items-center rounded-md border",
+          checked
+            ? "border-primary/20 bg-primary/10 text-primary"
+            : "border-border bg-background text-muted-foreground"
         )}
-        aria-hidden
       >
-        {lanes.map((id) => (
-          <span
-            key={id}
-            className={cn(
-              "rounded-[2px]",
-              layout === "rows" ? "h-1 w-3.5" : "h-3.5 w-1.5",
-              laneStyle(id).bar
-            )}
-          />
-        ))}
+        {icon}
       </span>
-    )
-  }
-
-  return (
-    <span className="flex items-center gap-0.5 font-mono text-[10px]" aria-hidden>
-      {lanes.map((id) => (
-        <span key={id} className={laneStyle(id).text}>
-          {laneLabel(id)}
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm leading-none font-medium">{label}</span>
+        <span className="mt-1 block text-xs leading-snug text-muted-foreground">
+          {description}
         </span>
-      ))}
-    </span>
+      </span>
+      <Switch
+        checked={checked}
+        className="self-center"
+        onCheckedChange={onCheckedChange}
+        size="sm"
+      />
+    </label>
   )
 }

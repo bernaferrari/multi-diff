@@ -4,8 +4,7 @@ import {
   DIFF_FILE_HEADER_HEIGHT,
   DIFF_LINE_HEIGHT_PX,
 } from "./diff-render-metrics"
-import { getLaneContentKind, getLaneLayoutState } from "./lane-layout"
-import { testFileDiff, testPaneView } from "./test-builders"
+import { getLaneLayoutState } from "./lane-layout"
 
 describe("lane layout", () => {
   it("keeps empty column lanes compact", () => {
@@ -15,39 +14,47 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: true,
         layout: "columns",
-        view: testPaneView("a", []),
+        codeHeight: 0,
       }).columnHeight
     ).toBe(192)
   })
 
   it("prioritizes lane content states before layout rendering", () => {
     expect(
-      getLaneContentKind({
+      getLaneLayoutState({
+        borderClass: "border-blue-500",
+        codeHeight: 0,
         hasError: true,
         isEmpty: true,
         layout: "columns",
-      })
+      }).contentKind
     ).toBe("error")
     expect(
-      getLaneContentKind({
+      getLaneLayoutState({
+        borderClass: "border-blue-500",
+        codeHeight: 0,
         hasError: false,
         isEmpty: true,
         layout: "rows",
-      })
+      }).contentKind
     ).toBe("empty")
     expect(
-      getLaneContentKind({
+      getLaneLayoutState({
+        borderClass: "border-blue-500",
+        codeHeight: DIFF_FILE_HEADER_HEIGHT,
         hasError: false,
         isEmpty: false,
         layout: "rows",
-      })
+      }).contentKind
     ).toBe("rows")
     expect(
-      getLaneContentKind({
+      getLaneLayoutState({
+        borderClass: "border-blue-500",
+        codeHeight: DIFF_FILE_HEADER_HEIGHT,
         hasError: false,
         isEmpty: false,
         layout: "columns",
-      })
+      }).contentKind
     ).toBe("columns")
   })
 
@@ -58,7 +65,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "columns",
-        view: testPaneView("a", [testFileDiff("app/a.ts", 2, 1)]),
+        codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
       }).columnHeight
     ).toBe(44 + DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX)
   })
@@ -70,7 +77,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: true,
         layout: "columns",
-        view: testPaneView("a", []),
+        codeHeight: 0,
       }).sectionClass
     ).toContain("border-dashed")
 
@@ -80,7 +87,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "rows",
-        view: testPaneView("a", [testFileDiff("app/a.ts", 2, 1)]),
+        codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
       }).sectionClass
     ).toContain("overflow-clip")
     expect(
@@ -89,7 +96,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "rows",
-        view: testPaneView("a", [testFileDiff("app/a.ts", 2, 1)]),
+        codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
       }).sectionClass
     ).toContain("rounded-xl")
   })
@@ -101,7 +108,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "columns",
-        view: testPaneView("a", [testFileDiff("app/a.ts", 2, 1)]),
+        codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
       }).sectionStyle
     ).toEqual({
       height: `min(100%, ${44 + DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX}px)`,
@@ -112,7 +119,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "rows",
-        view: testPaneView("a", [testFileDiff("app/a.ts", 2, 1)]),
+        codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
       }).sectionStyle
     ).toBeUndefined()
   })
@@ -124,7 +131,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: true,
         layout: "columns",
-        view: testPaneView("a", []),
+        codeHeight: 0,
       }).bodyClass
     ).toContain("shrink-0")
     expect(
@@ -133,7 +140,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "rows",
-        view: testPaneView("a", [testFileDiff("app/a.ts", 2, 1)]),
+        codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
       }).bodyClass
     ).toContain("block")
     expect(
@@ -142,7 +149,7 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "columns",
-        view: testPaneView("a", [testFileDiff("app/a.ts", 2, 1)]),
+        codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
       }).bodyClass
     ).toContain("flex-1")
   })

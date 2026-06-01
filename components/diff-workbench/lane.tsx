@@ -1,13 +1,16 @@
 "use client"
 
 import { type CodeViewHandle } from "@pierre/diffs/react"
-import { type WheelEvent, useRef } from "react"
+import { useRef } from "react"
 
 import { LaneDropzone } from "./lane-dropzone"
 import { LaneHeader } from "./lane-header"
 import { getLaneLayoutState } from "./lane-layout"
-import { ColumnCodeView, RowDiffList } from "./lane-content"
+import { ColumnCodeView } from "./lane-content"
+import type { ImportFileSource } from "./import-staging-state"
 import { laneStyle } from "./lanes"
+import { estimateCodeHeight } from "./lane-metrics"
+import { RowDiffList } from "./row-diff-list"
 import type { DiffRenderSettings, Layout, PaneView, ParsedPane } from "./types"
 
 type LaneView = {
@@ -23,7 +26,7 @@ type LaneActions = {
   refCallback: (handle: CodeViewHandle<undefined> | null) => void
   onScroll: () => void
   onHide: () => void
-  onImport: (files: FileList | null) => void
+  onImport: (files: ImportFileSource) => void
   onClear: () => void
   onMoveLeft: () => void
   onMoveRight: () => void
@@ -42,13 +45,13 @@ export function Lane({ actions, view }: LaneProps) {
   const codeViewContainerRef = useRef<HTMLDivElement>(null)
   const layoutState = getLaneLayoutState({
     borderClass: style.border,
+    codeHeight: estimateCodeHeight(view.paneView),
     hasError: Boolean(view.pane.error),
     isEmpty,
     layout: view.layout,
-    view: view.paneView,
   })
 
-  function handleColumnWheel(event: WheelEvent<HTMLDivElement>) {
+  function handleColumnWheel() {
     if (view.layout !== "columns") return
     actions.onScrollIntent()
   }
@@ -64,7 +67,6 @@ export function Lane({ actions, view }: LaneProps) {
         isEmpty={isEmpty}
         pane={view.pane}
         style={style}
-        view={view.paneView}
         canMoveLeft={actions.canMoveLeft}
         canMoveRight={actions.canMoveRight}
         onClear={actions.onClear}

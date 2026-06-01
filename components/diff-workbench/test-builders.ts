@@ -1,6 +1,6 @@
 import type { FileDiffMetadata } from "@pierre/diffs/react"
 
-import { diffTotalsForFiles } from "./diff-data"
+import { diffTotalsForFiles } from "./diff-totals"
 import type { DiffCodeItem, FileRow, PaneView, ParsedPane } from "./types"
 
 type TestHunk = FileDiffMetadata["hunks"][number]

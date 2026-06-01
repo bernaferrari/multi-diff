@@ -2,16 +2,15 @@
 
 import { PanelLeft } from "lucide-react"
 
+import { cn } from "@/lib/utils"
+
 import { DisplayPopover } from "./display-popover"
 import { ImportDialog } from "./import-dialog"
 import { ThemeToggle } from "./theme-toggle"
 import { DiffStyleControl, LayoutModeControl } from "./toolbar-mode-controls"
 import { ToolbarIconButton } from "./toolbar-controls"
-import {
-  getDisplayPopoverState,
-  getSidebarToggleState,
-} from "./toolbar-state"
-import type { DiffStyle, LaneMarkerStyle, Layout } from "./types"
+import type { ImportFileSource, StagedImportFile } from "./import-staging-state"
+import type { DiffStyle, LaneMarkerStyle, Layout, Pane } from "./types"
 
 export type ToolbarSettings = {
   sidebarOpen: boolean
@@ -20,6 +19,7 @@ export type ToolbarSettings = {
   laneMarkerStyle: LaneMarkerStyle
   wrap: boolean
   lineNumbers: boolean
+  panes: Pane[]
 }
 
 export type ToolbarActions = {
@@ -29,7 +29,9 @@ export type ToolbarActions = {
   setLaneMarkerStyle: (s: LaneMarkerStyle) => void
   setWrap: (v: boolean) => void
   setLineNumbers: (v: boolean) => void
-  onImportFiles: (files: FileList | null) => void | Promise<void>
+  onImportFiles: (
+    files: ImportFileSource | StagedImportFile[]
+  ) => void | Promise<void>
   onReset: () => void
 }
 
@@ -40,17 +42,21 @@ export function Toolbar({
   actions: ToolbarActions
   settings: ToolbarSettings
 }) {
-  const sidebarToggle = getSidebarToggleState(settings.sidebarOpen)
-  const displayPopover = getDisplayPopoverState({ actions, settings })
-
   return (
     <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/70 bg-card/80 px-3 py-2 backdrop-blur">
       <div className="flex items-center gap-2">
         <ToolbarIconButton
           onClick={() => actions.setSidebarOpen(!settings.sidebarOpen)}
-          aria-pressed={sidebarToggle.pressed}
-          aria-label={sidebarToggle.ariaLabel}
-          className={sidebarToggle.className}
+          aria-pressed={settings.sidebarOpen}
+          aria-label={
+            settings.sidebarOpen ? "Hide files panel" : "Show files panel"
+          }
+          className={cn(
+            "-ml-1 rounded-md border-transparent bg-transparent",
+            settings.sidebarOpen
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          )}
         >
           <PanelLeft className="size-4" />
         </ToolbarIconButton>
@@ -70,8 +76,17 @@ export function Toolbar({
         />
 
         <DisplayPopover
-          settings={displayPopover.settings}
-          actions={displayPopover.actions}
+          settings={{
+            lineNumbers: settings.lineNumbers,
+            laneMarkerStyle: settings.laneMarkerStyle,
+            layout: settings.layout,
+            wrap: settings.wrap,
+          }}
+          actions={{
+            lineNumbers: actions.setLineNumbers,
+            setLaneMarkerStyle: actions.setLaneMarkerStyle,
+            wrap: actions.setWrap,
+          }}
         />
 
         <div className="mx-0.5 h-6 w-px bg-border" />
@@ -79,6 +94,7 @@ export function Toolbar({
         <ImportDialog
           onImportFiles={actions.onImportFiles}
           onReset={actions.onReset}
+          panes={settings.panes}
         />
         <ThemeToggle />
       </div>

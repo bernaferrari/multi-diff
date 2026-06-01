@@ -1,14 +1,8 @@
-import type { CSSProperties } from "react"
-
 import { DIFF_LINE_HEIGHT_PX } from "./diff-render-metrics"
 
-type CSSVariableStyles = CSSProperties & Record<`--${string}`, string | number>
+import type { CSSProperties } from "react"
 
-export function laneColumnStyle(height: number): CSSProperties {
-  return {
-    height: `min(100%, ${height}px)`,
-  }
-}
+type CSSVariableStyles = CSSProperties & Record<`--${string}`, string | number>
 
 export const diffStyleVariables: CSSVariableStyles = {
   "--diffs-font-family": "var(--font-mono)",

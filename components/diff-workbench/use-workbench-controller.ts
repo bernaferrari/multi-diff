@@ -1,47 +1,25 @@
 import { useTheme } from "next-themes"
-import { useCallback, useEffect, useRef, useState } from "react"
 
+import { useColumnsNavigationEffect } from "./use-columns-navigation-effect"
 import { useDiffDropImport } from "./use-diff-drop-import"
 import { usePaneScroll } from "./use-pane-scroll"
 import { useWorkbenchActions } from "./use-workbench-actions"
 import { useWorkbenchKeyboard } from "./use-workbench-keyboard"
+import { useWorkbenchNavigation } from "./use-workbench-navigation"
 import { useWorkbenchState } from "./use-workbench-state"
 import { useWorkbenchViewModel } from "./use-workbench-view-model"
-import {
-  getFilesPanelActions,
-  getToolbarActions,
-  getViewportActions,
-} from "./workbench-controller-actions"
-import {
-  getFilesPanelView,
-  getNotesView,
-  getRenderSettings,
-  getToolbarSettings,
-  getViewportView,
-} from "./workbench-controller-model"
-import type { ActiveFileByLane, LaneId } from "./types"
-
-const NAVIGATION_SCROLL_SPY_LOCK_MS = 120
+import { getFilesPanelView } from "./files-panel-view-state"
 
 export function useWorkbenchController() {
   const { resolvedTheme } = useTheme()
-  const [navigationTarget, setNavigationTarget] = useState<{
-    name: string
-    token: number
-  } | null>(null)
-  const [activeFileByLane, setActiveFileByLane] = useState<ActiveFileByLane>({})
-  const [focusMode, setFocusMode] = useState(false)
-  const navigationLockUntil = useRef(0)
-  const appliedColumnsNavigationToken = useRef<number | null>(null)
-  const rowsNavigationFile = useRef<string | null>(null)
 
   const { state, setters } = useWorkbenchState()
-  const renderSettings = getRenderSettings({
+  const renderSettings = {
+    codeTheme: resolvedTheme === "dark" ? "dark" : "light",
     diffStyle: state.diffStyle,
     lineNumbers: state.lineNumbers,
-    resolvedTheme,
     wrap: state.wrap,
-  })
+  } as const
 
   const {
     allFileRows,
@@ -63,29 +41,6 @@ export function useWorkbenchController() {
     panes: state.panes,
   })
 
-  const handleActiveFileChange = useCallback(
-    (name: string, sourceId: LaneId) => {
-      if (Date.now() < navigationLockUntil.current) return
-      if (state.layout === "rows") rowsNavigationFile.current = name
-      setters.setActiveFile(name)
-      setActiveFileByLane((current) =>
-        getNextActiveFileByLane({
-          current,
-          name,
-          sourceId,
-        })
-      )
-    },
-    [setters, state.layout]
-  )
-
-  const { handleScroll, markScrollDriver, scrollToFile, setViewerRef } =
-    usePaneScroll({
-      displayedPaneViews,
-      paneViews,
-      onActiveFileChange: handleActiveFileChange,
-    })
-
   const actions = useWorkbenchActions({
     activeFile: state.activeFile,
     fileRows,
@@ -94,99 +49,38 @@ export function useWorkbenchController() {
     setters,
   })
 
-  const navigateFile = useCallback(
-    (name: string) => {
-      navigationLockUntil.current = Date.now() + NAVIGATION_SCROLL_SPY_LOCK_MS
-      rowsNavigationFile.current = name
-      actions.clearFocusedFile()
-      setters.setActiveFile(name)
-      setActiveFileByLane((current) => ({
-        ...current,
-        ...getActiveFileByVisibleLanes(displayedPaneViews, name),
-      }))
-      setNavigationTarget({ name, token: Date.now() })
-    },
-    [actions, displayedPaneViews, setters]
-  )
+  const {
+    activeFileByLane,
+    clearFocusMode,
+    focusMode,
+    handleActiveFileChange,
+    navigateOrFocusFile,
+    navigationTarget,
+    setLayout,
+    toggleFocusMode,
+  } = useWorkbenchNavigation({
+    activeFile: state.activeFile,
+    clearFocusedFile: actions.clearFocusedFile,
+    displayedPaneViews,
+    fileRows,
+    focusedFile: focused,
+    indexActiveFile,
+    layout: state.layout,
+    setters,
+  })
 
-  const focusFile = useCallback(
-    (name: string) => {
-      rowsNavigationFile.current = name
-      setters.setActiveFile(name)
-      setters.setFocusFile(name)
-      setActiveFileByLane((current) => ({
-        ...current,
-        ...getActiveFileByVisibleLanes(displayedPaneViews, name),
-      }))
-    },
-    [displayedPaneViews, setters]
-  )
-
-  const navigateOrFocusFile = useCallback(
-    (name: string) => {
-      if (focusMode) {
-        focusFile(name)
-        return
-      }
-      navigateFile(name)
-    },
-    [focusFile, focusMode, navigateFile]
-  )
-
-  const clearFocusMode = useCallback(() => {
-    setFocusMode(false)
-    actions.clearFocusedFile()
-  }, [actions])
-
-  const toggleFocusMode = useCallback(() => {
-    if (focusMode) {
-      clearFocusMode()
-      return
-    }
-
-    setFocusMode(true)
-    if (state.activeFile) focusFile(state.activeFile)
-  }, [clearFocusMode, focusFile, focusMode, state.activeFile])
-
-  const setLayout = useCallback(
-    (layout: typeof state.layout) => {
-      if (layout === state.layout) return
-      if (layout === "rows") {
-        const target =
-          getVisibleFileName(rowsNavigationFile.current, fileRows) ??
-          getVisibleFileName(state.activeFile, fileRows) ??
-          indexActiveFile
-
-        if (target) {
-          navigationLockUntil.current =
-            Date.now() + NAVIGATION_SCROLL_SPY_LOCK_MS
-          rowsNavigationFile.current = target
-          setters.setActiveFile(target)
-          setActiveFileByLane((current) => ({
-            ...current,
-            ...getActiveFileByVisibleLanes(displayedPaneViews, target),
-          }))
-          setNavigationTarget({ name: target, token: Date.now() })
-        }
-      }
-      setters.setLayout(layout)
-    },
-    [
+  const { handleScroll, markScrollDriver, scrollToFile, setViewerRef } =
+    usePaneScroll({
       displayedPaneViews,
-      fileRows,
-      indexActiveFile,
-      setters,
-      state.activeFile,
-      state.layout,
-    ]
-  )
+      paneViews,
+      onActiveFileChange: handleActiveFileChange,
+    })
 
-  useEffect(() => {
-    if (state.layout !== "columns" || !navigationTarget) return
-    if (appliedColumnsNavigationToken.current === navigationTarget.token) return
-    scrollToFile(navigationTarget.name)
-    appliedColumnsNavigationToken.current = navigationTarget.token
-  }, [navigationTarget, scrollToFile, state.layout])
+  useColumnsNavigationEffect({
+    layout: state.layout,
+    navigationTarget,
+    scrollToFile,
+  })
 
   const filePanelActions = {
     ...actions,
@@ -207,21 +101,30 @@ export function useWorkbenchController() {
     onImport: actions.importFiles,
   })
 
-  const toolbarSettings = getToolbarSettings(state)
+  const toolbarSettings = {
+    diffStyle: state.diffStyle,
+    laneMarkerStyle: state.laneMarkerStyle,
+    layout: state.layout,
+    lineNumbers: state.lineNumbers,
+    panes: state.panes,
+    sidebarOpen: state.sidebarOpen,
+    wrap: state.wrap,
+  }
   const toolbarActions = {
-    ...getToolbarActions({
-      actions,
-      setters: {
-        ...setters,
-        setLayout,
-      },
-    }),
     onImportFiles: actions.importFiles,
+    onReset: actions.resetWorkbench,
+    setDiffStyle: setters.setDiffStyle,
+    setLaneMarkerStyle: setters.setLaneMarkerStyle,
+    setLayout,
+    setLineNumbers: setters.setLineNumbers,
+    setSidebarOpen: setters.setSidebarOpen,
+    setWrap: setters.setWrap,
   }
 
   const filesPanelView = getFilesPanelView({
     activeFileByLane,
     allFileRows,
+    fileRows,
     focused,
     focusMode,
     hiddenFileRows,
@@ -230,26 +133,36 @@ export function useWorkbenchController() {
     sharedCount,
     state,
   })
-  const filesPanelActions = getFilesPanelActions({
-    actions: filePanelActions,
-    setters,
-  })
+  const filesPanelActions = {
+    onFilterFile: filePanelActions.toggleFocusFile,
+    onHideFiles: filePanelActions.hideFiles,
+    onNavigate: filePanelActions.navigateFile,
+    onOverview: filePanelActions.clearFocusedFile,
+    onQuery: setters.setFileQuery,
+    onShowAllFiles: filePanelActions.showAllFiles,
+    onShowFiles: filePanelActions.showFiles,
+    onToggleFocusMode: filePanelActions.toggleFocusMode,
+    onToggleLane: filePanelActions.toggleLane,
+  }
 
-  const viewportView = getViewportView({
+  const viewportView = {
     displayedPaneViews,
     hasErrors,
+    layout: state.layout,
     navigationTarget,
     renderSettings,
-    state,
     visiblePanes,
-  })
-  const viewportActions = getViewportActions({
-    actions,
+  }
+  const viewportActions = {
+    onClearLaneDiff: actions.clearLaneDiff,
+    onHideLane: actions.toggleLane,
+    onImportFiles: actions.importFiles,
+    onMoveLane: actions.moveLaneDiff,
     onPaneScroll: handleScroll,
     onPaneScrollIntent: markScrollDriver,
     onRowsActiveFileChange: handleActiveFileChange,
     onViewerRef: setViewerRef,
-  })
+  }
 
   return {
     dragging: state.dragging,
@@ -257,7 +170,13 @@ export function useWorkbenchController() {
       actions: filesPanelActions,
       view: filesPanelView,
     },
-    notes: getNotesView(state, setters),
+    notes: {
+      onChange: setters.setNotes,
+      onClose: () => setters.setNotesOpen(false),
+      onOpen: () => setters.setNotesOpen(true),
+      open: state.notesOpen,
+      value: state.notes,
+    },
     onInputFiles: actions.importFiles,
     sidebarOpen: state.sidebarOpen,
     toolbar: {
@@ -268,39 +187,5 @@ export function useWorkbenchController() {
       actions: viewportActions,
       view: viewportView,
     },
-  }
-}
-
-function getVisibleFileName(name: string | null, rows: { name: string }[]) {
-  if (!name) return null
-  return rows.some((row) => row.name === name) ? name : null
-}
-
-function getActiveFileByVisibleLanes(
-  displayedPaneViews: {
-    pane: { id: LaneId }
-    paneView: { idByName: Map<string, string> }
-  }[],
-  name: string
-): ActiveFileByLane {
-  return Object.fromEntries(
-    displayedPaneViews
-      .filter(({ paneView }) => paneView.idByName.has(name))
-      .map(({ pane }) => [pane.id, name])
-  )
-}
-
-function getNextActiveFileByLane({
-  current,
-  name,
-  sourceId,
-}: {
-  current: ActiveFileByLane
-  name: string
-  sourceId: LaneId
-}): ActiveFileByLane {
-  return {
-    ...current,
-    [sourceId]: name,
   }
 }

@@ -1,12 +1,10 @@
 import { useMemo, useState } from "react"
 
 import type { DiffStyle, LaneId, LaneMarkerStyle, Layout, Pane } from "./types"
+import { getWorkbenchPersistenceState } from "./persistence"
 import { useWorkbenchPersistence } from "./use-workbench-persistence"
 import {
   createInitialWorkbenchState,
-  getWorkbenchPersistenceState,
-  getWorkbenchSetters,
-  getWorkbenchState,
   type WorkbenchSetters,
 } from "./workbench-state-model"
 
@@ -35,24 +33,23 @@ export function useWorkbenchState() {
   const [dragging, setDragging] = useState(initial.dragging)
 
   const state = useMemo(
-    () =>
-      getWorkbenchState({
-        activeFile,
-        dragging,
-        diffStyle,
-        fileQuery,
-        focusFile,
-        hidden,
-        hiddenFiles,
-        laneMarkerStyle,
-        layout,
-        lineNumbers,
-        notes,
-        notesOpen,
-        panes,
-        sidebarOpen,
-        wrap,
-      }),
+    () => ({
+      activeFile,
+      dragging,
+      diffStyle,
+      fileQuery,
+      focusFile,
+      hidden,
+      hiddenFiles,
+      laneMarkerStyle,
+      layout,
+      lineNumbers,
+      notes,
+      notesOpen,
+      panes,
+      sidebarOpen,
+      wrap,
+    }),
     [
       activeFile,
       dragging,
@@ -73,24 +70,23 @@ export function useWorkbenchState() {
   )
 
   const setters = useMemo<WorkbenchSetters>(
-    () =>
-      getWorkbenchSetters({
-        setActiveFile,
-        setDragging,
-        setDiffStyle,
-        setFileQuery,
-        setFocusFile,
-        setHidden,
-        setHiddenFiles,
-        setLaneMarkerStyle,
-        setLayout,
-        setLineNumbers,
-        setNotes,
-        setNotesOpen,
-        setPanes,
-        setSidebarOpen,
-        setWrap,
-      }),
+    () => ({
+      setActiveFile,
+      setDragging,
+      setDiffStyle,
+      setFileQuery,
+      setFocusFile,
+      setHidden,
+      setHiddenFiles,
+      setLaneMarkerStyle,
+      setLayout,
+      setLineNumbers,
+      setNotes,
+      setNotesOpen,
+      setPanes,
+      setSidebarOpen,
+      setWrap,
+    }),
     []
   )
   const persistedState = useMemo(

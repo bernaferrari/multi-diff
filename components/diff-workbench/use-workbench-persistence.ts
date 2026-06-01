@@ -3,14 +3,12 @@ import { useEffect, useRef } from "react"
 import {
   readStoredWorkbenchState,
   type StoredWorkbenchState,
+  type WorkbenchPersistenceState,
   writeStoredWorkbenchState,
 } from "./persistence"
-import type {
-  WorkbenchPersistenceState,
-  WorkbenchSetters,
-} from "./workbench-state-model"
+import type { WorkbenchSetters } from "./workbench-state-model"
 
-export type WorkbenchPersistenceSetters = Pick<
+type WorkbenchPersistenceSetters = Pick<
   WorkbenchSetters,
   | "setDiffStyle"
   | "setLayout"

@@ -1,10 +1,10 @@
-export function hideFileNames(current: Set<string>, names: Iterable<string>) {
+function hideFileNames(current: Set<string>, names: Iterable<string>) {
   const next = new Set(current)
   for (const name of names) next.add(name)
   return next
 }
 
-export function showFileNames(current: Set<string>, names: Iterable<string>) {
+function showFileNames(current: Set<string>, names: Iterable<string>) {
   const next = new Set(current)
   for (const name of names) next.delete(name)
   return next
@@ -14,7 +14,7 @@ export function clearHiddenFileNames() {
   return new Set<string>()
 }
 
-export function getFileNameSelection(names: Iterable<string>) {
+function getFileNameSelection(names: Iterable<string>) {
   const selection = new Set(names)
   return selection.size > 0 ? selection : null
 }
@@ -31,7 +31,7 @@ export function getFileVisibilityPatch(names: Iterable<string>) {
   }
 }
 
-export function clearSelectionIfHidden(
+function clearSelectionIfHidden(
   current: string | null,
   hiddenNames: Set<string>
 ) {
