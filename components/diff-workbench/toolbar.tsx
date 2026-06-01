@@ -32,7 +32,8 @@ export type ToolbarActions = {
   onImportFiles: (
     files: ImportFileSource | StagedImportFile[]
   ) => void | Promise<void>
-  onReset: () => void
+  onClearAll: () => void
+  onLoadSamples: () => void
 }
 
 export function Toolbar({
@@ -94,7 +95,8 @@ export function Toolbar({
 
         <ImportDialog
           onImportFiles={actions.onImportFiles}
-          onReset={actions.onReset}
+          onClearAll={actions.onClearAll}
+          onLoadSamples={actions.onLoadSamples}
           panes={settings.panes}
         />
         <ThemeToggle />

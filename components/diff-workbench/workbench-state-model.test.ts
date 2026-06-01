@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   createInitialWorkbenchState,
 } from "./workbench-state-model"
+import { createEmptyPanes } from "./sample-panes"
 
 describe("workbench state model", () => {
   it("creates the default state for a new workbench session", () => {
@@ -38,5 +39,10 @@ describe("workbench state model", () => {
     expect(second.hidden.size).toBe(0)
     expect(second.hiddenFiles.size).toBe(0)
     expect(second.panes[0].text).not.toBe("changed")
+  })
+
+  it("creates empty lanes for a cleared workbench", () => {
+    expect(createEmptyPanes().map((pane) => pane.id)).toEqual(["a", "b", "c"])
+    expect(createEmptyPanes().every((pane) => pane.text === "")).toBe(true)
   })
 })

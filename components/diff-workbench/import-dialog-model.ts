@@ -19,8 +19,9 @@ export type ImportDialogBodyActions = {
   onFiles: (files: ImportFileSource) => void
   onImport: () => void | Promise<void>
   onLaneChange: (index: number, lane: LaneId) => void
+  onClearAll: () => void
+  onLoadSamples: () => void
   onMove: (fromIndex: number, toIndex: number) => void
   onRemove: (index: number) => void
-  onReset: () => void
   onSort: () => void
 }

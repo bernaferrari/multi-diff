@@ -1,5 +1,6 @@
 import { createPane, normalizePatchInput } from "./diff-data"
 import type { Pane } from "./types"
+import { LANE_ORDER } from "./lanes"
 
 const samples = [
   `diff --git a/app/api/search/route.ts b/app/api/search/route.ts
@@ -156,4 +157,8 @@ const samplePanes: Pane[] = [
 
 export function createSamplePanes(): Pane[] {
   return samplePanes.map((pane) => ({ ...pane }))
+}
+
+export function createEmptyPanes(count = 3): Pane[] {
+  return LANE_ORDER.slice(0, count).map((id) => createPane(id))
 }

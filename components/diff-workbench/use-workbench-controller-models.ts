@@ -113,8 +113,9 @@ export function useWorkbenchControllerModels({
   const toolbarActions = useMemo(
     () =>
       getToolbarActions({
+        onClearAll: actions.clearWorkbench,
         onImportFiles: actions.importFiles,
-        onReset: actions.resetWorkbench,
+        onLoadSamples: actions.loadSampleWorkbench,
         setDiffStyle: setters.setDiffStyle,
         setLaneMarkerStyle: setters.setLaneMarkerStyle,
         setLayout,
@@ -123,8 +124,9 @@ export function useWorkbenchControllerModels({
         setWrap: setters.setWrap,
       }),
     [
+      actions.clearWorkbench,
       actions.importFiles,
-      actions.resetWorkbench,
+      actions.loadSampleWorkbench,
       setLayout,
       setters.setDiffStyle,
       setters.setLaneMarkerStyle,

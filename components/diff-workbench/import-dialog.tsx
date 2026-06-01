@@ -14,22 +14,23 @@ import {
 
 import { ImportDialogBody } from "./import-dialog-body"
 import type { ImportFileSource, StagedImportFile } from "./import-staging-state"
-import { laneRangeLabel } from "./lanes"
 import { useImportDialogState } from "./use-import-dialog-state"
 import type { Pane } from "./types"
 
 export function ImportDialog({
+  onClearAll,
   onImportFiles,
-  onReset,
+  onLoadSamples,
   panes,
 }: {
+  onClearAll: () => void
   onImportFiles: (
     files: ImportFileSource | StagedImportFile[]
   ) => void | Promise<void>
-  onReset: () => void
+  onLoadSamples: () => void
   panes: Pane[]
 }) {
-  const dialog = useImportDialogState({ onImportFiles, onReset })
+  const dialog = useImportDialogState({ onClearAll, onImportFiles, onLoadSamples })
 
   return (
     <Dialog open={dialog.open} onOpenChange={dialog.setOpen}>
@@ -45,8 +46,7 @@ export function ImportDialog({
         <DialogHeader className="px-5 pt-5 pr-12 pb-3">
           <DialogTitle className="text-lg">Import diffs</DialogTitle>
           <DialogDescription className="text-sm">
-            Drop diffs or pick files — they fill lanes {laneRangeLabel()} in the
-            order shown.
+            Stage files, choose lanes, or reset the workspace before importing.
           </DialogDescription>
         </DialogHeader>
 

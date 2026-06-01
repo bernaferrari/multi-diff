@@ -6,7 +6,7 @@ import { useFileVisibilityActions } from "./use-file-visibility-actions"
 import { useImportActions } from "./use-import-actions"
 import { useLaneActions } from "./use-lane-actions"
 import { clearHiddenFileNames } from "./file-visibility-state"
-import { createSamplePanes } from "./sample-panes"
+import { createEmptyPanes, createSamplePanes } from "./sample-panes"
 import type { WorkbenchSetters } from "./workbench-state-model"
 
 type WorkbenchActionSetters = Pick<
@@ -71,19 +71,22 @@ export function useWorkbenchActions({
     setNotesOpen((open) => !open)
   }, [setNotesOpen])
 
-  const resetWorkbench = useCallback(() => {
-    setPanes(createSamplePanes())
+  const resetSelectionState = useCallback(() => {
     setHidden(new Set())
     setHiddenFiles(clearHiddenFileNames())
     setActiveFile(null)
     setFocusFile(null)
-  }, [
-    setActiveFile,
-    setFocusFile,
-    setHidden,
-    setHiddenFiles,
-    setPanes,
-  ])
+  }, [setActiveFile, setFocusFile, setHidden, setHiddenFiles])
+
+  const loadSampleWorkbench = useCallback(() => {
+    setPanes(createSamplePanes())
+    resetSelectionState()
+  }, [resetSelectionState, setPanes])
+
+  const clearWorkbench = useCallback(() => {
+    setPanes(createEmptyPanes())
+    resetSelectionState()
+  }, [resetSelectionState, setPanes])
 
   return useMemo(
     () => ({
@@ -93,7 +96,8 @@ export function useWorkbenchActions({
       hideFiles,
       importFiles,
       moveLaneDiff,
-      resetWorkbench,
+      clearWorkbench,
+      loadSampleWorkbench,
       showAllFiles,
       showFiles,
       toggleFocusFile,
@@ -107,7 +111,8 @@ export function useWorkbenchActions({
       hideFiles,
       importFiles,
       moveLaneDiff,
-      resetWorkbench,
+      clearWorkbench,
+      loadSampleWorkbench,
       showAllFiles,
       showFiles,
       toggleFocusFile,

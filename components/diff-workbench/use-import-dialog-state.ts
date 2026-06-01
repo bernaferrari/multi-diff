@@ -21,13 +21,15 @@ import type {
 } from "./import-dialog-model"
 
 export function useImportDialogState({
+  onClearAll,
   onImportFiles,
-  onReset,
+  onLoadSamples,
 }: {
+  onClearAll: () => void
   onImportFiles: (
     files: ImportFileSource | StagedImportFile[]
   ) => void | Promise<void>
-  onReset: () => void
+  onLoadSamples: () => void
 }) {
   const [open, setOpen] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -72,8 +74,13 @@ export function useImportDialogState({
     closeAndClear()
   }
 
-  function handleReset() {
-    onReset()
+  function handleClearAll() {
+    onClearAll()
+    closeAndClear()
+  }
+
+  function handleLoadSamples() {
+    onLoadSamples()
     closeAndClear()
   }
 
@@ -122,7 +129,8 @@ export function useImportDialogState({
     onLaneChange: handleLaneChange,
     onMove: handleMove,
     onRemove: handleRemove,
-    onReset: handleReset,
+    onClearAll: handleClearAll,
+    onLoadSamples: handleLoadSamples,
     onSort: handleSort,
   }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { RotateCcw, Upload } from "lucide-react"
+import { Eraser, FlaskConical, Upload } from "lucide-react"
 import { type DragEvent, type ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -30,9 +30,10 @@ export function ImportDialogBody({
     onFiles,
     onImport,
     onLaneChange,
+    onClearAll,
+    onLoadSamples,
     onMove,
     onRemove,
-    onReset,
     onSort,
   } = actions
   const pendingCount = pendingFiles.length
@@ -72,8 +73,10 @@ export function ImportDialogBody({
       <ImportDialogFooter
         count={pendingCount}
         hasPending={hasPending}
+        hasWorkspaceContent={panes.some((pane) => pane.text.trim())}
+        onClearAll={onClearAll}
         onImport={onImport}
-        onReset={onReset}
+        onLoadSamples={onLoadSamples}
       />
     </div>
   )
@@ -82,34 +85,55 @@ export function ImportDialogBody({
 function ImportDialogFooter({
   count,
   hasPending,
+  hasWorkspaceContent,
+  onClearAll,
   onImport,
-  onReset,
+  onLoadSamples,
 }: {
   count: number
   hasPending: boolean
+  hasWorkspaceContent: boolean
+  onClearAll: () => void
   onImport: () => void | Promise<void>
-  onReset: () => void
+  onLoadSamples: () => void
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 pt-1">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onReset}
-        className="px-1.5 text-muted-foreground hover:text-foreground"
-      >
-        <RotateCcw className="size-3.5" />
-        Reset samples
-      </Button>
-      <Button
-        size="sm"
-        onClick={() => void onImport()}
-        disabled={!hasPending}
-        className="min-w-24"
-      >
-        <Upload className="size-3.5" />
-        {hasPending ? `Import ${count}` : "Import"}
-      </Button>
+    <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onLoadSamples}
+          className="px-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <FlaskConical className="size-3.5" />
+          Load samples
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClearAll}
+          disabled={!hasWorkspaceContent && !hasPending}
+          className="px-1.5 text-muted-foreground hover:text-destructive"
+        >
+          <Eraser className="size-3.5" />
+          Clear all
+        </Button>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-muted-foreground">
+          {hasPending ? `${count} staged` : "Nothing staged"}
+        </span>
+        <Button
+          size="sm"
+          onClick={() => void onImport()}
+          disabled={!hasPending}
+          className="min-w-24"
+        >
+          <Upload className="size-3.5" />
+          {hasPending ? `Import ${count}` : "Import"}
+        </Button>
+      </div>
     </div>
   )
 }
