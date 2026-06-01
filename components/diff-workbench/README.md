@@ -1,4 +1,4 @@
-# Diff Workbench Internals
+# Multi Diff Internals
 
 This folder is intentionally split by behavior instead of by component size.
 

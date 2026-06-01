@@ -59,7 +59,7 @@ export function FilesTreeContent({
   const activeLaneIdsByFile = getActiveLaneIdsByFile(activeFileByLane)
 
   return (
-    <div aria-label="Changed files" role="tree">
+    <div>
       {treeRows.map(({ depth, node }) =>
         node.kind === "directory" ? (
           <DirectoryTreeBranch

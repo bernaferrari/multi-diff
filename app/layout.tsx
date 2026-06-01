@@ -15,7 +15,7 @@ const fontMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Diff Workbench",
+  title: "Multi Diff",
   description: "Compare multiple unified diff files side by side.",
 }
 

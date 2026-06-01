@@ -1,7 +1,7 @@
 import type { DiffStyle, LaneMarkerStyle, Layout, Pane } from "./types"
 import { restoreStoredWorkbenchState } from "./persistence-restore"
 
-export const STORAGE_KEY = "sf-diff:v1"
+export const STORAGE_KEY = "multi-diff:v1"
 
 type WorkbenchStorage = Pick<Storage, "getItem" | "setItem">
 

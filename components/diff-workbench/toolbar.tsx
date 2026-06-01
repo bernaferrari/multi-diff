@@ -61,7 +61,7 @@ export function Toolbar({
           <PanelLeft className="size-4" />
         </ToolbarIconButton>
         <span className="text-sm font-semibold tracking-tight">
-          Diff Workbench
+          Multi Diff
         </span>
       </div>
 

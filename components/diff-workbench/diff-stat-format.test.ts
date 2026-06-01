@@ -21,6 +21,9 @@ describe("diff stat formatting", () => {
     expect(formatDiffStatLabel({ additions: 12, deletions: 3 })).toBe(
       "12 additions, 3 deletions"
     )
+    expect(formatDiffStatLabel({ additions: 0, deletions: 0 })).toBe(
+      "no changes"
+    )
   })
 
   it("omits zero-value stat sides for compact file-tree rows", () => {

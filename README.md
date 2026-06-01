@@ -1,11 +1,11 @@
-# Diff Workbench
+# Multi Diff
 
-Diff Workbench is a focused review tool for comparing multiple unified diff
-files at once. It is built for situations where one patch is not enough:
+Multi Diff is a focused review tool for comparing multiple unified diff files at
+once. It is built for situations where one patch is not enough:
 competing implementations, generated variants, refactors split across lanes, or
 several candidate fixes that need to be understood file by file.
 
-![Columns view](./docs/images/workbench-columns.png)
+![Columns view](./docs/images/multi-diff-columns.png)
 
 ## What It Does
 

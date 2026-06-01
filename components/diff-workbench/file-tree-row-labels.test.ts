@@ -24,6 +24,23 @@ describe("file tree row labels", () => {
     expect(getFileTreeRowTitle(row)).toBe("app/search.ts\nin A, C · +12 −3")
   })
 
+  it("does not produce dangling lane text for incomplete row metadata", () => {
+    const row: FileRow = {
+      additions: 0,
+      deletions: 0,
+      name: "empty.ts",
+      panes: {},
+      presentIn: [],
+    }
+
+    expect(getFileTreeRowLabel(row)).toBe(
+      "empty.ts, not visible in any lane, no changes"
+    )
+    expect(getFileTreeRowTitle(row)).toBe(
+      "empty.ts\nnot visible in any lane · +0 −0"
+    )
+  })
+
   it("builds directory labels from expansion state", () => {
     expect(
       getDirectoryTreeRowLabel({ collapsed: true, path: "app/api" })

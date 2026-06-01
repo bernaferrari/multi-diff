@@ -59,6 +59,7 @@ export function Lane({ actions, view }: LaneProps) {
   return (
     <section
       data-lane={view.pane.id}
+      aria-label={view.pane.label}
       className={layoutState.sectionClass}
       style={layoutState.sectionStyle}
     >
@@ -81,7 +82,9 @@ export function Lane({ actions, view }: LaneProps) {
         onWheelCapture={isEmpty ? undefined : handleColumnWheel}
       >
         {layoutState.contentKind === "error" ? (
-          <div className="p-4 text-sm text-destructive">{view.pane.error}</div>
+          <div role="alert" className="p-4 text-sm text-destructive">
+            {view.pane.error}
+          </div>
         ) : layoutState.contentKind === "empty" ? (
           <LaneDropzone style={style} onImport={actions.onImport} />
         ) : layoutState.contentKind === "rows" ? (

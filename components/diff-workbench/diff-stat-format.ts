@@ -27,6 +27,7 @@ export function formatDiffStatLabel({
   additions,
   deletions,
 }: DiffStatTotals) {
+  if (additions === 0 && deletions === 0) return "no changes"
   return `${additions} additions, ${deletions} deletions`
 }
 

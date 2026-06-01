@@ -3,11 +3,11 @@ import { laneLabel } from "./lanes"
 import type { FileRow } from "./types"
 
 export function getFileTreeRowTitle(row: FileRow) {
-  return `${row.name}\nin ${getFileTreeRowLaneList(row)} · ${formatDiffStatSummary(row)}`
+  return `${row.name}\n${getFileTreeRowLaneTitle(row)} · ${formatDiffStatSummary(row)}`
 }
 
 export function getFileTreeRowLabel(row: FileRow) {
-  return `${row.name}, changed in ${getFileTreeRowLaneList(row)}, ${formatDiffStatLabel(row)}`
+  return `${row.name}, ${getFileTreeRowLaneLabel(row)}, ${formatDiffStatLabel(row)}`
 }
 
 export function getDirectoryTreeRowTitle({
@@ -32,4 +32,14 @@ export function getDirectoryTreeRowLabel({
 
 function getFileTreeRowLaneList(row: FileRow) {
   return row.presentIn.map(laneLabel).join(", ")
+}
+
+function getFileTreeRowLaneTitle(row: FileRow) {
+  const lanes = getFileTreeRowLaneList(row)
+  return lanes ? `in ${lanes}` : "not visible in any lane"
+}
+
+function getFileTreeRowLaneLabel(row: FileRow) {
+  const lanes = getFileTreeRowLaneList(row)
+  return lanes ? `changed in ${lanes}` : "not visible in any lane"
 }

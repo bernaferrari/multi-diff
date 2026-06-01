@@ -77,7 +77,7 @@ describe("files tree list", () => {
     const html = renderTreeContent({ rowCount: 3, treeRowCount: 2 })
 
     expect(html).not.toContain("No files")
-    expect(html).toContain('role="tree"')
+    expect(html).toContain('role="treeitem"')
   })
 
   it("marks rows active when any lane is currently reading that file", () => {
