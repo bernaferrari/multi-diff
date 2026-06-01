@@ -1,16 +1,15 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useReducer } from "react"
 
 import {
   getFocusModeToggleAction,
   getNavigationFallbackFile,
-  getNavigationActiveFileByLane,
-  getNavigationScrollLockUntil,
-  getNextActiveFileByLane,
   getRowsLayoutNavigationTarget,
+  initialWorkbenchNavigationState,
   isNavigationScrollLocked,
+  reduceWorkbenchNavigationState,
   type PaneFileLookup,
 } from "./workbench-navigation-state"
-import type { ActiveFileByLane, FileRow, LaneId, Layout } from "./types"
+import type { FileRow, LaneId, Layout } from "./types"
 import type { WorkbenchSetters } from "./workbench-state-model"
 
 type WorkbenchNavigationSetters = Pick<
@@ -37,14 +36,10 @@ export function useWorkbenchNavigation({
   layout: Layout
   setters: WorkbenchNavigationSetters
 }) {
-  const [navigationTarget, setNavigationTarget] = useState<{
-    name: string
-    token: number
-  } | null>(null)
-  const [activeFileByLane, setActiveFileByLane] = useState<ActiveFileByLane>({})
-  const [focusMode, setFocusMode] = useState(false)
-  const navigationLockUntil = useRef(0)
-  const rowsNavigationFile = useRef<string | null>(null)
+  const [navigation, dispatchNavigation] = useReducer(
+    reduceWorkbenchNavigationState,
+    initialWorkbenchNavigationState
+  )
 
   const activateFile = useCallback(
     ({
@@ -57,24 +52,21 @@ export function useWorkbenchNavigation({
       name: string
     }) => {
       const token = Date.now()
-      navigationLockUntil.current = getNavigationScrollLockUntil(token)
-      rowsNavigationFile.current = name
       if (clearFocus) clearFocusedFile()
       setters.setActiveFile(name)
       if (focus) setters.setFocusFile(name)
-      setActiveFileByLane((current) =>
-        getNavigationActiveFileByLane({
-          currentActiveFileByLane: current,
-          displayedPaneViews,
-          fallbackName: getNavigationFallbackFile({
-            activeFile,
-            fileRows,
-            indexActiveFile,
-          }),
-          name,
-        })
-      )
-      setNavigationTarget({ name, token })
+      dispatchNavigation({
+        displayedPaneViews,
+        fallbackName: getNavigationFallbackFile({
+          activeFile,
+          fileRows,
+          indexActiveFile,
+        }),
+        focusMode: focus ? true : undefined,
+        name,
+        token,
+        type: "activate",
+      })
     },
     [
       activeFile,
@@ -90,23 +82,21 @@ export function useWorkbenchNavigation({
     (name: string, sourceId: LaneId) => {
       if (
         isNavigationScrollLocked({
-          lockUntil: navigationLockUntil.current,
+          lockUntil: navigation.navigationLockUntil,
           now: Date.now(),
         })
       ) {
         return
       }
-      if (layout === "rows") rowsNavigationFile.current = name
       setters.setActiveFile(name)
-      setActiveFileByLane((current) =>
-        getNextActiveFileByLane({
-          current,
-          name,
-          sourceId,
-        })
-      )
+      dispatchNavigation({
+        name,
+        sourceId,
+        type: "scroll",
+        updateRowsFile: layout === "rows",
+      })
     },
-    [layout, setters]
+    [layout, navigation.navigationLockUntil, setters]
   )
 
   const navigateFile = useCallback(
@@ -125,17 +115,17 @@ export function useWorkbenchNavigation({
 
   const navigateOrFocusFile = useCallback(
     (name: string) => {
-      if (focusMode) {
+      if (navigation.focusMode) {
         focusFile(name)
         return
       }
       navigateFile(name)
     },
-    [focusFile, focusMode, navigateFile]
+    [focusFile, navigation.focusMode, navigateFile]
   )
 
   const clearFocusMode = useCallback(() => {
-    setFocusMode(false)
+    dispatchNavigation({ type: "clearFocusMode" })
     clearFocusedFile()
   }, [clearFocusedFile])
 
@@ -143,10 +133,10 @@ export function useWorkbenchNavigation({
     (preferredFile?: string | null) => {
       const action = getFocusModeToggleAction({
         activeFile,
-        activeFileByLane,
+        activeFileByLane: navigation.activeFileByLane,
         fileRows,
         focusedFile,
-        focusMode,
+        focusMode: navigation.focusMode,
         indexActiveFile,
         preferredFile,
       })
@@ -157,19 +147,18 @@ export function useWorkbenchNavigation({
       }
 
       if (action.type === "select") {
-        setFocusMode(true)
         focusFile(action.name)
       }
     },
     [
       activeFile,
-      activeFileByLane,
       clearFocusMode,
       fileRows,
       focusedFile,
       focusFile,
-      focusMode,
       indexActiveFile,
+      navigation.activeFileByLane,
+      navigation.focusMode,
     ]
   )
 
@@ -181,23 +170,31 @@ export function useWorkbenchNavigation({
           activeFile,
           fileRows,
           indexActiveFile,
-          rowsNavigationFile: rowsNavigationFile.current,
+          rowsNavigationFile: navigation.rowsNavigationFile,
         })
 
         if (target) activateFile({ name: target })
       }
       setters.setLayout(nextLayout)
     },
-    [activateFile, activeFile, fileRows, indexActiveFile, layout, setters]
+    [
+      activateFile,
+      activeFile,
+      fileRows,
+      indexActiveFile,
+      layout,
+      navigation.rowsNavigationFile,
+      setters,
+    ]
   )
 
   return {
-    activeFileByLane,
+    activeFileByLane: navigation.activeFileByLane,
     clearFocusMode,
-    focusMode,
+    focusMode: navigation.focusMode,
     handleActiveFileChange,
     navigateOrFocusFile,
-    navigationTarget,
+    navigationTarget: navigation.navigationTarget,
     setLayout,
     toggleFocusMode,
   }

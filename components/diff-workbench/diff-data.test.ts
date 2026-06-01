@@ -88,4 +88,20 @@ describe("diff data helpers", () => {
     expect(rows[2].panes.a?.name).toBe("shared.ts")
     expect(rows[2].panes.b?.name).toBe("shared.ts")
   })
+
+  it("deduplicates pane presence when a pane contains repeated file names", () => {
+    const rows = buildFileRows([
+      testParsedPane("a", [
+        testFileDiff("shared.ts", 2, 1),
+        testFileDiff("shared.ts", 3, 0),
+      ]),
+    ])
+
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({
+      additions: 5,
+      deletions: 1,
+      presentIn: ["a"],
+    })
+  })
 })

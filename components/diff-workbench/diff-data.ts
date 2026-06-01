@@ -84,7 +84,9 @@ export function buildFileRows(panes: ParsedPane[]): FileRow[] {
       }
       const totals = diffTotalsFor(file)
       existing.panes[pane.id] = file
-      existing.presentIn.push(pane.id)
+      if (!existing.presentIn.includes(pane.id)) {
+        existing.presentIn.push(pane.id)
+      }
       existing.additions += totals.additions
       existing.deletions += totals.deletions
       rows.set(file.name, existing)

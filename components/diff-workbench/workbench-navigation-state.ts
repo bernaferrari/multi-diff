@@ -14,6 +14,77 @@ export type FocusModeToggleAction =
   | { name: string; type: "select" }
   | { type: "none" }
 
+export type WorkbenchNavigationState = {
+  activeFileByLane: ActiveFileByLane
+  focusMode: boolean
+  navigationLockUntil: number
+  navigationTarget: { name: string; token: number } | null
+  rowsNavigationFile: string | null
+}
+
+export type WorkbenchNavigationAction =
+  | {
+      displayedPaneViews: PaneFileLookup[]
+      fallbackName?: string | null
+      focusMode?: boolean
+      name: string
+      token: number
+      type: "activate"
+    }
+  | { name: string; sourceId: LaneId; type: "scroll"; updateRowsFile: boolean }
+  | { type: "clearFocusMode" }
+
+export const initialWorkbenchNavigationState: WorkbenchNavigationState = {
+  activeFileByLane: {},
+  focusMode: false,
+  navigationLockUntil: 0,
+  navigationTarget: null,
+  rowsNavigationFile: null,
+}
+
+export function reduceWorkbenchNavigationState(
+  state: WorkbenchNavigationState,
+  action: WorkbenchNavigationAction
+): WorkbenchNavigationState {
+  if (action.type === "activate") {
+    return {
+      ...state,
+      activeFileByLane: getNavigationActiveFileByLane({
+        currentActiveFileByLane: state.activeFileByLane,
+        displayedPaneViews: action.displayedPaneViews,
+        fallbackName: action.fallbackName,
+        name: action.name,
+      }),
+      focusMode: action.focusMode ?? state.focusMode,
+      navigationLockUntil: getNavigationScrollLockUntil(action.token),
+      navigationTarget: {
+        name: action.name,
+        token: action.token,
+      },
+      rowsNavigationFile: action.name,
+    }
+  }
+
+  if (action.type === "scroll") {
+    return {
+      ...state,
+      activeFileByLane: getNextActiveFileByLane({
+        current: state.activeFileByLane,
+        name: action.name,
+        sourceId: action.sourceId,
+      }),
+      rowsNavigationFile: action.updateRowsFile
+        ? action.name
+        : state.rowsNavigationFile,
+    }
+  }
+
+  return {
+    ...state,
+    focusMode: false,
+  }
+}
+
 export function getNavigationScrollLockUntil(now: number) {
   return now + NAVIGATION_SCROLL_SPY_LOCK_MS
 }

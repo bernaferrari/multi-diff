@@ -15,6 +15,7 @@ export function LaneDropzone({
 }) {
   return (
     <label
+      aria-label="Import a diff file into this lane"
       className={cn(
         "grid flex-1 cursor-pointer place-items-center text-center transition-colors hover:bg-muted/30",
         style.text

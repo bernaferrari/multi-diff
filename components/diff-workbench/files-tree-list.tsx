@@ -53,6 +53,8 @@ export function FilesTreeList({
         render={
           <div
             ref={listRef}
+            role="tree"
+            aria-label="Files"
             className="scroll-thin min-h-0 flex-1 overflow-y-auto p-1.5"
             onContextMenu={(event) => {
               if (!isTreeRowContextTarget(event.target)) {

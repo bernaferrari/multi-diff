@@ -8,8 +8,10 @@ import {
   getNavigationScrollLockUntil,
   getNextActiveFileByLane,
   getRowsLayoutNavigationTarget,
+  initialWorkbenchNavigationState,
   isNavigationScrollLocked,
   NAVIGATION_SCROLL_SPY_LOCK_MS,
+  reduceWorkbenchNavigationState,
 } from "./workbench-navigation-state"
 
 describe("workbench navigation state", () => {
@@ -78,6 +80,59 @@ describe("workbench navigation state", () => {
       a: "old.ts",
       b: "new.ts",
     })
+  })
+
+  it("reduces explicit navigation into one internal state transition", () => {
+    const next = reduceWorkbenchNavigationState(
+      initialWorkbenchNavigationState,
+      {
+        displayedPaneViews: [
+          paneLookup("a", ["first.ts"]),
+          paneLookup("b", ["first.ts", "second.ts"]),
+        ],
+        fallbackName: "first.ts",
+        name: "second.ts",
+        token: 1000,
+        type: "activate",
+      }
+    )
+
+    expect(next).toMatchObject({
+      activeFileByLane: {
+        a: "first.ts",
+        b: "second.ts",
+      },
+      focusMode: false,
+      navigationLockUntil: 1000 + NAVIGATION_SCROLL_SPY_LOCK_MS,
+      navigationTarget: {
+        name: "second.ts",
+        token: 1000,
+      },
+      rowsNavigationFile: "second.ts",
+    })
+  })
+
+  it("reduces scroll spy updates without resetting unrelated lanes", () => {
+    const next = reduceWorkbenchNavigationState(
+      {
+        ...initialWorkbenchNavigationState,
+        activeFileByLane: { a: "first.ts", c: "third.ts" },
+        rowsNavigationFile: "first.ts",
+      },
+      {
+        name: "second.ts",
+        sourceId: "b",
+        type: "scroll",
+        updateRowsFile: true,
+      }
+    )
+
+    expect(next.activeFileByLane).toEqual({
+      a: "first.ts",
+      b: "second.ts",
+      c: "third.ts",
+    })
+    expect(next.rowsNavigationFile).toBe("second.ts")
   })
 
   it("locks scroll-spy updates for a short window after navigation", () => {

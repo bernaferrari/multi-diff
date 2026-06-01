@@ -19,6 +19,7 @@ export function TreeRowButton({
       {...props}
       type="button"
       role="treeitem"
+      aria-level={depth + 1}
       aria-selected={selected}
       className={className}
       style={{ ...getTreeRowIndent(depth), ...style }}

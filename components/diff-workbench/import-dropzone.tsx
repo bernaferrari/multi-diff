@@ -21,6 +21,7 @@ export function ImportEmptyDropzone({
 }) {
   return (
     <label
+      aria-label="Import diff files"
       onDragEnter={onDragEnter}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
