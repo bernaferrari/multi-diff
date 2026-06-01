@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 
 import type { FileRow, Pane } from "./types"
 import { useFileFocusActions } from "./use-file-focus-actions"
@@ -85,18 +85,34 @@ export function useWorkbenchActions({
     setPanes,
   ])
 
-  return {
-    clearFocusedFile,
-    clearLaneDiff,
-    focusFileByOffset,
-    hideFiles,
-    importFiles,
-    moveLaneDiff,
-    resetWorkbench,
-    showAllFiles,
-    showFiles,
-    toggleFocusFile,
-    toggleLane,
-    toggleNotes,
-  }
+  return useMemo(
+    () => ({
+      clearFocusedFile,
+      clearLaneDiff,
+      focusFileByOffset,
+      hideFiles,
+      importFiles,
+      moveLaneDiff,
+      resetWorkbench,
+      showAllFiles,
+      showFiles,
+      toggleFocusFile,
+      toggleLane,
+      toggleNotes,
+    }),
+    [
+      clearFocusedFile,
+      clearLaneDiff,
+      focusFileByOffset,
+      hideFiles,
+      importFiles,
+      moveLaneDiff,
+      resetWorkbench,
+      showAllFiles,
+      showFiles,
+      toggleFocusFile,
+      toggleLane,
+      toggleNotes,
+    ]
+  )
 }

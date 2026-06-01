@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 import {
   getDragDepthState,
@@ -15,6 +15,14 @@ export function useDiffDropImport({
   onDraggingChange: (dragging: boolean) => void
   onImport: (files: ImportFileSource, target?: LaneId) => void
 }) {
+  const onDraggingChangeRef = useRef(onDraggingChange)
+  const onImportRef = useRef(onImport)
+
+  useEffect(() => {
+    onDraggingChangeRef.current = onDraggingChange
+    onImportRef.current = onImport
+  }, [onDraggingChange, onImport])
+
   useEffect(() => {
     let depth = 0
 
@@ -22,14 +30,14 @@ export function useDiffDropImport({
       if (!hasDraggedFiles(event)) return
       const next = getDragDepthState(depth, "enter")
       depth = next.depth
-      onDraggingChange(next.dragging)
+      onDraggingChangeRef.current(next.dragging)
     }
 
     function onLeave(event: DragEvent) {
       if (!hasDraggedFiles(event)) return
       const next = getDragDepthState(depth, "leave")
       depth = next.depth
-      onDraggingChange(next.dragging)
+      onDraggingChangeRef.current(next.dragging)
     }
 
     function onOver(event: DragEvent) {
@@ -41,8 +49,8 @@ export function useDiffDropImport({
       event.preventDefault()
       const next = getDragDepthState(depth, "drop")
       depth = next.depth
-      onDraggingChange(next.dragging)
-      onImport(
+      onDraggingChangeRef.current(next.dragging)
+      onImportRef.current(
         event.dataTransfer?.files ?? null,
         laneTargetFromDragEvent(event)
       )
@@ -58,5 +66,5 @@ export function useDiffDropImport({
       window.removeEventListener("dragover", onOver)
       window.removeEventListener("drop", onDrop)
     }
-  }, [onDraggingChange, onImport])
+  }, [])
 }

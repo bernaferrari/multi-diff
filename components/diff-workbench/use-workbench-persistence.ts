@@ -24,13 +24,10 @@ export function useWorkbenchPersistence(
   state: WorkbenchPersistenceState,
   setters: WorkbenchPersistenceSetters
 ) {
-  const readyToPersist = useRef(false)
+  const hasRestored = useRef(false)
 
   useEffect(() => {
-    if (!readyToPersist.current) {
-      readyToPersist.current = true
-      return
-    }
+    if (!hasRestored.current) return
     writeStoredWorkbenchState(state)
   }, [state])
 
@@ -39,6 +36,7 @@ export function useWorkbenchPersistence(
   useEffect(() => {
     const saved = readStoredWorkbenchState()
     applyStoredWorkbenchState(saved, setters)
+    hasRestored.current = true
   }, [setters])
 }
 

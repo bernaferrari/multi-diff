@@ -1,4 +1,5 @@
 import { useTheme } from "next-themes"
+import { useCallback, useMemo } from "react"
 
 import { useColumnsNavigationEffect } from "./use-columns-navigation-effect"
 import { useDiffDropImport } from "./use-diff-drop-import"
@@ -14,12 +15,17 @@ export function useWorkbenchController() {
   const { resolvedTheme } = useTheme()
 
   const { state, setters } = useWorkbenchState()
-  const renderSettings = {
-    codeTheme: resolvedTheme === "dark" ? "dark" : "light",
-    diffStyle: state.diffStyle,
-    lineNumbers: state.lineNumbers,
-    wrap: state.wrap,
-  } as const
+  const codeTheme = resolvedTheme === "dark" ? "dark" : "light"
+  const renderSettings = useMemo(
+    () =>
+      ({
+        codeTheme,
+        diffStyle: state.diffStyle,
+        lineNumbers: state.lineNumbers,
+        wrap: state.wrap,
+      }) as const,
+    [codeTheme, state.diffStyle, state.lineNumbers, state.wrap]
+  )
 
   const {
     allFileRows,
@@ -82,13 +88,6 @@ export function useWorkbenchController() {
     scrollToFile,
   })
 
-  const filePanelActions = {
-    ...actions,
-    clearFocusedFile: clearFocusMode,
-    navigateFile: navigateOrFocusFile,
-    toggleFocusMode,
-  }
-
   useWorkbenchKeyboard({
     focusFile: state.focusFile,
     onClearFocus: clearFocusMode,
@@ -101,25 +100,48 @@ export function useWorkbenchController() {
     onImport: actions.importFiles,
   })
 
-  const toolbarSettings = {
-    diffStyle: state.diffStyle,
-    laneMarkerStyle: state.laneMarkerStyle,
-    layout: state.layout,
-    lineNumbers: state.lineNumbers,
-    panes: state.panes,
-    sidebarOpen: state.sidebarOpen,
-    wrap: state.wrap,
-  }
-  const toolbarActions = {
-    onImportFiles: actions.importFiles,
-    onReset: actions.resetWorkbench,
-    setDiffStyle: setters.setDiffStyle,
-    setLaneMarkerStyle: setters.setLaneMarkerStyle,
-    setLayout,
-    setLineNumbers: setters.setLineNumbers,
-    setSidebarOpen: setters.setSidebarOpen,
-    setWrap: setters.setWrap,
-  }
+  const toolbarSettings = useMemo(
+    () => ({
+      diffStyle: state.diffStyle,
+      laneMarkerStyle: state.laneMarkerStyle,
+      layout: state.layout,
+      lineNumbers: state.lineNumbers,
+      panes: state.panes,
+      sidebarOpen: state.sidebarOpen,
+      wrap: state.wrap,
+    }),
+    [
+      state.diffStyle,
+      state.laneMarkerStyle,
+      state.layout,
+      state.lineNumbers,
+      state.panes,
+      state.sidebarOpen,
+      state.wrap,
+    ]
+  )
+  const toolbarActions = useMemo(
+    () => ({
+      onImportFiles: actions.importFiles,
+      onReset: actions.resetWorkbench,
+      setDiffStyle: setters.setDiffStyle,
+      setLaneMarkerStyle: setters.setLaneMarkerStyle,
+      setLayout,
+      setLineNumbers: setters.setLineNumbers,
+      setSidebarOpen: setters.setSidebarOpen,
+      setWrap: setters.setWrap,
+    }),
+    [
+      actions.importFiles,
+      actions.resetWorkbench,
+      setLayout,
+      setters.setDiffStyle,
+      setters.setLaneMarkerStyle,
+      setters.setLineNumbers,
+      setters.setSidebarOpen,
+      setters.setWrap,
+    ]
+  )
 
   const filesPanelView = getFilesPanelView({
     activeFileByLane,
@@ -133,36 +155,73 @@ export function useWorkbenchController() {
     sharedCount,
     state,
   })
-  const filesPanelActions = {
-    onFilterFile: filePanelActions.toggleFocusFile,
-    onHideFiles: filePanelActions.hideFiles,
-    onNavigate: filePanelActions.navigateFile,
-    onOverview: filePanelActions.clearFocusedFile,
-    onQuery: setters.setFileQuery,
-    onShowAllFiles: filePanelActions.showAllFiles,
-    onShowFiles: filePanelActions.showFiles,
-    onToggleFocusMode: filePanelActions.toggleFocusMode,
-    onToggleLane: filePanelActions.toggleLane,
-  }
+  const filesPanelActions = useMemo(
+    () => ({
+      onFilterFile: actions.toggleFocusFile,
+      onHideFiles: actions.hideFiles,
+      onNavigate: navigateOrFocusFile,
+      onOverview: clearFocusMode,
+      onQuery: setters.setFileQuery,
+      onShowAllFiles: actions.showAllFiles,
+      onShowFiles: actions.showFiles,
+      onToggleFocusMode: toggleFocusMode,
+      onToggleLane: actions.toggleLane,
+    }),
+    [
+      actions.hideFiles,
+      actions.showAllFiles,
+      actions.showFiles,
+      actions.toggleFocusFile,
+      actions.toggleLane,
+      clearFocusMode,
+      navigateOrFocusFile,
+      setters.setFileQuery,
+      toggleFocusMode,
+    ]
+  )
 
-  const viewportView = {
-    displayedPaneViews,
-    hasErrors,
-    layout: state.layout,
-    navigationTarget,
-    renderSettings,
-    visiblePanes,
-  }
-  const viewportActions = {
-    onClearLaneDiff: actions.clearLaneDiff,
-    onHideLane: actions.toggleLane,
-    onImportFiles: actions.importFiles,
-    onMoveLane: actions.moveLaneDiff,
-    onPaneScroll: handleScroll,
-    onPaneScrollIntent: markScrollDriver,
-    onRowsActiveFileChange: handleActiveFileChange,
-    onViewerRef: setViewerRef,
-  }
+  const viewportView = useMemo(
+    () => ({
+      displayedPaneViews,
+      hasErrors,
+      layout: state.layout,
+      navigationTarget,
+      renderSettings,
+      visiblePanes,
+    }),
+    [
+      displayedPaneViews,
+      hasErrors,
+      navigationTarget,
+      renderSettings,
+      state.layout,
+      visiblePanes,
+    ]
+  )
+  const viewportActions = useMemo(
+    () => ({
+      onClearLaneDiff: actions.clearLaneDiff,
+      onHideLane: actions.toggleLane,
+      onImportFiles: actions.importFiles,
+      onMoveLane: actions.moveLaneDiff,
+      onPaneScroll: handleScroll,
+      onPaneScrollIntent: markScrollDriver,
+      onRowsActiveFileChange: handleActiveFileChange,
+      onViewerRef: setViewerRef,
+    }),
+    [
+      actions.clearLaneDiff,
+      actions.importFiles,
+      actions.moveLaneDiff,
+      actions.toggleLane,
+      handleActiveFileChange,
+      handleScroll,
+      markScrollDriver,
+      setViewerRef,
+    ]
+  )
+  const closeNotes = useCallback(() => setters.setNotesOpen(false), [setters])
+  const openNotes = useCallback(() => setters.setNotesOpen(true), [setters])
 
   return {
     dragging: state.dragging,
@@ -172,8 +231,8 @@ export function useWorkbenchController() {
     },
     notes: {
       onChange: setters.setNotes,
-      onClose: () => setters.setNotesOpen(false),
-      onOpen: () => setters.setNotesOpen(true),
+      onClose: closeNotes,
+      onOpen: openNotes,
       open: state.notesOpen,
       value: state.notes,
     },
