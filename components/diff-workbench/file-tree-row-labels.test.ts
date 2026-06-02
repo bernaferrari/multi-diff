@@ -37,6 +37,23 @@ describe("file tree row labels", () => {
     expect(getFileTreeRowTitle(row)).toBe("empty.ts\nnot visible in any lane · +0 −0");
   });
 
+  it("includes repeated patch block counts when a file appears more than once", () => {
+    const row: FileRow = {
+      additions: 20,
+      deletions: 8,
+      name: "app/search.ts",
+      occurrences: 3,
+      occurrencesByLane: { b: 3 },
+      panes: {},
+      presentIn: ["b"],
+    };
+
+    expect(getFileTreeRowLabel(row)).toBe(
+      "app/search.ts, changed in B, repeated in B x3, 20 additions, 8 deletions",
+    );
+    expect(getFileTreeRowTitle(row)).toBe("app/search.ts\nin B · repeated in B x3 · +20 −8");
+  });
+
   it("builds directory labels from expansion state", () => {
     expect(getDirectoryTreeRowLabel({ collapsed: true, path: "app/api" })).toBe(
       "Expand folder app/api",

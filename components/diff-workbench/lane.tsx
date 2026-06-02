@@ -9,7 +9,6 @@ import { getLaneLayoutState } from "./lane-layout";
 import { ColumnCodeView } from "./lane-content";
 import type { ImportFileSource } from "./import-staging-state";
 import { laneStyle } from "./lanes";
-import { estimateCodeHeight } from "./lane-metrics";
 import { RowDiffList } from "./row-diff-list";
 import type {
   DiffRenderSettings,
@@ -52,7 +51,6 @@ export function Lane({ actions, view }: LaneProps) {
   const codeViewContainerRef = useRef<HTMLDivElement>(null);
   const layoutState = getLaneLayoutState({
     borderClass: style.border,
-    codeHeight: estimateCodeHeight(view.paneView),
     hasError: Boolean(view.pane.error),
     isEmpty,
     layout: view.layout,

@@ -20,12 +20,13 @@ function getLaneContentKind({
   return layout;
 }
 
-function getLaneColumnHeight({ codeHeight, isEmpty }: { codeHeight: number; isEmpty: boolean }) {
-  return LANE_HEADER_HEIGHT + (isEmpty ? EMPTY_LANE_BODY_HEIGHT : codeHeight);
+export function getLaneColumnHeight({ isEmpty }: { isEmpty: boolean }) {
+  return isEmpty ? LANE_HEADER_HEIGHT + EMPTY_LANE_BODY_HEIGHT : undefined;
 }
 
-function getLaneSectionStyle({ columnHeight, layout }: { columnHeight: number; layout: Layout }) {
-  return layout === "columns" ? laneColumnStyle(columnHeight) : undefined;
+function getLaneSectionStyle({ columnHeight, layout }: { columnHeight?: number; layout: Layout }) {
+  if (layout !== "columns" || columnHeight === undefined) return undefined;
+  return laneColumnStyle(columnHeight);
 }
 
 function laneColumnStyle(height: number) {
@@ -48,6 +49,7 @@ function getLaneSectionClass({
     borderClass,
     isEmpty && "border-dashed bg-card/55",
     layout === "columns" && "max-h-full overflow-hidden",
+    layout === "columns" && !isEmpty && "h-full",
     layout === "rows" && "h-auto overflow-clip",
   );
 }
@@ -65,18 +67,16 @@ function getLaneBodyClass({ isEmpty, layout }: { isEmpty: boolean; layout: Layou
 
 export function getLaneLayoutState({
   borderClass,
-  codeHeight,
   hasError,
   isEmpty,
   layout,
 }: {
   borderClass: string;
-  codeHeight: number;
   hasError: boolean;
   isEmpty: boolean;
   layout: Layout;
 }) {
-  const columnHeight = getLaneColumnHeight({ codeHeight, isEmpty });
+  const columnHeight = getLaneColumnHeight({ isEmpty });
 
   return {
     bodyClass: getLaneBodyClass({ isEmpty, layout }),

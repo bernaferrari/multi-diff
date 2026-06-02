@@ -47,10 +47,25 @@ describe("diff data helpers", () => {
 
   it("builds diff items and lookup ids from file metadata", () => {
     const files = [testFileDiff("a.ts", 1, 0), testFileDiff("b.ts", 0, 1)];
-    const { idByName, items } = buildDiffCodeItems("b", files);
+    const { idByName, items, occurrenceById } = buildDiffCodeItems("b", files);
 
     expect(items.map((item) => item.id)).toEqual(["b-0-a.ts", "b-1-b.ts"]);
     expect(idByName.get("b.ts")).toBe("b-1-b.ts");
+    expect(occurrenceById.size).toBe(0);
+  });
+
+  it("tracks repeated file occurrences while keeping navigation on the first instance", () => {
+    const files = [
+      testFileDiff("same.ts", 1, 0),
+      testFileDiff("other.ts", 0, 1),
+      testFileDiff("same.ts", 2, 2),
+    ];
+    const { idByName, items, occurrenceById } = buildDiffCodeItems("a", files);
+
+    expect(items.map((item) => item.id)).toEqual(["a-0-same.ts", "a-1-other.ts", "a-2-same.ts"]);
+    expect(idByName.get("same.ts")).toBe("a-0-same.ts");
+    expect(occurrenceById.get("a-0-same.ts")).toEqual({ index: 1, total: 2 });
+    expect(occurrenceById.get("a-2-same.ts")).toEqual({ index: 2, total: 2 });
   });
 
   it("returns an error payload instead of throwing for invalid patch text", () => {
@@ -86,6 +101,8 @@ describe("diff data helpers", () => {
     expect(rows[0]).toMatchObject({
       additions: 5,
       deletions: 1,
+      occurrences: 2,
+      occurrencesByLane: { a: 2 },
       presentIn: ["a"],
     });
   });

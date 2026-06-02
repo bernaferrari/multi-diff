@@ -15,7 +15,7 @@ describe("toolbar mode controls", () => {
     expect(layoutHtml).toContain("Columns");
     expect(layoutHtml).toContain("Rows");
     expect(layoutHtml).toContain('aria-pressed="true"');
-    expect(diffStyleHtml).toContain("Switch to unified diff view");
+    expect(diffStyleHtml).toContain("Switch to unified");
     expect(diffStyleHtml).toContain('aria-pressed="true"');
   });
 });

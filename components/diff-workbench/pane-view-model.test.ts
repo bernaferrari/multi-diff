@@ -29,6 +29,21 @@ describe("pane view model", () => {
     expect(view.deletions).toBe(2);
   });
 
+  it("keeps repeated focused files with occurrence metadata", () => {
+    const pane = testParsedPane("a", [
+      testFileDiff("focus.ts", 1, 0),
+      testFileDiff("other.ts", 1, 1),
+      testFileDiff("focus.ts", 2, 0),
+    ]);
+
+    const view = buildPaneView(pane, "focus.ts", new Set());
+
+    expect(view.files.map((file) => file.name)).toEqual(["focus.ts", "focus.ts"]);
+    expect(view.idByName.get("focus.ts")).toBe("a-0-focus.ts");
+    expect(view.occurrenceById.get("a-0-focus.ts")).toEqual({ index: 1, total: 2 });
+    expect(view.occurrenceById.get("a-1-focus.ts")).toEqual({ index: 2, total: 2 });
+  });
+
   it("builds all pane views while exposing only displayed pane entries", () => {
     const panes = [
       testParsedPane("a", [testFileDiff("a.ts", 1, 0)]),

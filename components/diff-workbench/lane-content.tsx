@@ -41,6 +41,7 @@ export function ColumnCodeView({
             additions={totals.additions}
             deletions={totals.deletions}
             fileName={item.fileDiff.name}
+            occurrence={view.occurrenceById.get(item.id)}
           />
         );
       }}

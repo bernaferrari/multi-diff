@@ -47,7 +47,7 @@ export function buildPaneView(
     focused,
     hiddenFiles,
   });
-  const { idByName, items } = buildDiffCodeItems(pane.id, files);
+  const { idByName, items, occurrenceById } = buildDiffCodeItems(pane.id, files);
   const { additions, deletions } = diffTotalsForFiles(files);
 
   return {
@@ -55,6 +55,7 @@ export function buildPaneView(
     files,
     items,
     idByName,
+    occurrenceById,
     additions,
     deletions,
   };

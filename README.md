@@ -17,10 +17,6 @@ to lanes A-E, and review the same changed files across every candidate:
 
 Everything runs in the browser. Diff content is not uploaded.
 
-<p align="center">
-  <img src="assets/workbench.png" alt="Multi Diff workbench with columns, rows, file tree, and search" width="1000">
-</p>
-
 ## Why Multi Diff
 
 Most diff viewers are excellent at reviewing one patch. They become awkward when
@@ -63,3 +59,7 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## License
+
+MIT. See [LICENSE](./LICENSE).

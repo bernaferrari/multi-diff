@@ -17,7 +17,7 @@ describe("viewport layout state", () => {
         layout: "columns",
         visiblePaneCount: 1,
       }).sectionClass,
-    ).toContain("pb-5");
+    ).toContain("p-3");
     expect(
       getViewportLayoutState({
         displayedPaneCount: 3,
@@ -31,7 +31,7 @@ describe("viewport layout state", () => {
         layout: "rows",
         visiblePaneCount: 0,
       }).sectionClass,
-    ).toContain("pb-5");
+    ).toContain("pb-3");
     expect(
       getViewportLayoutState({
         displayedPaneCount: 3,

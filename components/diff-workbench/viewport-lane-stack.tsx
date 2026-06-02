@@ -1,6 +1,7 @@
 "use client";
 
 import type { CodeViewHandle } from "@pierre/diffs/react";
+import { useMemo } from "react";
 
 import type { ImportFileSource } from "./import-staging-state";
 import { Lane } from "./lane";
@@ -31,7 +32,10 @@ export function ViewportLaneStack({
   renderSettings: DiffRenderSettings;
   searchTarget: SearchNavigationTarget | null;
 }) {
-  const displayedPaneIds = displayedPaneViews.map(({ pane }) => pane.id);
+  const displayedPaneIds = useMemo(
+    () => displayedPaneViews.map(({ pane }) => pane.id),
+    [displayedPaneViews],
+  );
 
   return displayedPaneViews.map(({ pane, paneView }, paneIndex) => {
     const { leftPaneId, rightPaneId } = getViewportLaneMoveState(displayedPaneIds, paneIndex);

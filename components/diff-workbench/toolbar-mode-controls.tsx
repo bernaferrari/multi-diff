@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { SegmentedControl, SegmentedControlItem } from "./toolbar-controls";
+import { SegmentedControl, SegmentedControlItem, ToolbarTooltip } from "./toolbar-controls";
 import type { DiffStyle, Layout } from "./types";
 
 type ModeOption<TValue extends string> = {
@@ -43,19 +43,22 @@ export function DiffStyleControl({
   onDiffStyle: (diffStyle: DiffStyle) => void;
 }) {
   const nextStyle = diffStyle === "unified" ? "split" : "unified";
+  const label = diffStyle === "unified" ? "Switch to split" : "Switch to unified";
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="icon-xs"
-      aria-label={`Switch to ${nextStyle} diff view`}
-      aria-pressed={diffStyle === "split"}
-      onClick={() => onDiffStyle(nextStyle)}
-      className="bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
-    >
-      <DiffStyleIcon diffStyle={diffStyle} />
-    </Button>
+    <ToolbarTooltip label={label}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-xs"
+        aria-label={label}
+        aria-pressed={diffStyle === "split"}
+        onClick={() => onDiffStyle(nextStyle)}
+        className="bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+      >
+        <DiffStyleIcon diffStyle={diffStyle} />
+      </Button>
+    </ToolbarTooltip>
   );
 }
 

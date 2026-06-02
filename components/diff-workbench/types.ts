@@ -30,6 +30,11 @@ export type DiffRenderSettings = {
   wrap: boolean;
 };
 
+export type FileOccurrence = {
+  index: number;
+  total: number;
+};
+
 export type LanePane = {
   id: LaneId;
   label: string;
@@ -39,6 +44,8 @@ export type FileRow = {
   name: string;
   panes: Partial<Record<LaneId, FileDiffMetadata>>;
   presentIn: LaneId[];
+  occurrences?: number;
+  occurrencesByLane?: Partial<Record<LaneId, number>>;
   additions: number;
   deletions: number;
 };
@@ -68,6 +75,7 @@ export type PaneView = {
   files: FileDiffMetadata[];
   items: DiffCodeItem[];
   idByName: Map<string, string>;
+  occurrenceById: Map<string, FileOccurrence>;
   additions: number;
   deletions: number;
 };
