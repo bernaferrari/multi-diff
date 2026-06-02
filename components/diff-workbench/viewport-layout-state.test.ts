@@ -13,11 +13,25 @@ describe("viewport layout state", () => {
     ).toContain("overflow-hidden");
     expect(
       getViewportLayoutState({
+        displayedPaneCount: 1,
+        layout: "columns",
+        visiblePaneCount: 1,
+      }).sectionClass,
+    ).toContain("pb-5");
+    expect(
+      getViewportLayoutState({
         displayedPaneCount: 3,
         layout: "rows",
         visiblePaneCount: 0,
       }).sectionClass,
     ).toContain("overflow-y-auto");
+    expect(
+      getViewportLayoutState({
+        displayedPaneCount: 3,
+        layout: "rows",
+        visiblePaneCount: 0,
+      }).sectionClass,
+    ).toContain("pb-5");
     expect(
       getViewportLayoutState({
         displayedPaneCount: 3,

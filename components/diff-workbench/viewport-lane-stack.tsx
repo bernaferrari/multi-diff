@@ -6,7 +6,7 @@ import type { ImportFileSource } from "./import-staging-state";
 import { Lane } from "./lane";
 import type { DisplayedPaneView } from "./pane-view-model";
 import { getViewportLaneMoveState } from "./viewport-layout-state";
-import type { DiffRenderSettings, LaneId, Layout } from "./types";
+import type { DiffRenderSettings, LaneId, Layout, SearchNavigationTarget } from "./types";
 
 export type ViewportLaneStackActions = {
   onClearLaneDiff: (paneId: LaneId) => void;
@@ -23,11 +23,13 @@ export function ViewportLaneStack({
   displayedPaneViews,
   layout,
   renderSettings,
+  searchTarget,
 }: {
   actions: ViewportLaneStackActions;
   displayedPaneViews: DisplayedPaneView[];
   layout: Layout;
   renderSettings: DiffRenderSettings;
+  searchTarget: SearchNavigationTarget | null;
 }) {
   const displayedPaneIds = displayedPaneViews.map(({ pane }) => pane.id);
 
@@ -42,6 +44,7 @@ export function ViewportLaneStack({
           pane,
           paneView,
           renderSettings,
+          searchTarget,
         }}
         actions={{
           canMoveLeft: Boolean(leftPaneId),

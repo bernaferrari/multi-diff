@@ -1,5 +1,14 @@
 import { Children, type ComponentProps, type RefObject } from "react";
-import { ArrowLeft, ArrowRight, Eye, MoreHorizontal, Trash2, Upload } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+  Upload,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +29,7 @@ export function LaneActionsMenu({
   onHide,
   onMoveLeft,
   onMoveRight,
+  moveLabels,
 }: {
   actions: {
     canClear: boolean;
@@ -32,7 +42,15 @@ export function LaneActionsMenu({
   onHide: () => void;
   onMoveLeft: () => void;
   onMoveRight: () => void;
+  moveLabels: {
+    backward: string;
+    forward: string;
+    orientation: "horizontal" | "vertical";
+  };
 }) {
+  const BackwardIcon = moveLabels.orientation === "vertical" ? ArrowUp : ArrowLeft;
+  const ForwardIcon = moveLabels.orientation === "vertical" ? ArrowDown : ArrowRight;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -54,12 +72,12 @@ export function LaneActionsMenu({
         className="w-48 rounded-xl p-1.5 shadow-xl ring-1 ring-border/80"
       >
         <LaneMenuItem disabled={!canMoveLeft} onClick={onMoveLeft}>
-          <ArrowLeft className="size-3.5" />
-          Move left
+          <BackwardIcon className="size-3.5" />
+          {moveLabels.backward}
         </LaneMenuItem>
         <LaneMenuItem disabled={!canMoveRight} onClick={onMoveRight}>
-          <ArrowRight className="size-3.5" />
-          Move right
+          <ForwardIcon className="size-3.5" />
+          {moveLabels.forward}
         </LaneMenuItem>
         <LaneMenuItem onClick={() => importInputRef.current?.click()}>
           <Upload className="size-3.5" />

@@ -1,4 +1,4 @@
-import type { ActiveFileByLane, FileRow, LaneId } from "./types";
+import type { ActiveFileByLane, FileNavigationTarget, FileRow, LaneId } from "./types";
 
 import { getFirstVisibleFileTreeName } from "./file-tree";
 
@@ -18,13 +18,14 @@ export type WorkbenchNavigationState = {
   activeFileByLane: ActiveFileByLane;
   focusMode: boolean;
   navigationLockUntil: number;
-  navigationTarget: { name: string; token: number } | null;
+  navigationTarget: FileNavigationTarget | null;
   rowsNavigationFile: string | null;
 };
 
 export type WorkbenchNavigationAction =
   | {
       displayedPaneViews: PaneFileLookup[];
+      behavior?: FileNavigationTarget["behavior"];
       fallbackName?: string | null;
       focusMode?: boolean;
       name: string;
@@ -58,6 +59,7 @@ export function reduceWorkbenchNavigationState(
       focusMode: action.focusMode ?? state.focusMode,
       navigationLockUntil: getNavigationScrollLockUntil(action.token),
       navigationTarget: {
+        behavior: action.behavior,
         name: action.name,
         token: action.token,
       },

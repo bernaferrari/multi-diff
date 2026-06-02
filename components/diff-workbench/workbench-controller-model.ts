@@ -2,7 +2,13 @@ import type { DiffPaneViewportActions } from "./diff-pane-viewport";
 import type { FilesPanelActions } from "./files-panel-model";
 import type { ToolbarActions, ToolbarSettings } from "./toolbar";
 import type { DisplayedPaneView } from "./pane-view-model";
-import type { DiffRenderSettings, FileNavigationTarget, Layout, ParsedPane } from "./types";
+import type {
+  DiffRenderSettings,
+  FileNavigationTarget,
+  Layout,
+  ParsedPane,
+  SearchNavigationTarget,
+} from "./types";
 
 export function getRenderSettings({
   codeTheme,
@@ -37,6 +43,7 @@ export function getViewportView({
   navigationTarget,
   parseErrors,
   renderSettings,
+  searchTarget,
   visiblePanes,
 }: {
   displayedPaneViews: DisplayedPaneView[];
@@ -45,6 +52,7 @@ export function getViewportView({
   navigationTarget: FileNavigationTarget | null;
   parseErrors: { label: string; message: string }[];
   renderSettings: DiffRenderSettings;
+  searchTarget: SearchNavigationTarget | null;
   visiblePanes: ParsedPane[];
 }) {
   return {
@@ -54,6 +62,7 @@ export function getViewportView({
     navigationTarget,
     parseErrors,
     renderSettings,
+    searchTarget,
     visiblePanes,
   };
 }

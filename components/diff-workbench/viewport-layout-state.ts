@@ -7,8 +7,8 @@ function getViewportSectionClass(layout: Layout) {
   return cn(
     "min-h-0 flex-1",
     layout === "columns"
-      ? "h-full overflow-hidden p-3"
-      : "scroll-thin overflow-y-auto px-3 pt-3 pb-0",
+      ? "h-full overflow-hidden p-3 pb-5"
+      : "scroll-thin overflow-y-auto px-3 pt-3 pb-5",
   );
 }
 

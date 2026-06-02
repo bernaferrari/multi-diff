@@ -26,7 +26,7 @@ export function FilesPanel({ actions, view }: FilesPanelProps) {
   });
 
   return (
-    <aside className="flex h-full min-h-0 w-64 shrink-0 flex-col overflow-hidden border-r border-border/70 bg-card/40">
+    <aside className="flex h-full min-h-0 w-64 shrink-0 flex-col overflow-hidden border-r border-border/70 bg-background md:bg-card/40">
       <TreeIconSprite />
       <FilesPanelHeader
         focusFile={view.focusFile}

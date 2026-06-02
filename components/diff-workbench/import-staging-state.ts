@@ -12,11 +12,12 @@ export function appendImportFiles(
   current: StagedImportFile[],
   incoming: ImportFileSource,
   max = MAX_LANES,
+  targetLane?: LaneId,
 ) {
   const incomingFiles = Array.from(incoming ?? []);
   if (!incomingFiles.length) return current;
 
-  return [...current, ...incomingFiles.map((file) => ({ file }))].slice(0, max);
+  return [...current, ...incomingFiles.map((file) => ({ file, targetLane }))].slice(0, max);
 }
 
 export function sortImportFilesByName(files: StagedImportFile[]) {

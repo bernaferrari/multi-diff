@@ -16,6 +16,7 @@ export function DiffWorkbench() {
       <Toolbar settings={toolbar.settings} actions={toolbar.actions} />
 
       <WorkbenchShell
+        onSidebarClose={() => toolbar.actions.setSidebarOpen(false)}
         sidebarOpen={sidebarOpen}
         sidebar={<FilesPanel view={filesPanel.view} actions={filesPanel.actions} />}
         viewport={<DiffPaneViewport view={viewport.view} actions={viewport.actions} />}

@@ -5,7 +5,7 @@ import { createPane } from "./diff-data";
 import { ImportDialogBody } from "./import-dialog-body";
 
 describe("ImportDialogBody", () => {
-  it("separates sample loading, clearing, and importing actions", () => {
+  it("keeps the empty import footer focused on samples and importing", () => {
     const html = renderToStaticMarkup(
       <ImportDialogBody
         view={{
@@ -16,7 +16,6 @@ describe("ImportDialogBody", () => {
         }}
         actions={{
           onAdd: () => {},
-          onClearAll: () => {},
           onDragEnter: () => {},
           onDragLeave: () => {},
           onDragOver: () => {},
@@ -33,9 +32,9 @@ describe("ImportDialogBody", () => {
     );
 
     expect(html).toContain("Load samples");
-    expect(html).toContain("Clear all");
-    expect(html).toContain("Nothing staged");
     expect(html).toContain("Import");
+    expect(html).not.toContain("Clear all");
+    expect(html).not.toContain("Nothing staged");
   });
 
   it("shows staged import count when files are pending", () => {
@@ -49,7 +48,6 @@ describe("ImportDialogBody", () => {
         }}
         actions={{
           onAdd: () => {},
-          onClearAll: () => {},
           onDragEnter: () => {},
           onDragLeave: () => {},
           onDragOver: () => {},

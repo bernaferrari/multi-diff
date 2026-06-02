@@ -86,6 +86,12 @@ describe("import staging state", () => {
     ]);
   });
 
+  it("can append incoming files with a shared target lane", () => {
+    const file = new File(["a"], "a.patch");
+
+    expect(appendImportFiles([], [file], undefined, "b")).toEqual([{ file, targetLane: "b" }]);
+  });
+
   it("detects staged import arrays", () => {
     expect(isStagedImportFiles([{ file: new File(["a"], "a.patch") }])).toBe(true);
     expect(isStagedImportFiles([new File(["a"], "a.patch")])).toBe(false);

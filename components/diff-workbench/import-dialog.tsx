@@ -18,17 +18,15 @@ import { useImportDialogState } from "./use-import-dialog-state";
 import type { Pane } from "./types";
 
 export function ImportDialog({
-  onClearAll,
   onImportFiles,
   onLoadSamples,
   panes,
 }: {
-  onClearAll: () => void;
   onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
   onLoadSamples: () => void;
   panes: Pane[];
 }) {
-  const dialog = useImportDialogState({ onClearAll, onImportFiles, onLoadSamples });
+  const dialog = useImportDialogState({ onImportFiles, onLoadSamples });
 
   return (
     <Dialog open={dialog.open} onOpenChange={dialog.setOpen}>
@@ -44,7 +42,7 @@ export function ImportDialog({
         <DialogHeader className="px-5 pt-5 pr-12 pb-3">
           <DialogTitle className="text-lg">Import diffs</DialogTitle>
           <DialogDescription className="text-sm">
-            Stage files, choose lanes, or reset the workspace before importing.
+            Stage files and confirm lane assignments before importing.
           </DialogDescription>
         </DialogHeader>
 

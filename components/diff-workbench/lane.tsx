@@ -11,13 +11,20 @@ import type { ImportFileSource } from "./import-staging-state";
 import { laneStyle } from "./lanes";
 import { estimateCodeHeight } from "./lane-metrics";
 import { RowDiffList } from "./row-diff-list";
-import type { DiffRenderSettings, Layout, PaneView, ParsedPane } from "./types";
+import type {
+  DiffRenderSettings,
+  Layout,
+  PaneView,
+  ParsedPane,
+  SearchNavigationTarget,
+} from "./types";
 
 type LaneView = {
   pane: ParsedPane;
   paneView: PaneView;
   layout: Layout;
   renderSettings: DiffRenderSettings;
+  searchTarget: SearchNavigationTarget | null;
 };
 
 type LaneActions = {
@@ -66,6 +73,7 @@ export function Lane({ actions, view }: LaneProps) {
       <LaneHeader
         importInputRef={importInputRef}
         isEmpty={isEmpty}
+        layout={view.layout}
         pane={view.pane}
         style={style}
         canMoveLeft={actions.canMoveLeft}
@@ -88,12 +96,18 @@ export function Lane({ actions, view }: LaneProps) {
         ) : layoutState.contentKind === "empty" ? (
           <LaneDropzone style={style} onImport={actions.onImport} />
         ) : layoutState.contentKind === "rows" ? (
-          <RowDiffList paneId={view.pane.id} settings={view.renderSettings} view={view.paneView} />
+          <RowDiffList
+            paneId={view.pane.id}
+            searchTarget={view.searchTarget}
+            settings={view.renderSettings}
+            view={view.paneView}
+          />
         ) : (
           <ColumnCodeView
             containerRef={codeViewContainerRef}
             refCallback={actions.refCallback}
             onScroll={actions.onScroll}
+            searchTarget={view.searchTarget}
             settings={view.renderSettings}
             view={view.paneView}
           />

@@ -33,7 +33,6 @@ export type ToolbarActions = {
   setWrap: (v: boolean) => void;
   setLineNumbers: (v: boolean) => void;
   onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
-  onClearAll: () => void;
   onLoadSamples: () => void;
   search: ContentSearchActions;
 };
@@ -88,7 +87,6 @@ export function Toolbar({
 
         <ImportDialog
           onImportFiles={actions.onImportFiles}
-          onClearAll={actions.onClearAll}
           onLoadSamples={actions.onLoadSamples}
           panes={settings.panes}
         />

@@ -7,11 +7,12 @@ import type { ImportFileSource } from "./import-staging-state";
 import { LaneActionsMenu } from "./lane-actions-menu";
 import { LaneBadge } from "./lane-badge";
 import { type LaneStyle } from "./lanes";
-import type { ParsedPane } from "./types";
+import type { Layout, ParsedPane } from "./types";
 
 export function LaneHeader({
   importInputRef,
   isEmpty,
+  layout,
   pane,
   style,
   canMoveLeft,
@@ -24,6 +25,7 @@ export function LaneHeader({
 }: {
   importInputRef: RefObject<HTMLInputElement | null>;
   isEmpty: boolean;
+  layout: Layout;
   pane: ParsedPane;
   style: LaneStyle;
   canMoveLeft: boolean;
@@ -35,6 +37,10 @@ export function LaneHeader({
   onMoveRight: () => void;
 }) {
   const showStats = pane.items.length > 0;
+  const moveLabels =
+    layout === "rows"
+      ? { backward: "Move up", forward: "Move down", orientation: "vertical" as const }
+      : { backward: "Move left", forward: "Move right", orientation: "horizontal" as const };
 
   return (
     <header className="relative flex min-h-11 shrink-0 items-center gap-2 overflow-hidden rounded-t-xl border-b border-border/70 bg-background/40 pr-1.5 pl-3">
@@ -59,6 +65,7 @@ export function LaneHeader({
         onHide={onHide}
         onMoveLeft={onMoveLeft}
         onMoveRight={onMoveRight}
+        moveLabels={moveLabels}
       />
     </header>
   );

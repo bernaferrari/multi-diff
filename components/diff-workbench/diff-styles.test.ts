@@ -8,6 +8,7 @@ describe("diff styles", () => {
       "--diffs-font-family": "var(--font-mono)",
       "--diffs-font-size": "12.5px",
       "--diffs-line-height": "20px",
+      "--diffs-selection-base": "var(--lane-c)",
     });
   });
 });

@@ -11,7 +11,7 @@ import {
 } from "./pane-scroll-state";
 import type { DisplayedPaneView } from "./pane-view-model";
 import { getActiveScrollFile } from "./scroll-spy-state";
-import type { LaneId, PaneView } from "./types";
+import type { FileNavigationTarget, LaneId, PaneView } from "./types";
 
 type PaneScrollOptions = {
   displayedPaneViews: DisplayedPaneView[];
@@ -66,7 +66,7 @@ export function usePaneScroll({
   }, []);
 
   const scrollToFile = useCallback(
-    (name: string) => {
+    (name: string, behavior?: FileNavigationTarget["behavior"]) => {
       const targets = displayedPaneViews.map(({ pane, paneView }) => ({
         id: pane.id,
         instance: viewerRefs.current.get(pane.id)?.getInstance(),
@@ -79,7 +79,7 @@ export function usePaneScroll({
         }
       }
 
-      return scrollPaneToFile(targets, name);
+      return scrollPaneToFile(targets, name, behavior);
     },
     [displayedPaneViews],
   );

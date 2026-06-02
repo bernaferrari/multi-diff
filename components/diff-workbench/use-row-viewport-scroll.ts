@@ -44,7 +44,10 @@ export function useRowViewportScroll({
     const block = rowScrollerRef.current?.querySelector<HTMLElement>(
       `[data-row-file-name="${CSS.escape(navigationTarget.name)}"]`,
     );
-    block?.scrollIntoView({ block: "start", behavior: "auto" });
+    block?.scrollIntoView({
+      block: "start",
+      behavior: navigationTarget.behavior === "smooth" ? "smooth" : "auto",
+    });
     appliedRowsNavigationToken.current = navigationTarget.token;
   }, [layout, navigationTarget]);
 

@@ -38,6 +38,7 @@ function renderHeader({
     <LaneHeader
       importInputRef={createRef<HTMLInputElement>()}
       isEmpty={isEmpty}
+      layout="columns"
       pane={pane}
       style={laneStyle(pane.id)}
       canMoveLeft={false}

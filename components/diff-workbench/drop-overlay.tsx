@@ -9,9 +9,9 @@ export function DropOverlay() {
         <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
           <Copy className="size-6" />
         </div>
-        <div className="text-base font-semibold">Drop to import</div>
+        <div className="text-base font-semibold">Drop to review import</div>
         <div className="text-sm text-muted-foreground">
-          {`Up to ${MAX_LANES} diffs -> lanes ${laneRangeLabel()} · drop on a lane to target it`}
+          {`Up to ${MAX_LANES} diffs -> lanes ${laneRangeLabel()} · confirm assignments before loading`}
         </div>
       </div>
     </div>

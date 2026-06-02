@@ -61,15 +61,16 @@ export function SegmentedControlItem({
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      aria-label={label}
       className={cn(
-        "flex items-center gap-1.5 rounded-[7px] px-2.5 py-1 text-xs font-medium transition-colors",
+        "flex h-6 w-7 items-center justify-center gap-1.5 rounded-[7px] px-0 text-xs font-medium transition-colors sm:w-auto sm:px-2.5",
         active
           ? "bg-primary text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
       {icon}
-      {label}
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }

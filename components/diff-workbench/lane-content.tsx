@@ -7,17 +7,20 @@ import { diffTotalsFor } from "./diff-totals";
 import { DiffFileHeader } from "./diff-file-header";
 import { codeViewOptions } from "./diff-render-options";
 import { diffStyleVariables } from "./diff-styles";
-import type { DiffRenderSettings, PaneView } from "./types";
+import { getCodeViewSearchSelection } from "./search-line-selection";
+import type { DiffRenderSettings, PaneView, SearchNavigationTarget } from "./types";
 
 export function ColumnCodeView({
   containerRef,
   refCallback,
+  searchTarget,
   settings,
   view,
   onScroll,
 }: {
   containerRef: Ref<HTMLDivElement>;
   refCallback: (handle: CodeViewHandle<undefined> | null) => void;
+  searchTarget: SearchNavigationTarget | null;
   settings: DiffRenderSettings;
   view: PaneView;
   onScroll: () => void;
@@ -29,6 +32,7 @@ export function ColumnCodeView({
       items={view.items}
       onScroll={onScroll}
       options={codeViewOptions(settings)}
+      selectedLines={getCodeViewSearchSelection(view, searchTarget)}
       renderCustomHeader={(item) => {
         if (item.type !== "diff") return null;
         const totals = diffTotalsFor(item.fileDiff);

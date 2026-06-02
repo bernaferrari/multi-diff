@@ -72,6 +72,28 @@ describe("pane scroll helpers", () => {
     });
   });
 
+  it("can smooth-scroll a requested file and matching panes", () => {
+    const scrollA = paneScrollTo();
+    const scrollB = paneScrollTo();
+    const targets: PaneScrollTarget[] = [
+      target("a", ["route.ts"], scrollA),
+      target("b", ["route.ts"], scrollB),
+    ];
+
+    expect(scrollPaneToFile(targets, "route.ts", "smooth")).toBe(true);
+
+    expect(scrollA).toHaveBeenCalledWith(
+      expect.objectContaining({
+        behavior: "smooth",
+      }),
+    );
+    expect(scrollB).toHaveBeenCalledWith(
+      expect.objectContaining({
+        behavior: "smooth",
+      }),
+    );
+  });
+
   it("does nothing when no visible pane contains the requested file", () => {
     const scrollTo = paneScrollTo();
 

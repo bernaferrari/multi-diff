@@ -12,22 +12,34 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { ContentSearchResult } from "./content-search-state";
+import { HighlightedText } from "./content-search-highlight";
 import { FileTypeIcon } from "./file-icons";
 import { LaneBadge } from "./lane-badge";
+import { laneLabel, laneStyle } from "./lanes";
 import { ToolbarIconButton } from "./toolbar-controls";
+import type { LaneId } from "./types";
 
 export type ContentSearchView = {
+  lanes: ContentSearchLaneFilter[];
   open: boolean;
   query: string;
   results: ContentSearchResult[];
+};
+
+export type ContentSearchLaneFilter = {
+  active: boolean;
+  id: LaneId;
+  label: string;
 };
 
 export type ContentSearchActions = {
   onOpenChange: (open: boolean) => void;
   onQueryChange: (query: string) => void;
   onSelectResult: (result: ContentSearchResult) => void;
+  onToggleLane: (id: LaneId) => void;
 };
 
 export function ContentSearchPopover({
@@ -85,9 +97,56 @@ export function ContentSearchPopover({
           />
         </div>
 
+        <ContentSearchLaneFilters actions={actions} lanes={view.lanes} />
+
         <ContentSearchResults actions={actions} view={view} />
       </PopoverContent>
     </Popover>
+  );
+}
+
+function ContentSearchLaneFilters({
+  actions,
+  lanes,
+}: {
+  actions: ContentSearchActions;
+  lanes: ContentSearchLaneFilter[];
+}) {
+  if (lanes.length < 2) return null;
+
+  return (
+    <div className="flex items-center gap-1">
+      {lanes.map((lane) => (
+        <Button
+          key={lane.id}
+          type="button"
+          variant={lane.active ? "secondary" : "ghost"}
+          size="xs"
+          aria-pressed={lane.active}
+          onClick={() => actions.onToggleLane(lane.id)}
+          className="h-6 min-w-7 px-2"
+        >
+          <SearchLaneLabel active={lane.active} id={lane.id} />
+          <span className="sr-only">{lane.label}</span>
+        </Button>
+      ))}
+    </div>
+  );
+}
+
+function SearchLaneLabel({ active, id }: { active: boolean; id: LaneId }) {
+  const style = laneStyle(id);
+
+  return (
+    <span
+      aria-hidden
+      className={[
+        "text-[11px] leading-none font-semibold",
+        active ? style.text : "text-muted-foreground/45",
+      ].join(" ")}
+    >
+      {laneLabel(id)}
+    </span>
   );
 }
 
@@ -100,8 +159,8 @@ function ContentSearchResults({
 }) {
   if (!view.query.trim()) {
     return (
-      <div className="rounded-md border border-dashed border-border/80 px-3 py-5 text-center text-xs text-muted-foreground">
-        Type to search inside the loaded diffs.
+      <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-4 text-center text-xs text-muted-foreground">
+        Matching lines will appear here.
       </div>
     );
   }
@@ -119,34 +178,36 @@ function ContentSearchResults({
       <div className="border-b border-border/60 px-2.5 py-1.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
         {view.results.length} match{view.results.length === 1 ? "" : "es"}
       </div>
-      <div className="grid">
-        {view.results.map((result) => (
-          <Button
-            key={result.id}
-            type="button"
-            variant="ghost"
-            size="default"
-            onClick={() => actions.onSelectResult(result)}
-            className="h-auto justify-start rounded-none px-2.5 py-2 text-left hover:bg-muted/65"
-          >
-            <span className="grid min-w-0 flex-1 gap-1">
-              <span className="flex min-w-0 items-center gap-1.5">
-                <LaneBadge id={result.paneId} size="sm" tone="soft" />
-                <FileTypeIcon path={result.fileName} />
-                <span className="truncate font-mono text-xs">{result.fileName}</span>
-                {result.lineNumber ? (
-                  <span className="ml-auto shrink-0 font-mono text-[10px] text-muted-foreground">
-                    {result.lineNumber}
-                  </span>
-                ) : null}
+      <ScrollArea className="h-72">
+        <div className="grid">
+          {view.results.map((result) => (
+            <Button
+              key={result.id}
+              type="button"
+              variant="ghost"
+              size="default"
+              onClick={() => actions.onSelectResult(result)}
+              className="h-auto justify-start rounded-none px-2.5 py-2 text-left hover:bg-muted/65"
+            >
+              <span className="grid min-w-0 flex-1 gap-1">
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <LaneBadge id={result.paneId} size="sm" tone="soft" />
+                  <FileTypeIcon path={result.fileName} />
+                  <span className="truncate font-mono text-xs">{result.fileName}</span>
+                  {result.lineNumber ? (
+                    <span className="ml-auto shrink-0 font-mono text-[10px] text-muted-foreground">
+                      {result.lineNumber}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="truncate font-mono text-xs text-muted-foreground">
+                  <HighlightedText query={view.query}>{result.preview}</HighlightedText>
+                </span>
               </span>
-              <span className="truncate font-mono text-xs text-muted-foreground">
-                {result.preview}
-              </span>
-            </span>
-          </Button>
-        ))}
-      </div>
+            </Button>
+          ))}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

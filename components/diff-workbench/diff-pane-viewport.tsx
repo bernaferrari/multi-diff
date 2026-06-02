@@ -4,7 +4,14 @@ import type { DisplayedPaneView } from "./pane-view-model";
 import { useRowViewportScroll } from "./use-row-viewport-scroll";
 import { getViewportLayoutState } from "./viewport-layout-state";
 import { ViewportLaneStack, type ViewportLaneStackActions } from "./viewport-lane-stack";
-import type { DiffRenderSettings, FileNavigationTarget, LaneId, Layout, ParsedPane } from "./types";
+import type {
+  DiffRenderSettings,
+  FileNavigationTarget,
+  LaneId,
+  Layout,
+  ParsedPane,
+  SearchNavigationTarget,
+} from "./types";
 
 type DiffPaneViewportProps = {
   actions: DiffPaneViewportActions;
@@ -18,6 +25,7 @@ export type DiffPaneViewportView = {
   navigationTarget: FileNavigationTarget | null;
   parseErrors: { label: string; message: string }[];
   renderSettings: DiffRenderSettings;
+  searchTarget: SearchNavigationTarget | null;
   visiblePanes: ParsedPane[];
 };
 
@@ -58,6 +66,7 @@ export function DiffPaneViewport({ actions, view }: DiffPaneViewportProps) {
               displayedPaneViews={view.displayedPaneViews}
               layout={view.layout}
               renderSettings={view.renderSettings}
+              searchTarget={view.searchTarget}
             />
           </div>
         )}

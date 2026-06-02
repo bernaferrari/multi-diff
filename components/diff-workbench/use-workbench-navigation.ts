@@ -9,7 +9,7 @@ import {
   reduceWorkbenchNavigationState,
   type PaneFileLookup,
 } from "./workbench-navigation-state";
-import type { FileRow, LaneId, Layout } from "./types";
+import type { FileNavigationTarget, FileRow, LaneId, Layout } from "./types";
 import type { WorkbenchSetters } from "./workbench-state-model";
 
 type WorkbenchNavigationSetters = Pick<
@@ -42,13 +42,24 @@ export function useWorkbenchNavigation({
   );
 
   const activateFile = useCallback(
-    ({ clearFocus, focus, name }: { clearFocus?: boolean; focus?: boolean; name: string }) => {
+    ({
+      behavior,
+      clearFocus,
+      focus,
+      name,
+    }: {
+      behavior?: FileNavigationTarget["behavior"];
+      clearFocus?: boolean;
+      focus?: boolean;
+      name: string;
+    }) => {
       const token = Date.now();
       if (clearFocus) clearFocusedFile();
       setters.setActiveFile(name);
       if (focus) setters.setFocusFile(name);
       dispatchNavigation({
         displayedPaneViews,
+        behavior,
         fallbackName: getNavigationFallbackFile({
           activeFile,
           fileRows,
@@ -85,26 +96,26 @@ export function useWorkbenchNavigation({
   );
 
   const navigateFile = useCallback(
-    (name: string) => {
-      activateFile({ clearFocus: true, name });
+    (name: string, behavior?: FileNavigationTarget["behavior"]) => {
+      activateFile({ behavior, clearFocus: true, name });
     },
     [activateFile],
   );
 
   const focusFile = useCallback(
-    (name: string) => {
-      activateFile({ focus: true, name });
+    (name: string, behavior?: FileNavigationTarget["behavior"]) => {
+      activateFile({ behavior, focus: true, name });
     },
     [activateFile],
   );
 
   const navigateOrFocusFile = useCallback(
-    (name: string) => {
+    (name: string, options?: { behavior?: FileNavigationTarget["behavior"] }) => {
       if (navigation.focusMode) {
-        focusFile(name);
+        focusFile(name, options?.behavior);
         return;
       }
-      navigateFile(name);
+      navigateFile(name, options?.behavior);
     },
     [focusFile, navigation.focusMode, navigateFile],
   );

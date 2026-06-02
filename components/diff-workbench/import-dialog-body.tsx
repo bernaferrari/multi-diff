@@ -1,6 +1,6 @@
 "use client";
 
-import { Eraser, FlaskConical, Upload } from "lucide-react";
+import { FlaskConical, Upload } from "lucide-react";
 import { type DragEvent, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ export function ImportDialogBody({
     onFiles,
     onImport,
     onLaneChange,
-    onClearAll,
     onLoadSamples,
     onMove,
     onRemove,
@@ -41,7 +40,12 @@ export function ImportDialogBody({
       <DiffFileInput ref={inputRef} multiple onFiles={onFiles} />
 
       {hasPending ? (
-        <DropBoundary onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+        <DropBoundary
+          onDragEnter={onDragEnter}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+        >
           <ImportStagedList
             dragging={dragging}
             files={pendingFiles}
@@ -66,8 +70,6 @@ export function ImportDialogBody({
       <ImportDialogFooter
         count={pendingCount}
         hasPending={hasPending}
-        hasWorkspaceContent={panes.some((pane) => pane.text.trim())}
-        onClearAll={onClearAll}
         onImport={onImport}
         onLoadSamples={onLoadSamples}
       />
@@ -78,15 +80,11 @@ export function ImportDialogBody({
 function ImportDialogFooter({
   count,
   hasPending,
-  hasWorkspaceContent,
-  onClearAll,
   onImport,
   onLoadSamples,
 }: {
   count: number;
   hasPending: boolean;
-  hasWorkspaceContent: boolean;
-  onClearAll: () => void;
   onImport: () => void | Promise<void>;
   onLoadSamples: () => void;
 }) {
@@ -102,21 +100,9 @@ function ImportDialogFooter({
           <FlaskConical className="size-3.5" />
           Load samples
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClearAll}
-          disabled={!hasWorkspaceContent && !hasPending}
-          className="px-1.5 text-muted-foreground hover:text-destructive"
-        >
-          <Eraser className="size-3.5" />
-          Clear all
-        </Button>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">
-          {hasPending ? `${count} staged` : "Nothing staged"}
-        </span>
+        {hasPending ? <span className="text-xs text-muted-foreground">{count} staged</span> : null}
         <Button
           size="sm"
           onClick={() => void onImport()}
@@ -133,17 +119,24 @@ function ImportDialogFooter({
 
 function DropBoundary({
   children,
+  onDragEnter,
   onDragLeave,
   onDragOver,
   onDrop,
 }: {
   children: ReactNode;
+  onDragEnter: (event: DragEvent<HTMLElement>) => void;
   onDragLeave: (event: DragEvent<HTMLElement>) => void;
   onDragOver: (event: DragEvent<HTMLElement>) => void;
   onDrop: (event: DragEvent<HTMLElement>) => void;
 }) {
   return (
-    <div onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+    <div
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
       {children}
     </div>
   );

@@ -1,11 +1,8 @@
 import { useEffect, useRef } from "react";
 
-import type { Layout } from "./types";
+import type { FileNavigationTarget, Layout } from "./types";
 
-type NavigationTarget = {
-  name: string;
-  token: number;
-} | null;
+type NavigationTarget = FileNavigationTarget | null;
 
 function shouldApplyColumnsNavigationTarget({
   appliedToken,
@@ -28,7 +25,7 @@ export function useColumnsNavigationEffect({
 }: {
   layout: Layout;
   navigationTarget: NavigationTarget;
-  scrollToFile: (name: string) => void;
+  scrollToFile: (name: string, behavior?: FileNavigationTarget["behavior"]) => void;
 }) {
   const appliedToken = useRef<number | null>(null);
 
@@ -46,7 +43,7 @@ export function useColumnsNavigationEffect({
       return;
     }
 
-    scrollToFile(target.name);
+    scrollToFile(target.name, target.behavior);
     appliedToken.current = target.token;
   }, [layout, navigationTarget, scrollToFile]);
 }

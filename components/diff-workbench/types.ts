@@ -8,7 +8,16 @@ export type CodeTheme = "light" | "dark";
 export type LaneMarkerStyle = "letters" | "bars";
 
 export type FileNavigationTarget = {
+  behavior?: "instant" | "smooth";
   name: string;
+  token: number;
+};
+
+export type SearchNavigationTarget = {
+  fileName: string;
+  lineNumber: number | null;
+  paneId: LaneId;
+  side: "added" | "context" | "deleted";
   token: number;
 };
 

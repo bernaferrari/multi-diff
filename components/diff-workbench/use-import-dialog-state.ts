@@ -1,10 +1,11 @@
-import { useRef, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 
 import {
   isFileDragEvent,
   prepareImportDrop,
   stopImportDragPropagation,
 } from "./import-drag-events";
+import { IMPORT_DROP_REQUEST_EVENT, type ImportDropRequest } from "./import-drop-request";
 import {
   appendImportFiles,
   removeImportFile,
@@ -18,11 +19,9 @@ import type { LaneId } from "./types";
 import type { ImportDialogBodyActions, ImportDialogBodyView } from "./import-dialog-model";
 
 export function useImportDialogState({
-  onClearAll,
   onImportFiles,
   onLoadSamples,
 }: {
-  onClearAll: () => void;
   onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
   onLoadSamples: () => void;
 }) {
@@ -30,6 +29,22 @@ export function useImportDialogState({
   const [dragging, setDragging] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<StagedImportFile[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleImportDropRequest(event: Event) {
+      const request = (event as CustomEvent<ImportDropRequest>).detail;
+      if (!request?.files.length) return;
+
+      setOpen(true);
+      setDragging(false);
+      setPendingFiles((current) =>
+        appendImportFiles(current, request.files, undefined, request.target),
+      );
+    }
+
+    window.addEventListener(IMPORT_DROP_REQUEST_EVENT, handleImportDropRequest);
+    return () => window.removeEventListener(IMPORT_DROP_REQUEST_EVENT, handleImportDropRequest);
+  }, []);
 
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen);
@@ -67,18 +82,15 @@ export function useImportDialogState({
     closeAndClear();
   }
 
-  function handleClearAll() {
-    onClearAll();
-    closeAndClear();
-  }
-
   function handleLoadSamples() {
     onLoadSamples();
     closeAndClear();
   }
 
   function handleDragEnter(event: DragEvent<HTMLElement>) {
-    if (isFileDragEvent(event)) setDragging(true);
+    if (!isFileDragEvent(event)) return;
+    stopImportDragPropagation(event);
+    setDragging(true);
   }
 
   function handleDragOver(event: DragEvent<HTMLElement>) {
@@ -122,7 +134,6 @@ export function useImportDialogState({
     onLaneChange: handleLaneChange,
     onMove: handleMove,
     onRemove: handleRemove,
-    onClearAll: handleClearAll,
     onLoadSamples: handleLoadSamples,
     onSort: handleSort,
   };

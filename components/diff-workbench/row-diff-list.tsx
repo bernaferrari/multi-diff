@@ -7,14 +7,17 @@ import { DiffFileHeader } from "./diff-file-header";
 import { ROW_DIFF_METRICS } from "./diff-render-metrics";
 import { fileDiffOptions } from "./diff-render-options";
 import { diffStyleVariables } from "./diff-styles";
-import type { DiffRenderSettings, LaneId, PaneView } from "./types";
+import { getSearchSelectedLineRange } from "./search-line-selection";
+import type { DiffRenderSettings, LaneId, PaneView, SearchNavigationTarget } from "./types";
 
 export function RowDiffList({
   paneId,
+  searchTarget,
   settings,
   view,
 }: {
   paneId: LaneId;
+  searchTarget: SearchNavigationTarget | null;
   settings: DiffRenderSettings;
   view: PaneView;
 }) {
@@ -26,6 +29,7 @@ export function RowDiffList({
           fileDiff={fileDiff}
           isLast={index === view.files.length - 1}
           paneId={paneId}
+          searchTarget={searchTarget}
           settings={settings}
         />
       ))}
@@ -41,11 +45,13 @@ function RowFileDiff({
   fileDiff,
   isLast,
   paneId,
+  searchTarget,
   settings,
 }: {
   fileDiff: PaneView["files"][number];
   isLast: boolean;
   paneId: LaneId;
+  searchTarget: SearchNavigationTarget | null;
   settings: DiffRenderSettings;
 }) {
   const totals = diffTotalsFor(fileDiff);
@@ -62,6 +68,7 @@ function RowFileDiff({
       />
       <FileDiff
         fileDiff={fileDiff}
+        selectedLines={getSearchSelectedLineRange(paneId, fileDiff.name, searchTarget)}
         metrics={ROW_DIFF_METRICS}
         options={fileDiffOptions(settings)}
         renderCustomHeader={() => null}

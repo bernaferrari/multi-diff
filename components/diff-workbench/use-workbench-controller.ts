@@ -12,6 +12,7 @@ import { useWorkbenchKeyboard } from "./use-workbench-keyboard";
 import { useWorkbenchNavigation } from "./use-workbench-navigation";
 import { useWorkbenchState } from "./use-workbench-state";
 import { useWorkbenchViewModel } from "./use-workbench-view-model";
+import type { LaneId } from "./types";
 
 export function useWorkbenchController() {
   const { resolvedTheme } = useTheme();
@@ -20,6 +21,14 @@ export function useWorkbenchController() {
   const codeTheme = resolvedTheme === "dark" ? "dark" : "light";
   const [contentSearchOpen, setContentSearchOpen] = useState(false);
   const [contentSearchQuery, setContentSearchQuery] = useState("");
+  const [contentSearchLaneIds, setContentSearchLaneIds] = useState<LaneId[] | null>(null);
+  const [contentSearchTarget, setContentSearchTarget] = useState<{
+    fileName: string;
+    lineNumber: number | null;
+    paneId: string;
+    side: ContentSearchResult["side"];
+    token: number;
+  } | null>(null);
 
   const {
     allFileRows,
@@ -81,14 +90,28 @@ export function useWorkbenchController() {
     scrollToFile,
   });
 
-  const contentSearchResults = useMemo(
+  const contentSearchLanes = useMemo(
     () =>
-      searchDiffContent({
-        panes: parsed,
-        query: contentSearchQuery,
-      }),
-    [contentSearchQuery, parsed],
+      parsed
+        .filter((pane) => pane.text.trim() && !pane.error)
+        .map((pane) => ({
+          active: !contentSearchLaneIds || contentSearchLaneIds.includes(pane.id),
+          id: pane.id,
+          label: pane.label,
+        })),
+    [contentSearchLaneIds, parsed],
   );
+
+  const contentSearchResults = useMemo(() => {
+    const searchablePanes = contentSearchLaneIds
+      ? parsed.filter((pane) => contentSearchLaneIds.includes(pane.id))
+      : parsed;
+
+    return searchDiffContent({
+      panes: searchablePanes,
+      query: contentSearchQuery,
+    });
+  }, [contentSearchLaneIds, contentSearchQuery, parsed]);
 
   const openContentSearch = useCallback(() => {
     setContentSearchOpen(true);
@@ -96,9 +119,34 @@ export function useWorkbenchController() {
 
   const selectContentSearchResult = useCallback(
     (result: ContentSearchResult) => {
-      navigateOrFocusFile(result.fileName);
+      setContentSearchTarget((current) => ({
+        fileName: result.fileName,
+        lineNumber: result.lineNumber,
+        paneId: result.paneId,
+        side: result.side,
+        token: (current?.token ?? 0) + 1,
+      }));
+      setContentSearchOpen(false);
+      navigateOrFocusFile(result.fileName, { behavior: "smooth" });
     },
     [navigateOrFocusFile],
+  );
+
+  const toggleContentSearchLane = useCallback(
+    (id: string) => {
+      const laneIds = contentSearchLanes.map((lane) => lane.id);
+      const active = new Set(contentSearchLaneIds ?? laneIds);
+
+      if (active.has(id)) active.delete(id);
+      else active.add(id);
+
+      setContentSearchLaneIds(
+        active.size === 0 || active.size === laneIds.length
+          ? null
+          : laneIds.filter((laneId) => active.has(laneId)),
+      );
+    },
+    [contentSearchLaneIds, contentSearchLanes],
   );
 
   useWorkbenchKeyboard({
@@ -111,7 +159,6 @@ export function useWorkbenchController() {
 
   useDiffDropImport({
     onDraggingChange: setters.setDragging,
-    onImport: actions.importFiles,
   });
 
   const {
@@ -142,13 +189,16 @@ export function useWorkbenchController() {
     navigationTarget,
     parsed,
     search: {
+      lanes: contentSearchLanes,
       onOpenChange: setContentSearchOpen,
       onQueryChange: setContentSearchQuery,
       onSelectResult: selectContentSearchResult,
+      onToggleLane: toggleContentSearchLane,
       open: contentSearchOpen,
       query: contentSearchQuery,
       results: contentSearchResults,
     },
+    searchTarget: contentSearchTarget,
     sharedCount,
     setLayout,
     setters,

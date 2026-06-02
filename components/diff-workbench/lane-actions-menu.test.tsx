@@ -16,6 +16,11 @@ describe("lane actions menu", () => {
         onHide={() => {}}
         onMoveLeft={() => {}}
         onMoveRight={() => {}}
+        moveLabels={{
+          backward: "Move left",
+          forward: "Move right",
+          orientation: "horizontal",
+        }}
       />,
     );
 

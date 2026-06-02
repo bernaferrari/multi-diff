@@ -1,6 +1,6 @@
 import { type CodeViewHandle } from "@pierre/diffs/react";
 
-import type { LaneId, PaneView } from "./types";
+import type { FileNavigationTarget, LaneId, PaneView } from "./types";
 
 type CodeViewInstance = NonNullable<ReturnType<CodeViewHandle<undefined>["getInstance"]>>;
 
@@ -26,7 +26,7 @@ export function scrollMatchingPaneTargets({
   targets,
 }: {
   activeFile: { name: string; intraOffset: number };
-  behavior?: "instant" | "smooth";
+  behavior?: FileNavigationTarget["behavior"];
   onTargetScroll?: (id: LaneId) => void;
   sourceId: LaneId;
   targets: PaneScrollTarget[];
@@ -46,7 +46,11 @@ export function scrollMatchingPaneTargets({
   }
 }
 
-export function scrollPaneToFile(targets: PaneScrollTarget[], name: string) {
+export function scrollPaneToFile(
+  targets: PaneScrollTarget[],
+  name: string,
+  behavior: FileNavigationTarget["behavior"] = "instant",
+) {
   const primary = targets.find((target) => target.instance && target.paneView.idByName.has(name));
   const targetId = primary?.paneView.idByName.get(name);
   if (!primary?.instance || !targetId) return false;
@@ -56,12 +60,12 @@ export function scrollPaneToFile(targets: PaneScrollTarget[], name: string) {
     id: targetId,
     align: "start",
     offset: 0,
-    behavior: "instant",
+    behavior,
   });
 
   scrollMatchingPaneTargets({
     activeFile: { name, intraOffset: 0 },
-    behavior: "instant",
+    behavior,
     sourceId: primary.id,
     targets,
   });

@@ -20,6 +20,7 @@ import type {
   LaneId,
   Layout,
   ParsedPane,
+  SearchNavigationTarget,
 } from "./types";
 import type { WorkbenchSetters, WorkbenchState } from "./workbench-state-model";
 
@@ -45,6 +46,7 @@ export function useWorkbenchControllerModels({
   navigationTarget,
   parsed,
   search,
+  searchTarget,
   setLayout,
   setters,
   setViewerRef,
@@ -68,10 +70,14 @@ export function useWorkbenchControllerModels({
   hiddenFileRows: FileRow[];
   indexActiveFile: string | null;
   markScrollDriver: (id: LaneId) => void;
-  navigateOrFocusFile: (name: string) => void;
+  navigateOrFocusFile: (
+    name: string,
+    options?: { behavior?: FileNavigationTarget["behavior"] },
+  ) => void;
   navigationTarget: FileNavigationTarget | null;
   parsed: ParsedPane[];
   search: ContentSearchActions & ContentSearchView;
+  searchTarget: SearchNavigationTarget | null;
   setLayout: (layout: Layout) => void;
   setters: WorkbenchSetters;
   setViewerRef: DiffPaneViewportActions["onViewerRef"];
@@ -100,6 +106,7 @@ export function useWorkbenchControllerModels({
         lineNumbers: state.lineNumbers,
         panes: state.panes,
         search: {
+          lanes: search.lanes,
           open: search.open,
           query: search.query,
           results: search.results,
@@ -114,6 +121,7 @@ export function useWorkbenchControllerModels({
       state.lineNumbers,
       state.panes,
       search.open,
+      search.lanes,
       search.query,
       search.results,
       state.sidebarOpen,
@@ -124,13 +132,13 @@ export function useWorkbenchControllerModels({
   const toolbarActions = useMemo(
     () =>
       getToolbarActions({
-        onClearAll: actions.clearWorkbench,
         onImportFiles: actions.importFiles,
         onLoadSamples: actions.loadSampleWorkbench,
         search: {
           onOpenChange: search.onOpenChange,
           onQueryChange: search.onQueryChange,
           onSelectResult: search.onSelectResult,
+          onToggleLane: search.onToggleLane,
         },
         setDiffStyle: setters.setDiffStyle,
         setLaneMarkerStyle: setters.setLaneMarkerStyle,
@@ -140,7 +148,6 @@ export function useWorkbenchControllerModels({
         setWrap: setters.setWrap,
       }),
     [
-      actions.clearWorkbench,
       actions.importFiles,
       actions.loadSampleWorkbench,
       search,
@@ -206,6 +213,7 @@ export function useWorkbenchControllerModels({
             message: pane.error ?? "",
           })),
         renderSettings,
+        searchTarget,
         visiblePanes,
       }),
     [
@@ -214,6 +222,7 @@ export function useWorkbenchControllerModels({
       navigationTarget,
       parsed,
       renderSettings,
+      searchTarget,
       state.layout,
       visiblePanes,
     ],
