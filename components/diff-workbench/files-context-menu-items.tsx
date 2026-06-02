@@ -1,9 +1,9 @@
-import { Eye, EyeOff, RotateCcw } from "lucide-react"
-import type { ComponentType, ReactNode } from "react"
+import { Eye, EyeOff, RotateCcw } from "lucide-react";
+import type { ComponentType, ReactNode } from "react";
 
-import { ContextMenuItem } from "@/components/ui/context-menu"
+import { ContextMenuItem } from "@/components/ui/context-menu";
 
-type MenuIcon = ComponentType<{ className?: string }>
+type MenuIcon = ComponentType<{ className?: string }>;
 
 export function VisibilityMenuItem({
   hidden,
@@ -12,11 +12,11 @@ export function VisibilityMenuItem({
   onHide,
   onShow,
 }: {
-  hidden: boolean
-  hideLabel: string
-  showLabel: string
-  onHide: () => void
-  onShow: () => void
+  hidden: boolean;
+  hideLabel: string;
+  showLabel: string;
+  onHide: () => void;
+  onShow: () => void;
 }) {
   return hidden ? (
     <ShowMenuItem onClick={onShow}>{showLabel}</ShowMenuItem>
@@ -25,7 +25,7 @@ export function VisibilityMenuItem({
       <EyeOff className="size-4" />
       {hideLabel}
     </ContextMenuItem>
-  )
+  );
 }
 
 function FileActionMenuItem({
@@ -34,17 +34,17 @@ function FileActionMenuItem({
   icon: Icon,
   onClick,
 }: {
-  children: ReactNode
-  className?: string
-  icon: MenuIcon
-  onClick: () => void
+  children: ReactNode;
+  className?: string;
+  icon: MenuIcon;
+  onClick: () => void;
 }) {
   return (
     <ContextMenuItem onClick={onClick} className={className}>
       <Icon className="size-4" />
       {children}
     </ContextMenuItem>
-  )
+  );
 }
 
 export function ShowMenuItem({
@@ -52,15 +52,15 @@ export function ShowMenuItem({
   className,
   onClick,
 }: {
-  children: ReactNode
-  className?: string
-  onClick: () => void
+  children: ReactNode;
+  className?: string;
+  onClick: () => void;
 }) {
   return (
     <FileActionMenuItem icon={Eye} onClick={onClick} className={className}>
       {children}
     </FileActionMenuItem>
-  )
+  );
 }
 
 export function RestoreMenuItem({
@@ -68,17 +68,13 @@ export function RestoreMenuItem({
   className,
   onClick,
 }: {
-  children: ReactNode
-  className?: string
-  onClick: () => void
+  children: ReactNode;
+  className?: string;
+  onClick: () => void;
 }) {
   return (
-    <FileActionMenuItem
-      icon={RotateCcw}
-      onClick={onClick}
-      className={className}
-    >
+    <FileActionMenuItem icon={RotateCcw} onClick={onClick} className={className}>
       {children}
     </FileActionMenuItem>
-  )
+  );
 }

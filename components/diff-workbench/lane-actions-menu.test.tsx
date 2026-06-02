@@ -1,8 +1,8 @@
-import { createRef } from "react"
-import { renderToStaticMarkup } from "react-dom/server"
-import { describe, expect, it } from "vitest"
+import { createRef } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
 
-import { LaneActionsMenu } from "./lane-actions-menu"
+import { LaneActionsMenu } from "./lane-actions-menu";
 
 describe("lane actions menu", () => {
   it("renders the lane action trigger with the derived label", () => {
@@ -16,9 +16,9 @@ describe("lane actions menu", () => {
         onHide={() => {}}
         onMoveLeft={() => {}}
         onMoveRight={() => {}}
-      />
-    )
+      />,
+    );
 
-    expect(html).toContain("Diff A actions")
-  })
-})
+    expect(html).toContain("Diff A actions");
+  });
+});

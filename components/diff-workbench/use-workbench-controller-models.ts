@@ -1,7 +1,8 @@
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo } from "react";
 
-import { getFilesPanelView } from "./files-panel-view-state"
-import type { DiffPaneViewportActions } from "./diff-pane-viewport"
+import { getFilesPanelView } from "./files-panel-view-state";
+import type { ContentSearchActions, ContentSearchView } from "./content-search-popover";
+import type { DiffPaneViewportActions } from "./diff-pane-viewport";
 import {
   getFilesPanelActions,
   getRenderSettings,
@@ -9,9 +10,9 @@ import {
   getToolbarSettings,
   getViewportActions,
   getViewportView,
-} from "./workbench-controller-model"
-import type { useWorkbenchActions } from "./use-workbench-actions"
-import type { DisplayedPaneView } from "./pane-view-model"
+} from "./workbench-controller-model";
+import type { useWorkbenchActions } from "./use-workbench-actions";
+import type { DisplayedPaneView } from "./pane-view-model";
 import type {
   ActiveFileByLane,
   FileNavigationTarget,
@@ -19,10 +20,10 @@ import type {
   LaneId,
   Layout,
   ParsedPane,
-} from "./types"
-import type { WorkbenchSetters, WorkbenchState } from "./workbench-state-model"
+} from "./types";
+import type { WorkbenchSetters, WorkbenchState } from "./workbench-state-model";
 
-type WorkbenchActionModel = ReturnType<typeof useWorkbenchActions>
+type WorkbenchActionModel = ReturnType<typeof useWorkbenchActions>;
 
 export function useWorkbenchControllerModels({
   actions,
@@ -43,6 +44,7 @@ export function useWorkbenchControllerModels({
   navigateOrFocusFile,
   navigationTarget,
   parsed,
+  search,
   setLayout,
   setters,
   setViewerRef,
@@ -51,31 +53,32 @@ export function useWorkbenchControllerModels({
   toggleFocusMode,
   visiblePanes,
 }: {
-  actions: WorkbenchActionModel
-  activeFileByLane: ActiveFileByLane
-  allFileRows: FileRow[]
-  codeTheme: "dark" | "light"
-  clearFocusMode: () => void
-  displayedPaneViews: DisplayedPaneView[]
-  fileRows: FileRow[]
-  focused: string | null
-  focusMode: boolean
-  handleActiveFileChange: (name: string, sourceId: LaneId) => void
-  handleScroll: (sourceId: LaneId) => void
-  hasErrors: boolean
-  hiddenFileRows: FileRow[]
-  indexActiveFile: string | null
-  markScrollDriver: (id: LaneId) => void
-  navigateOrFocusFile: (name: string) => void
-  navigationTarget: FileNavigationTarget | null
-  parsed: ParsedPane[]
-  setLayout: (layout: Layout) => void
-  setters: WorkbenchSetters
-  setViewerRef: DiffPaneViewportActions["onViewerRef"]
-  sharedCount: number
-  state: WorkbenchState
-  toggleFocusMode: (preferredFile?: string | null) => void
-  visiblePanes: ParsedPane[]
+  actions: WorkbenchActionModel;
+  activeFileByLane: ActiveFileByLane;
+  allFileRows: FileRow[];
+  codeTheme: "dark" | "light";
+  clearFocusMode: () => void;
+  displayedPaneViews: DisplayedPaneView[];
+  fileRows: FileRow[];
+  focused: string | null;
+  focusMode: boolean;
+  handleActiveFileChange: (name: string, sourceId: LaneId) => void;
+  handleScroll: (sourceId: LaneId) => void;
+  hasErrors: boolean;
+  hiddenFileRows: FileRow[];
+  indexActiveFile: string | null;
+  markScrollDriver: (id: LaneId) => void;
+  navigateOrFocusFile: (name: string) => void;
+  navigationTarget: FileNavigationTarget | null;
+  parsed: ParsedPane[];
+  search: ContentSearchActions & ContentSearchView;
+  setLayout: (layout: Layout) => void;
+  setters: WorkbenchSetters;
+  setViewerRef: DiffPaneViewportActions["onViewerRef"];
+  sharedCount: number;
+  state: WorkbenchState;
+  toggleFocusMode: (preferredFile?: string | null) => void;
+  visiblePanes: ParsedPane[];
 }) {
   const renderSettings = useMemo(
     () =>
@@ -85,8 +88,8 @@ export function useWorkbenchControllerModels({
         lineNumbers: state.lineNumbers,
         wrap: state.wrap,
       }),
-    [codeTheme, state.diffStyle, state.lineNumbers, state.wrap]
-  )
+    [codeTheme, state.diffStyle, state.lineNumbers, state.wrap],
+  );
 
   const toolbarSettings = useMemo(
     () =>
@@ -96,6 +99,11 @@ export function useWorkbenchControllerModels({
         layout: state.layout,
         lineNumbers: state.lineNumbers,
         panes: state.panes,
+        search: {
+          open: search.open,
+          query: search.query,
+          results: search.results,
+        },
         sidebarOpen: state.sidebarOpen,
         wrap: state.wrap,
       }),
@@ -105,10 +113,13 @@ export function useWorkbenchControllerModels({
       state.layout,
       state.lineNumbers,
       state.panes,
+      search.open,
+      search.query,
+      search.results,
       state.sidebarOpen,
       state.wrap,
-    ]
-  )
+    ],
+  );
 
   const toolbarActions = useMemo(
     () =>
@@ -116,6 +127,11 @@ export function useWorkbenchControllerModels({
         onClearAll: actions.clearWorkbench,
         onImportFiles: actions.importFiles,
         onLoadSamples: actions.loadSampleWorkbench,
+        search: {
+          onOpenChange: search.onOpenChange,
+          onQueryChange: search.onQueryChange,
+          onSelectResult: search.onSelectResult,
+        },
         setDiffStyle: setters.setDiffStyle,
         setLaneMarkerStyle: setters.setLaneMarkerStyle,
         setLayout,
@@ -127,14 +143,15 @@ export function useWorkbenchControllerModels({
       actions.clearWorkbench,
       actions.importFiles,
       actions.loadSampleWorkbench,
+      search,
       setLayout,
       setters.setDiffStyle,
       setters.setLaneMarkerStyle,
       setters.setLineNumbers,
       setters.setSidebarOpen,
       setters.setWrap,
-    ]
-  )
+    ],
+  );
 
   const filesPanelView = getFilesPanelView({
     activeFileByLane,
@@ -147,7 +164,7 @@ export function useWorkbenchControllerModels({
     parsed,
     sharedCount,
     state,
-  })
+  });
 
   const filesPanelActions = useMemo(
     () =>
@@ -172,8 +189,8 @@ export function useWorkbenchControllerModels({
       navigateOrFocusFile,
       setters.setFileQuery,
       toggleFocusMode,
-    ]
-  )
+    ],
+  );
 
   const viewportView = useMemo(
     () =>
@@ -199,8 +216,8 @@ export function useWorkbenchControllerModels({
       renderSettings,
       state.layout,
       visiblePanes,
-    ]
-  )
+    ],
+  );
 
   const viewportActions = useMemo(
     () =>
@@ -223,10 +240,10 @@ export function useWorkbenchControllerModels({
       handleScroll,
       markScrollDriver,
       setViewerRef,
-    ]
-  )
-  const closeNotes = useCallback(() => setters.setNotesOpen(false), [setters])
-  const openNotes = useCallback(() => setters.setNotesOpen(true), [setters])
+    ],
+  );
+  const closeNotes = useCallback(() => setters.setNotesOpen(false), [setters]);
+  const openNotes = useCallback(() => setters.setNotesOpen(true), [setters]);
 
   return {
     filesPanelActions,
@@ -242,5 +259,5 @@ export function useWorkbenchControllerModels({
     toolbarSettings,
     viewportActions,
     viewportView,
-  }
+  };
 }

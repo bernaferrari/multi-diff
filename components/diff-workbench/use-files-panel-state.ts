@@ -1,30 +1,30 @@
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react";
 
-import { getFilesPanelDerivedState } from "./files-panel-derived-state"
-import type { VisibleFileTreeRow } from "./file-tree-types"
-import type { DirectoryContext, FileRow, LaneId } from "./types"
+import { getFilesPanelDerivedState } from "./files-panel-derived-state";
+import type { VisibleFileTreeRow } from "./file-tree-types";
+import type { DirectoryContext, FileRow, LaneId } from "./types";
 
 type FilesPanelContextState = {
-  contextDirectory: DirectoryContext | null
-  contextFile: string | null
-}
+  contextDirectory: DirectoryContext | null;
+  contextFile: string | null;
+};
 
 export type FilesTreeListState = {
-  collapsedDirs: Set<string>
-  contextDirectory: DirectoryContext | null
-  contextFile: string | null
-  restorableRows: FileRow[]
-  showTreeLaneBadges: boolean
-  treeLaneIds: LaneId[]
-  treeRows: VisibleFileTreeRow[]
-}
+  collapsedDirs: Set<string>;
+  contextDirectory: DirectoryContext | null;
+  contextFile: string | null;
+  restorableRows: FileRow[];
+  showTreeLaneBadges: boolean;
+  treeLaneIds: LaneId[];
+  treeRows: VisibleFileTreeRow[];
+};
 
 export type FilesTreeListActions = {
-  clearContext: () => void
-  selectContextDirectory: (context: DirectoryContext) => void
-  selectContextFile: (name: string) => void
-  toggleDirectory: (path: string) => void
-}
+  clearContext: () => void;
+  selectContextDirectory: (context: DirectoryContext) => void;
+  selectContextFile: (name: string) => void;
+  toggleDirectory: (path: string) => void;
+};
 
 export function useFilesPanelState({
   activeFile,
@@ -35,19 +35,17 @@ export function useFilesPanelState({
   query,
   rows,
 }: {
-  activeFile: string | null
-  focusableRows: FileRow[]
-  hidden: Set<LaneId>
-  hiddenFileRows: FileRow[]
-  laneIds: LaneId[]
-  query: string
-  rows: FileRow[]
+  activeFile: string | null;
+  focusableRows: FileRow[];
+  hidden: Set<LaneId>;
+  hiddenFileRows: FileRow[];
+  laneIds: LaneId[];
+  query: string;
+  rows: FileRow[];
 }) {
-  const listRef = useRef<HTMLDivElement>(null)
-  const [context, setContext] = useState<FilesPanelContextState>(
-    clearFilesPanelContext
-  )
-  const [collapsedDirs, setCollapsedDirs] = useState<Set<string>>(new Set())
+  const listRef = useRef<HTMLDivElement>(null);
+  const [context, setContext] = useState<FilesPanelContextState>(clearFilesPanelContext);
+  const [collapsedDirs, setCollapsedDirs] = useState<Set<string>>(new Set());
 
   const derived = useMemo(
     () =>
@@ -72,23 +70,23 @@ export function useFilesPanelState({
       laneIds,
       query,
       rows,
-    ]
-  )
+    ],
+  );
 
   function clearContext() {
-    setContext(clearFilesPanelContext())
+    setContext(clearFilesPanelContext());
   }
 
   function toggleDirectory(path: string) {
-    setCollapsedDirs((current) => toggleCollapsedDirectory(current, path))
+    setCollapsedDirs((current) => toggleCollapsedDirectory(current, path));
   }
 
   function selectContextDirectory(context: DirectoryContext) {
-    setContext(selectDirectoryContext(context))
+    setContext(selectDirectoryContext(context));
   }
 
   function selectContextFile(name: string) {
-    setContext(selectFileContext(name))
+    setContext(selectFileContext(name));
   }
 
   const treeState: FilesTreeListState = {
@@ -99,13 +97,13 @@ export function useFilesPanelState({
     showTreeLaneBadges: derived.showTreeLaneBadges,
     treeLaneIds: derived.treeLaneIds,
     treeRows: derived.treeRows,
-  }
+  };
   const treeActions: FilesTreeListActions = {
     clearContext,
     selectContextDirectory,
     selectContextFile,
     toggleDirectory,
-  }
+  };
 
   return {
     focusTarget: derived.focusTarget,
@@ -113,35 +111,33 @@ export function useFilesPanelState({
     treeActions,
     treeState,
     visibleCount: derived.visibleCount,
-  }
+  };
 }
 
 function toggleCollapsedDirectory(current: Set<string>, path: string) {
-  const next = new Set(current)
-  if (next.has(path)) next.delete(path)
-  else next.add(path)
-  return next
+  const next = new Set(current);
+  if (next.has(path)) next.delete(path);
+  else next.add(path);
+  return next;
 }
 
 function clearFilesPanelContext(): FilesPanelContextState {
   return {
     contextDirectory: null,
     contextFile: null,
-  }
+  };
 }
 
-function selectDirectoryContext(
-  contextDirectory: DirectoryContext
-): FilesPanelContextState {
+function selectDirectoryContext(contextDirectory: DirectoryContext): FilesPanelContextState {
   return {
     contextDirectory,
     contextFile: null,
-  }
+  };
 }
 
 function selectFileContext(contextFile: string): FilesPanelContextState {
   return {
     contextDirectory: null,
     contextFile,
-  }
+  };
 }

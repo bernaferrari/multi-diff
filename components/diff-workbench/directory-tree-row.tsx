@@ -1,14 +1,11 @@
-import { EyeOff, Folder, FolderOpen } from "lucide-react"
+import { EyeOff, Folder, FolderOpen } from "lucide-react";
 
-import type { FileTreeNode } from "./file-tree-types"
-import {
-  getDirectoryHiddenState,
-  getDirectoryTreeRowChrome,
-} from "./directory-tree-row-state"
-import { FileTreeLaneMarkers } from "./file-tree-lane-markers"
-import { DiffStats } from "./file-tree-row-parts"
-import { TreeRowButton } from "./tree-row-button"
-import type { DirectoryContext, LaneId, LaneMarkerStyle, Layout } from "./types"
+import type { FileTreeNode } from "./file-tree-types";
+import { getDirectoryHiddenState, getDirectoryTreeRowChrome } from "./directory-tree-row-state";
+import { FileTreeLaneMarkers } from "./file-tree-lane-markers";
+import { DiffStats } from "./file-tree-row-parts";
+import { TreeRowButton } from "./tree-row-button";
+import type { DirectoryContext, LaneId, LaneMarkerStyle, Layout } from "./types";
 
 export function DirectoryTreeBranch({
   collapsed,
@@ -22,22 +19,19 @@ export function DirectoryTreeBranch({
   onContextDirectory,
   onToggle,
 }: {
-  collapsed: boolean
-  depth: number
-  hiddenFiles: Set<string>
-  laneIds: LaneId[]
-  laneMarkerStyle: LaneMarkerStyle
-  layout: Layout
-  node: FileTreeNode
-  showLaneBadges: boolean
-  onContextDirectory: (context: DirectoryContext) => void
-  onToggle: () => void
+  collapsed: boolean;
+  depth: number;
+  hiddenFiles: Set<string>;
+  laneIds: LaneId[];
+  laneMarkerStyle: LaneMarkerStyle;
+  layout: Layout;
+  node: FileTreeNode;
+  showLaneBadges: boolean;
+  onContextDirectory: (context: DirectoryContext) => void;
+  onToggle: () => void;
 }) {
-  const fileNames = node.fileNames ?? []
-  const { fullyHidden, partiallyHidden } = getDirectoryHiddenState(
-    fileNames,
-    hiddenFiles
-  )
+  const fileNames = node.fileNames ?? [];
+  const { fullyHidden, partiallyHidden } = getDirectoryHiddenState(fileNames, hiddenFiles);
 
   return (
     <DirectoryTreeRow
@@ -58,7 +52,7 @@ export function DirectoryTreeBranch({
       }
       onToggle={onToggle}
     />
-  )
+  );
 }
 
 function DirectoryTreeRow({
@@ -74,26 +68,26 @@ function DirectoryTreeRow({
   onToggle,
   partiallyHidden,
 }: {
-  collapsed: boolean
-  depth: number
-  fullyHidden: boolean
-  laneIds: LaneId[]
-  laneMarkerStyle: LaneMarkerStyle
-  layout: Layout
-  node: FileTreeNode
-  showLaneBadges: boolean
-  onContextDirectory: () => void
-  onToggle: () => void
-  partiallyHidden: boolean
+  collapsed: boolean;
+  depth: number;
+  fullyHidden: boolean;
+  laneIds: LaneId[];
+  laneMarkerStyle: LaneMarkerStyle;
+  layout: Layout;
+  node: FileTreeNode;
+  showLaneBadges: boolean;
+  onContextDirectory: () => void;
+  onToggle: () => void;
+  partiallyHidden: boolean;
 }) {
-  const summary = node.summary
+  const summary = node.summary;
   const chrome = getDirectoryTreeRowChrome({
     collapsed,
     fullyHidden,
     hasSummary: Boolean(summary),
     partiallyHidden,
     path: node.path,
-  })
+  });
 
   return (
     <TreeRowButton
@@ -112,9 +106,7 @@ function DirectoryTreeRow({
         <FolderOpen className="size-3.5 shrink-0" />
       )}
       <span className="min-w-0 flex-1 truncate">{node.name}</span>
-      {chrome.hiddenIconClass ? (
-        <EyeOff className={chrome.hiddenIconClass} />
-      ) : null}
+      {chrome.hiddenIconClass ? <EyeOff className={chrome.hiddenIconClass} /> : null}
       {chrome.showSummary && summary ? (
         <>
           <DiffStats row={summary} />
@@ -129,5 +121,5 @@ function DirectoryTreeRow({
         </>
       ) : null}
     </TreeRowButton>
-  )
+  );
 }

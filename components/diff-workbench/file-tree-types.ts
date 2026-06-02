@@ -1,16 +1,16 @@
-import type { FileRow } from "./types"
+import type { FileRow } from "./types";
 
 export type FileTreeNode = {
-  children: Map<string, FileTreeNode>
-  fileNames?: string[]
-  kind: "directory" | "file"
-  name: string
-  path: string
-  row?: FileRow
-  summary?: FileRow
-}
+  children: Map<string, FileTreeNode>;
+  fileNames?: string[];
+  kind: "directory" | "file";
+  name: string;
+  path: string;
+  row?: FileRow;
+  summary?: FileRow;
+};
 
 export type VisibleFileTreeRow = {
-  depth: number
-  node: FileTreeNode
-}
+  depth: number;
+  node: FileTreeNode;
+};

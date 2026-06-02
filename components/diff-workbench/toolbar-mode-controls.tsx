@@ -1,14 +1,14 @@
-import { AlignLeft, Columns3, Rows3, SplitSquareHorizontal } from "lucide-react"
-import type { ReactNode } from "react"
+import { AlignLeft, Columns3, Rows3, SplitSquareHorizontal } from "lucide-react";
+import type { ReactNode } from "react";
 
-import { SegmentedControl, SegmentedControlItem } from "./toolbar-controls"
-import type { DiffStyle, Layout } from "./types"
+import { SegmentedControl, SegmentedControlItem } from "./toolbar-controls";
+import type { DiffStyle, Layout } from "./types";
 
 type ModeOption<TValue extends string> = {
-  icon: ReactNode
-  label: string
-  value: TValue
-}
+  icon: ReactNode;
+  label: string;
+  value: TValue;
+};
 
 const LAYOUT_OPTIONS = [
   {
@@ -21,7 +21,7 @@ const LAYOUT_OPTIONS = [
     label: "Rows",
     value: "rows",
   },
-] satisfies Array<ModeOption<Layout>>
+] satisfies Array<ModeOption<Layout>>;
 
 const DIFF_STYLE_OPTIONS = [
   {
@@ -34,38 +34,28 @@ const DIFF_STYLE_OPTIONS = [
     label: "Split",
     value: "split",
   },
-] satisfies Array<ModeOption<DiffStyle>>
+] satisfies Array<ModeOption<DiffStyle>>;
 
 export function LayoutModeControl({
   layout,
   onLayout,
 }: {
-  layout: Layout
-  onLayout: (layout: Layout) => void
+  layout: Layout;
+  onLayout: (layout: Layout) => void;
 }) {
-  return (
-    <ModeSegmentedControl
-      options={LAYOUT_OPTIONS}
-      value={layout}
-      onValue={onLayout}
-    />
-  )
+  return <ModeSegmentedControl options={LAYOUT_OPTIONS} value={layout} onValue={onLayout} />;
 }
 
 export function DiffStyleControl({
   diffStyle,
   onDiffStyle,
 }: {
-  diffStyle: DiffStyle
-  onDiffStyle: (diffStyle: DiffStyle) => void
+  diffStyle: DiffStyle;
+  onDiffStyle: (diffStyle: DiffStyle) => void;
 }) {
   return (
-    <ModeSegmentedControl
-      options={DIFF_STYLE_OPTIONS}
-      value={diffStyle}
-      onValue={onDiffStyle}
-    />
-  )
+    <ModeSegmentedControl options={DIFF_STYLE_OPTIONS} value={diffStyle} onValue={onDiffStyle} />
+  );
 }
 
 function ModeSegmentedControl<TValue extends string>({
@@ -73,9 +63,9 @@ function ModeSegmentedControl<TValue extends string>({
   value,
   onValue,
 }: {
-  options: Array<ModeOption<TValue>>
-  value: TValue
-  onValue: (value: TValue) => void
+  options: Array<ModeOption<TValue>>;
+  value: TValue;
+  onValue: (value: TValue) => void;
 }) {
   return (
     <SegmentedControl>
@@ -89,5 +79,5 @@ function ModeSegmentedControl<TValue extends string>({
         />
       ))}
     </SegmentedControl>
-  )
+  );
 }

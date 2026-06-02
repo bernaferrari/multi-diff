@@ -1,21 +1,21 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { ImportStagedListToolbar } from "./import-staged-list-toolbar"
-import { ImportStagedRow } from "./import-staged-row"
-import { getImportPreviewRows } from "./import-state"
-import type { StagedImportFile } from "./import-staging-state"
-import type { LaneId, Pane } from "./types"
+import { ImportStagedListToolbar } from "./import-staged-list-toolbar";
+import { ImportStagedRow } from "./import-staged-row";
+import { getImportPreviewRows } from "./import-state";
+import type { StagedImportFile } from "./import-staging-state";
+import type { LaneId, Pane } from "./types";
 
 type ImportStagedListProps = {
-  dragging: boolean
-  files: StagedImportFile[]
-  onAdd: () => void
-  onLaneChange: (index: number, lane: LaneId) => void
-  onMove: (fromIndex: number, toIndex: number) => void
-  onRemove: (index: number) => void
-  onSort: () => void
-  panes: Pane[]
-}
+  dragging: boolean;
+  files: StagedImportFile[];
+  onAdd: () => void;
+  onLaneChange: (index: number, lane: LaneId) => void;
+  onMove: (fromIndex: number, toIndex: number) => void;
+  onRemove: (index: number) => void;
+  onSort: () => void;
+  panes: Pane[];
+};
 
 export function ImportStagedList({
   dragging,
@@ -27,20 +27,16 @@ export function ImportStagedList({
   onSort,
   panes,
 }: ImportStagedListProps) {
-  const previewRows = getImportPreviewRows({ files, panes })
+  const previewRows = getImportPreviewRows({ files, panes });
 
   return (
     <div
       className={cn(
         "rounded-xl border transition-colors",
-        dragging ? "border-primary bg-primary/10" : "border-border bg-muted/20"
+        dragging ? "border-primary bg-primary/10" : "border-border bg-muted/20",
       )}
     >
-      <ImportStagedListToolbar
-        count={files.length}
-        onAdd={onAdd}
-        onSort={onSort}
-      />
+      <ImportStagedListToolbar count={files.length} onAdd={onAdd} onSort={onSort} />
 
       <ul className="space-y-0.5 px-1.5 pb-1.5">
         {files.map((item, index) => (
@@ -57,5 +53,5 @@ export function ImportStagedList({
         ))}
       </ul>
     </div>
-  )
+  );
 }

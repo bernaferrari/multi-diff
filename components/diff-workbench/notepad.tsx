@@ -1,63 +1,57 @@
-"use client"
+"use client";
 
-import { Check, Clipboard, Minus, StickyNote } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { Check, Clipboard, Minus, StickyNote } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-import { copyTextToClipboard } from "./clipboard"
+import { copyTextToClipboard } from "./clipboard";
 
-const NOTE_COPY_FEEDBACK_MS = 1400
+const NOTE_COPY_FEEDBACK_MS = 1400;
 
 type NotepadProps = {
-  open: boolean
-  value: string
-  onChange: (value: string) => void
-  onOpen: () => void
-  onClose: () => void
-}
+  open: boolean;
+  value: string;
+  onChange: (value: string) => void;
+  onOpen: () => void;
+  onClose: () => void;
+};
 
 function getNotepadState({ copied, value }: { copied: boolean; value: string }) {
   return {
     characterCount: value.length,
     copyLabel: copied ? "Notes copied" : "Copy notes",
     hasContent: value.trim().length > 0,
-  }
+  };
 }
 
-export function Notepad({
-  open,
-  value,
-  onChange,
-  onOpen,
-  onClose,
-}: NotepadProps) {
-  const [copied, setCopied] = useState(false)
-  const copyResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const display = getNotepadState({ copied, value })
+export function Notepad({ open, value, onChange, onOpen, onClose }: NotepadProps) {
+  const [copied, setCopied] = useState(false);
+  const copyResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const display = getNotepadState({ copied, value });
 
   useEffect(
     () => () => {
-      if (copyResetTimer.current) clearTimeout(copyResetTimer.current)
+      if (copyResetTimer.current) clearTimeout(copyResetTimer.current);
     },
-    []
-  )
+    [],
+  );
 
   async function copy() {
     if ((await copyTextToClipboard(value)) === "copied") {
-      clearCopyResetTimer()
-      setCopied(true)
+      clearCopyResetTimer();
+      setCopied(true);
       copyResetTimer.current = setTimeout(() => {
-        setCopied(false)
-        copyResetTimer.current = null
-      }, NOTE_COPY_FEEDBACK_MS)
+        setCopied(false);
+        copyResetTimer.current = null;
+      }, NOTE_COPY_FEEDBACK_MS);
     }
   }
 
   function clearCopyResetTimer() {
-    if (!copyResetTimer.current) return
-    clearTimeout(copyResetTimer.current)
-    copyResetTimer.current = null
+    if (!copyResetTimer.current) return;
+    clearTimeout(copyResetTimer.current);
+    copyResetTimer.current = null;
   }
 
   if (!open) {
@@ -71,11 +65,9 @@ export function Notepad({
       >
         <StickyNote className="size-4" />
         Notes
-        {display.hasContent ? (
-          <span className="size-2 rounded-full bg-note-foreground/70" />
-        ) : null}
+        {display.hasContent ? <span className="size-2 rounded-full bg-note-foreground/70" /> : null}
       </Button>
-    )
+    );
   }
 
   return (
@@ -94,11 +86,7 @@ export function Notepad({
           title={display.copyLabel}
           className="!text-note-foreground/80 hover:!bg-note-foreground/12 hover:!text-note-foreground focus-visible:!ring-note-foreground/25"
         >
-          {copied ? (
-            <Check className="size-4" />
-          ) : (
-            <Clipboard className="size-4" />
-          )}
+          {copied ? <Check className="size-4" /> : <Clipboard className="size-4" />}
         </Button>
         <Button
           variant="ghost"
@@ -120,5 +108,5 @@ export function Notepad({
         className="bg-paper min-h-[260px] w-full resize-y rounded-b-xl bg-transparent px-4 py-2 font-mono text-[13px] leading-7 text-note-foreground outline-none placeholder:text-note-foreground/45"
       />
     </div>
-  )
+  );
 }

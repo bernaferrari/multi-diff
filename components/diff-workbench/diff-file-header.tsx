@@ -1,11 +1,11 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { copyTextWithToast } from "./clipboard"
-import { FileTypeIcon } from "./file-icons"
-import { DiffStatText } from "./diff-stat-text"
-import { LaneBadge } from "./lane-badge"
-import { laneStyle } from "./lanes"
-import type { LaneId } from "./types"
+import { copyTextWithToast } from "./clipboard";
+import { FileTypeIcon } from "./file-icons";
+import { DiffStatText } from "./diff-stat-text";
+import { LaneBadge } from "./lane-badge";
+import { laneStyle } from "./lanes";
+import type { LaneId } from "./types";
 
 export function DiffFileHeader({
   additions,
@@ -15,15 +15,15 @@ export function DiffFileHeader({
   paneId,
   sticky = false,
 }: {
-  additions: number
-  compact?: boolean
-  deletions: number
-  fileName: string
-  paneId?: LaneId
-  sticky?: boolean
+  additions: number;
+  compact?: boolean;
+  deletions: number;
+  fileName: string;
+  paneId?: LaneId;
+  sticky?: boolean;
 }) {
-  const style = paneId ? laneStyle(paneId) : null
-  const copyLabel = getFilePathCopyLabel(fileName)
+  const style = paneId ? laneStyle(paneId) : null;
+  const copyLabel = getFilePathCopyLabel(fileName);
 
   return (
     <button
@@ -37,26 +37,13 @@ export function DiffFileHeader({
         compact
           ? "h-7 border-t border-border/45 bg-background/80 px-3 pl-4"
           : "h-10 border-y border-border/55 bg-card/95 px-3 hover:bg-muted/45",
-        sticky &&
-          cn(
-            "sticky z-20 backdrop-blur-md",
-            compact ? "-top-3" : "top-0"
-          )
+        sticky && cn("sticky z-20 backdrop-blur-md", compact ? "-top-3" : "top-0"),
       )}
     >
       {style && compact ? (
-        <span
-          className={cn("absolute top-1.5 bottom-1.5 left-0 w-1", style.bar)}
-          aria-hidden
-        />
+        <span className={cn("absolute top-1.5 bottom-1.5 left-0 w-1", style.bar)} aria-hidden />
       ) : null}
-      {paneId ? (
-        <LaneBadge
-          id={paneId}
-          size={compact ? "sm" : "md"}
-          tone="soft"
-        />
-      ) : null}
+      {paneId ? <LaneBadge id={paneId} size={compact ? "sm" : "md"} tone="soft" /> : null}
       <FileTypeIcon path={fileName} />
       <span className="min-w-0 flex-1 truncate text-left font-mono text-[11px] text-muted-foreground underline-offset-4 group-hover:text-foreground group-hover:underline group-hover:decoration-dashed">
         {fileName}
@@ -67,7 +54,7 @@ export function DiffFileHeader({
         className={compact ? "text-[9px]" : "text-[10px]"}
       />
     </button>
-  )
+  );
 }
 
 function copyFilePath(path: string) {
@@ -75,9 +62,9 @@ function copyFilePath(path: string) {
     description: path,
     text: path,
     title: "Copied file path",
-  })
+  });
 }
 
 function getFilePathCopyLabel(path: string) {
-  return `Copy ${path}`
+  return `Copy ${path}`;
 }

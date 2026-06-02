@@ -1,8 +1,8 @@
-import { useMemo } from "react"
+import { useMemo } from "react";
 
-import { parsePane } from "./diff-data"
-import type { LaneId, Pane } from "./types"
-import { buildWorkbenchViewModel } from "./view-model"
+import { parsePane } from "./diff-data";
+import type { LaneId, Pane } from "./types";
+import { buildWorkbenchViewModel } from "./view-model";
 
 export function useWorkbenchViewModel({
   activeFile,
@@ -11,13 +11,13 @@ export function useWorkbenchViewModel({
   hiddenFiles,
   panes,
 }: {
-  activeFile: string | null
-  focusFile: string | null
-  hidden: Set<LaneId>
-  hiddenFiles: Set<string>
-  panes: Pane[]
+  activeFile: string | null;
+  focusFile: string | null;
+  hidden: Set<LaneId>;
+  hiddenFiles: Set<string>;
+  panes: Pane[];
 }) {
-  const parsed = useMemo(() => panes.map(parsePane), [panes])
+  const parsed = useMemo(() => panes.map(parsePane), [panes]);
   const viewModel = useMemo(
     () =>
       buildWorkbenchViewModel({
@@ -26,12 +26,12 @@ export function useWorkbenchViewModel({
         hiddenFiles,
         parsed,
       }),
-    [focusFile, hidden, hiddenFiles, parsed]
-  )
+    [focusFile, hidden, hiddenFiles, parsed],
+  );
 
   return {
     parsed,
     ...viewModel,
     indexActiveFile: viewModel.focused ?? activeFile,
-  }
+  };
 }

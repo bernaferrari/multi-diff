@@ -1,7 +1,7 @@
-import { renderToStaticMarkup } from "react-dom/server"
-import { describe, expect, it } from "vitest"
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
 
-import { ImportStagedRow } from "./import-staged-row"
+import { ImportStagedRow } from "./import-staged-row";
 
 describe("import staged row", () => {
   it("renders move controls, lane selector, and remove action for a staged file", () => {
@@ -14,14 +14,14 @@ describe("import staged row", () => {
         onLaneChange={() => {}}
         onMove={() => {}}
         onRemove={() => {}}
-      />
-    )
+      />,
+    );
 
-    expect(html).toContain("changes.patch")
-    expect(html).toContain("Move changes.patch up")
-    expect(html).toContain("Move changes.patch down")
-    expect(html).toContain("Lane for changes.patch")
-    expect(html).toContain("Remove changes.patch")
-    expect(html).toContain(">B<")
-  })
-})
+    expect(html).toContain("changes.patch");
+    expect(html).toContain("Move changes.patch up");
+    expect(html).toContain("Move changes.patch down");
+    expect(html).toContain("Lane for changes.patch");
+    expect(html).toContain("Remove changes.patch");
+    expect(html).toContain(">B<");
+  });
+});

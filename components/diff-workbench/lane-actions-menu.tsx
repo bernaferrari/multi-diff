@@ -1,22 +1,15 @@
-import { Children, type ComponentProps, type RefObject } from "react"
-import {
-  ArrowLeft,
-  ArrowRight,
-  Eye,
-  MoreHorizontal,
-  Trash2,
-  Upload,
-} from "lucide-react"
+import { Children, type ComponentProps, type RefObject } from "react";
+import { ArrowLeft, ArrowRight, Eye, MoreHorizontal, Trash2, Upload } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 export function LaneActionsMenu({
   actions,
@@ -29,16 +22,16 @@ export function LaneActionsMenu({
   onMoveRight,
 }: {
   actions: {
-    canClear: boolean
-    label: string
-  }
-  canMoveLeft: boolean
-  canMoveRight: boolean
-  importInputRef: RefObject<HTMLInputElement | null>
-  onClear: () => void
-  onHide: () => void
-  onMoveLeft: () => void
-  onMoveRight: () => void
+    canClear: boolean;
+    label: string;
+  };
+  canMoveLeft: boolean;
+  canMoveRight: boolean;
+  importInputRef: RefObject<HTMLInputElement | null>;
+  onClear: () => void;
+  onHide: () => void;
+  onMoveLeft: () => void;
+  onMoveRight: () => void;
 }) {
   return (
     <DropdownMenu>
@@ -92,25 +85,18 @@ export function LaneActionsMenu({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
-function LaneMenuItem({
-  children,
-  className,
-  ...props
-}: ComponentProps<typeof DropdownMenuItem>) {
-  const [icon, label] = Children.toArray(children)
+function LaneMenuItem({ children, className, ...props }: ComponentProps<typeof DropdownMenuItem>) {
+  const [icon, label] = Children.toArray(children);
 
   return (
-    <DropdownMenuItem
-      className={cn("h-9 gap-2 rounded-lg px-2 text-xs", className)}
-      {...props}
-    >
+    <DropdownMenuItem className={cn("h-9 gap-2 rounded-lg px-2 text-xs", className)} {...props}>
       <span className="grid size-6 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground group-focus/dropdown-menu-item:bg-background group-focus/dropdown-menu-item:text-foreground">
         {icon}
       </span>
       <span className="min-w-0 flex-1">{label}</span>
     </DropdownMenuItem>
-  )
+  );
 }

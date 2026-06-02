@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { restoreStoredWorkbenchState } from "./persistence-restore"
+import { restoreStoredWorkbenchState } from "./persistence-restore";
 
 describe("persistence restore", () => {
   it("restores valid panes with canonical lane ids and labels", () => {
@@ -15,15 +15,15 @@ describe("persistence restore", () => {
           { text: "five" },
           { text: "six" },
         ],
-      })?.panes
+      })?.panes,
     ).toEqual([
       { id: "a", label: "Diff A", text: "one", filename: "one.patch" },
       { id: "b", label: "Diff B", text: "two", filename: undefined },
       { id: "c", label: "Diff C", text: "", filename: undefined },
       { id: "d", label: "Diff D", text: "", filename: undefined },
       { id: "e", label: "Diff E", text: "four", filename: undefined },
-    ])
-  })
+    ]);
+  });
 
   it("restores only valid scalar settings", () => {
     expect(
@@ -35,7 +35,7 @@ describe("persistence restore", () => {
         notes: "note",
         sidebarOpen: false,
         wrap: true,
-      })
+      }),
     ).toMatchObject({
       diffStyle: "split",
       laneMarkerStyle: "bars",
@@ -44,7 +44,7 @@ describe("persistence restore", () => {
       notes: "note",
       sidebarOpen: false,
       wrap: true,
-    })
+    });
     expect(
       restoreStoredWorkbenchState({
         diffStyle: "word",
@@ -54,7 +54,7 @@ describe("persistence restore", () => {
         notes: false,
         sidebarOpen: "false",
         wrap: "yes",
-      })
+      }),
     ).toEqual({
       diffStyle: undefined,
       laneMarkerStyle: undefined,
@@ -64,11 +64,11 @@ describe("persistence restore", () => {
       panes: undefined,
       sidebarOpen: undefined,
       wrap: undefined,
-    })
-  })
+    });
+  });
 
   it("ignores non-object stored values", () => {
-    expect(restoreStoredWorkbenchState(null)).toBeNull()
-    expect(restoreStoredWorkbenchState([])).toBeNull()
-  })
-})
+    expect(restoreStoredWorkbenchState(null)).toBeNull();
+    expect(restoreStoredWorkbenchState([])).toBeNull();
+  });
+});

@@ -1,26 +1,24 @@
-import { Hash, WrapText } from "lucide-react"
-import type { ReactNode } from "react"
+import { Hash, WrapText } from "lucide-react";
+import type { ReactNode } from "react";
 
-import type { LaneMarkerStyle, Layout } from "./types"
+import type { LaneMarkerStyle, Layout } from "./types";
 
-type DisplayToggleKey =
-  | "wrap"
-  | "lineNumbers"
+type DisplayToggleKey = "wrap" | "lineNumbers";
 
 export type DisplaySettings = Record<DisplayToggleKey, boolean> & {
-  laneMarkerStyle: LaneMarkerStyle
-  layout: Layout
-}
+  laneMarkerStyle: LaneMarkerStyle;
+  layout: Layout;
+};
 export type DisplayActions = Record<DisplayToggleKey, (value: boolean) => void> & {
-  setLaneMarkerStyle: (value: LaneMarkerStyle) => void
-}
+  setLaneMarkerStyle: (value: LaneMarkerStyle) => void;
+};
 
 type DisplayOption = {
-  key: DisplayToggleKey
-  description: string
-  icon: ReactNode
-  label: string
-}
+  key: DisplayToggleKey;
+  description: string;
+  icon: ReactNode;
+  label: string;
+};
 
 export const DISPLAY_OPTIONS = [
   {
@@ -35,4 +33,4 @@ export const DISPLAY_OPTIONS = [
     icon: <Hash className="size-4" />,
     label: "Line numbers",
   },
-] satisfies DisplayOption[]
+] satisfies DisplayOption[];

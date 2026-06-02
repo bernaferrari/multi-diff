@@ -1,26 +1,23 @@
-"use client"
+"use client";
 
-import { Eraser, FlaskConical, Upload } from "lucide-react"
-import { type DragEvent, type ReactNode } from "react"
+import { Eraser, FlaskConical, Upload } from "lucide-react";
+import { type DragEvent, type ReactNode } from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-import { DiffFileInput } from "./diff-file-input"
-import { ImportEmptyDropzone } from "./import-dropzone"
-import { ImportStagedList } from "./import-staged-list"
-import type {
-  ImportDialogBodyActions,
-  ImportDialogBodyView,
-} from "./import-dialog-model"
+import { DiffFileInput } from "./diff-file-input";
+import { ImportEmptyDropzone } from "./import-dropzone";
+import { ImportStagedList } from "./import-staged-list";
+import type { ImportDialogBodyActions, ImportDialogBodyView } from "./import-dialog-model";
 
 export function ImportDialogBody({
   actions,
   view,
 }: {
-  actions: ImportDialogBodyActions
-  view: ImportDialogBodyView
+  actions: ImportDialogBodyActions;
+  view: ImportDialogBodyView;
 }) {
-  const { dragging, inputRef, pendingFiles, panes } = view
+  const { dragging, inputRef, pendingFiles, panes } = view;
   const {
     onAdd,
     onDragEnter,
@@ -35,20 +32,16 @@ export function ImportDialogBody({
     onMove,
     onRemove,
     onSort,
-  } = actions
-  const pendingCount = pendingFiles.length
-  const hasPending = pendingCount > 0
+  } = actions;
+  const pendingCount = pendingFiles.length;
+  const hasPending = pendingCount > 0;
 
   return (
     <div className="space-y-3 px-5 pb-5">
       <DiffFileInput ref={inputRef} multiple onFiles={onFiles} />
 
       {hasPending ? (
-        <DropBoundary
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
-        >
+        <DropBoundary onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
           <ImportStagedList
             dragging={dragging}
             files={pendingFiles}
@@ -79,7 +72,7 @@ export function ImportDialogBody({
         onLoadSamples={onLoadSamples}
       />
     </div>
-  )
+  );
 }
 
 function ImportDialogFooter({
@@ -90,12 +83,12 @@ function ImportDialogFooter({
   onImport,
   onLoadSamples,
 }: {
-  count: number
-  hasPending: boolean
-  hasWorkspaceContent: boolean
-  onClearAll: () => void
-  onImport: () => void | Promise<void>
-  onLoadSamples: () => void
+  count: number;
+  hasPending: boolean;
+  hasWorkspaceContent: boolean;
+  onClearAll: () => void;
+  onImport: () => void | Promise<void>;
+  onLoadSamples: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
@@ -135,7 +128,7 @@ function ImportDialogFooter({
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 function DropBoundary({
@@ -144,14 +137,14 @@ function DropBoundary({
   onDragOver,
   onDrop,
 }: {
-  children: ReactNode
-  onDragLeave: (event: DragEvent<HTMLElement>) => void
-  onDragOver: (event: DragEvent<HTMLElement>) => void
-  onDrop: (event: DragEvent<HTMLElement>) => void
+  children: ReactNode;
+  onDragLeave: (event: DragEvent<HTMLElement>) => void;
+  onDragOver: (event: DragEvent<HTMLElement>) => void;
+  onDrop: (event: DragEvent<HTMLElement>) => void;
 }) {
   return (
     <div onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
       {children}
     </div>
-  )
+  );
 }

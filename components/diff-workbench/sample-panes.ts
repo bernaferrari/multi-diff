@@ -1,6 +1,6 @@
-import { createPane, normalizePatchInput } from "./diff-data"
-import type { Pane } from "./types"
-import { LANE_ORDER } from "./lanes"
+import { createPane, normalizePatchInput } from "./diff-data";
+import type { Pane } from "./types";
+import { LANE_ORDER } from "./lanes";
 
 const samples = [
   `diff --git a/app/api/search/route.ts b/app/api/search/route.ts
@@ -147,18 +147,18 @@ index 0000000..d8c0b8a
 +  } as const
 +}
 `,
-]
+];
 
 const samplePanes: Pane[] = [
   createPane("a", normalizePatchInput(samples[0]), "validation.patch"),
   createPane("b", normalizePatchInput(samples[1]), "schema.patch"),
   createPane("c", normalizePatchInput(samples[2]), "auth.patch"),
-]
+];
 
 export function createSamplePanes(): Pane[] {
-  return samplePanes.map((pane) => ({ ...pane }))
+  return samplePanes.map((pane) => ({ ...pane }));
 }
 
 export function createEmptyPanes(count = 3): Pane[] {
-  return LANE_ORDER.slice(0, count).map((id) => createPane(id))
+  return LANE_ORDER.slice(0, count).map((id) => createPane(id));
 }

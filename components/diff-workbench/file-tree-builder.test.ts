@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { buildPreparedFileTree } from "./file-tree-builder"
-import { testFileRow } from "./test-builders"
+import { buildPreparedFileTree } from "./file-tree-builder";
+import { testFileRow } from "./test-builders";
 
 describe("file tree builder", () => {
   it("builds, summarizes, and compacts directory chains", () => {
@@ -16,24 +16,21 @@ describe("file tree builder", () => {
         deletions: 0,
         presentIn: ["b"],
       }),
-    ])
+    ]);
 
-    const app = root.children.get("app")
+    const app = root.children.get("app");
 
     expect(app).toMatchObject({
       kind: "directory",
       name: "app/api/search",
       path: "app/api/search",
-    })
+    });
     expect(app?.summary).toMatchObject({
       additions: 6,
       deletions: 1,
       presentIn: ["a", "b"],
-    })
-    expect(app?.fileNames).toEqual([
-      "app/api/search/route.ts",
-      "app/api/search/types.ts",
-    ])
-    expect([...app?.children.keys() ?? []]).toEqual(["route.ts", "types.ts"])
-  })
-})
+    });
+    expect(app?.fileNames).toEqual(["app/api/search/route.ts", "app/api/search/types.ts"]);
+    expect([...(app?.children.keys() ?? [])]).toEqual(["route.ts", "types.ts"]);
+  });
+});

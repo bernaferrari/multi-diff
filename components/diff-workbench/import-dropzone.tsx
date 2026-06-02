@@ -1,10 +1,10 @@
-import { Upload } from "lucide-react"
-import type { DragEvent } from "react"
+import { Upload } from "lucide-react";
+import type { DragEvent } from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { DIFF_FILE_ACCEPT_LABEL } from "./diff-file-input"
-import { MAX_LANES } from "./lanes"
+import { DIFF_FILE_ACCEPT_LABEL } from "./diff-file-input";
+import { MAX_LANES } from "./lanes";
 
 export function ImportEmptyDropzone({
   dragging,
@@ -13,11 +13,11 @@ export function ImportEmptyDropzone({
   onDragOver,
   onDrop,
 }: {
-  dragging: boolean
-  onDragEnter: (event: DragEvent<HTMLLabelElement>) => void
-  onDragLeave: (event: DragEvent<HTMLLabelElement>) => void
-  onDragOver: (event: DragEvent<HTMLLabelElement>) => void
-  onDrop: (event: DragEvent<HTMLLabelElement>) => void
+  dragging: boolean;
+  onDragEnter: (event: DragEvent<HTMLLabelElement>) => void;
+  onDragLeave: (event: DragEvent<HTMLLabelElement>) => void;
+  onDragOver: (event: DragEvent<HTMLLabelElement>) => void;
+  onDrop: (event: DragEvent<HTMLLabelElement>) => void;
 }) {
   return (
     <label
@@ -30,15 +30,13 @@ export function ImportEmptyDropzone({
         "group flex min-h-36 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-6 text-center transition-colors",
         dragging
           ? "border-primary bg-primary/10 text-primary"
-          : "border-border bg-background hover:border-primary/45 hover:bg-muted/25"
+          : "border-border bg-background hover:border-primary/45 hover:bg-muted/25",
       )}
     >
       <span
         className={cn(
           "grid size-12 shrink-0 place-items-center rounded-xl border bg-muted/30 text-muted-foreground transition-colors",
-          dragging
-            ? "border-primary/40 text-primary"
-            : "border-border group-hover:text-foreground"
+          dragging ? "border-primary/40 text-primary" : "border-border group-hover:text-foreground",
         )}
       >
         <Upload className="size-5" />
@@ -52,5 +50,5 @@ export function ImportEmptyDropzone({
         </span>
       </span>
     </label>
-  )
+  );
 }

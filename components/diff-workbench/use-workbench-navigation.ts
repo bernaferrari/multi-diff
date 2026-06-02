@@ -1,4 +1,4 @@
-import { useCallback, useReducer } from "react"
+import { useCallback, useReducer } from "react";
 
 import {
   getFocusModeToggleAction,
@@ -8,14 +8,14 @@ import {
   isNavigationScrollLocked,
   reduceWorkbenchNavigationState,
   type PaneFileLookup,
-} from "./workbench-navigation-state"
-import type { FileRow, LaneId, Layout } from "./types"
-import type { WorkbenchSetters } from "./workbench-state-model"
+} from "./workbench-navigation-state";
+import type { FileRow, LaneId, Layout } from "./types";
+import type { WorkbenchSetters } from "./workbench-state-model";
 
 type WorkbenchNavigationSetters = Pick<
   WorkbenchSetters,
   "setActiveFile" | "setFocusFile" | "setLayout"
->
+>;
 
 export function useWorkbenchNavigation({
   activeFile,
@@ -27,34 +27,26 @@ export function useWorkbenchNavigation({
   layout,
   setters,
 }: {
-  activeFile: string | null
-  clearFocusedFile: () => void
-  displayedPaneViews: PaneFileLookup[]
-  fileRows: FileRow[]
-  focusedFile: string | null
-  indexActiveFile: string | null
-  layout: Layout
-  setters: WorkbenchNavigationSetters
+  activeFile: string | null;
+  clearFocusedFile: () => void;
+  displayedPaneViews: PaneFileLookup[];
+  fileRows: FileRow[];
+  focusedFile: string | null;
+  indexActiveFile: string | null;
+  layout: Layout;
+  setters: WorkbenchNavigationSetters;
 }) {
   const [navigation, dispatchNavigation] = useReducer(
     reduceWorkbenchNavigationState,
-    initialWorkbenchNavigationState
-  )
+    initialWorkbenchNavigationState,
+  );
 
   const activateFile = useCallback(
-    ({
-      clearFocus,
-      focus,
-      name,
-    }: {
-      clearFocus?: boolean
-      focus?: boolean
-      name: string
-    }) => {
-      const token = Date.now()
-      if (clearFocus) clearFocusedFile()
-      setters.setActiveFile(name)
-      if (focus) setters.setFocusFile(name)
+    ({ clearFocus, focus, name }: { clearFocus?: boolean; focus?: boolean; name: string }) => {
+      const token = Date.now();
+      if (clearFocus) clearFocusedFile();
+      setters.setActiveFile(name);
+      if (focus) setters.setFocusFile(name);
       dispatchNavigation({
         displayedPaneViews,
         fallbackName: getNavigationFallbackFile({
@@ -66,17 +58,10 @@ export function useWorkbenchNavigation({
         name,
         token,
         type: "activate",
-      })
+      });
     },
-    [
-      activeFile,
-      clearFocusedFile,
-      displayedPaneViews,
-      fileRows,
-      indexActiveFile,
-      setters,
-    ]
-  )
+    [activeFile, clearFocusedFile, displayedPaneViews, fileRows, indexActiveFile, setters],
+  );
 
   const handleActiveFileChange = useCallback(
     (name: string, sourceId: LaneId) => {
@@ -86,48 +71,48 @@ export function useWorkbenchNavigation({
           now: Date.now(),
         })
       ) {
-        return
+        return;
       }
-      setters.setActiveFile(name)
+      setters.setActiveFile(name);
       dispatchNavigation({
         name,
         sourceId,
         type: "scroll",
         updateRowsFile: layout === "rows",
-      })
+      });
     },
-    [layout, navigation.navigationLockUntil, setters]
-  )
+    [layout, navigation.navigationLockUntil, setters],
+  );
 
   const navigateFile = useCallback(
     (name: string) => {
-      activateFile({ clearFocus: true, name })
+      activateFile({ clearFocus: true, name });
     },
-    [activateFile]
-  )
+    [activateFile],
+  );
 
   const focusFile = useCallback(
     (name: string) => {
-      activateFile({ focus: true, name })
+      activateFile({ focus: true, name });
     },
-    [activateFile]
-  )
+    [activateFile],
+  );
 
   const navigateOrFocusFile = useCallback(
     (name: string) => {
       if (navigation.focusMode) {
-        focusFile(name)
-        return
+        focusFile(name);
+        return;
       }
-      navigateFile(name)
+      navigateFile(name);
     },
-    [focusFile, navigation.focusMode, navigateFile]
-  )
+    [focusFile, navigation.focusMode, navigateFile],
+  );
 
   const clearFocusMode = useCallback(() => {
-    dispatchNavigation({ type: "clearFocusMode" })
-    clearFocusedFile()
-  }, [clearFocusedFile])
+    dispatchNavigation({ type: "clearFocusMode" });
+    clearFocusedFile();
+  }, [clearFocusedFile]);
 
   const toggleFocusMode = useCallback(
     (preferredFile?: string | null) => {
@@ -139,15 +124,15 @@ export function useWorkbenchNavigation({
         focusMode: navigation.focusMode,
         indexActiveFile,
         preferredFile,
-      })
+      });
 
       if (action.type === "clear") {
-        clearFocusMode()
-        return
+        clearFocusMode();
+        return;
       }
 
       if (action.type === "select") {
-        focusFile(action.name)
+        focusFile(action.name);
       }
     },
     [
@@ -159,23 +144,23 @@ export function useWorkbenchNavigation({
       indexActiveFile,
       navigation.activeFileByLane,
       navigation.focusMode,
-    ]
-  )
+    ],
+  );
 
   const setLayout = useCallback(
     (nextLayout: Layout) => {
-      if (nextLayout === layout) return
+      if (nextLayout === layout) return;
       if (nextLayout === "rows") {
         const target = getRowsLayoutNavigationTarget({
           activeFile,
           fileRows,
           indexActiveFile,
           rowsNavigationFile: navigation.rowsNavigationFile,
-        })
+        });
 
-        if (target) activateFile({ name: target })
+        if (target) activateFile({ name: target });
       }
-      setters.setLayout(nextLayout)
+      setters.setLayout(nextLayout);
     },
     [
       activateFile,
@@ -185,8 +170,8 @@ export function useWorkbenchNavigation({
       layout,
       navigation.rowsNavigationFile,
       setters,
-    ]
-  )
+    ],
+  );
 
   return {
     activeFileByLane: navigation.activeFileByLane,
@@ -197,5 +182,5 @@ export function useWorkbenchNavigation({
     navigationTarget: navigation.navigationTarget,
     setLayout,
     toggleFocusMode,
-  }
+  };
 }

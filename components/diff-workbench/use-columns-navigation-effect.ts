@@ -1,26 +1,24 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from "react";
 
-import type { Layout } from "./types"
+import type { Layout } from "./types";
 
 type NavigationTarget = {
-  name: string
-  token: number
-} | null
+  name: string;
+  token: number;
+} | null;
 
 function shouldApplyColumnsNavigationTarget({
   appliedToken,
   layout,
   navigationTarget,
 }: {
-  appliedToken: number | null
-  layout: Layout
-  navigationTarget: NavigationTarget
+  appliedToken: number | null;
+  layout: Layout;
+  navigationTarget: NavigationTarget;
 }) {
   return (
-    layout === "columns" &&
-    navigationTarget != null &&
-    appliedToken !== navigationTarget.token
-  )
+    layout === "columns" && navigationTarget != null && appliedToken !== navigationTarget.token
+  );
 }
 
 export function useColumnsNavigationEffect({
@@ -28,14 +26,14 @@ export function useColumnsNavigationEffect({
   navigationTarget,
   scrollToFile,
 }: {
-  layout: Layout
-  navigationTarget: NavigationTarget
-  scrollToFile: (name: string) => void
+  layout: Layout;
+  navigationTarget: NavigationTarget;
+  scrollToFile: (name: string) => void;
 }) {
-  const appliedToken = useRef<number | null>(null)
+  const appliedToken = useRef<number | null>(null);
 
   useEffect(() => {
-    const target = navigationTarget
+    const target = navigationTarget;
 
     if (
       !target ||
@@ -45,10 +43,10 @@ export function useColumnsNavigationEffect({
         navigationTarget: target,
       })
     ) {
-      return
+      return;
     }
 
-    scrollToFile(target.name)
-    appliedToken.current = target.token
-  }, [layout, navigationTarget, scrollToFile])
+    scrollToFile(target.name);
+    appliedToken.current = target.token;
+  }, [layout, navigationTarget, scrollToFile]);
 }

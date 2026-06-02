@@ -1,17 +1,11 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import type { FileRow, ParsedPane } from "./types"
-import {
-  getFilesPanelDisplayState,
-  getFilesPanelView,
-} from "./files-panel-view-state"
+import type { FileRow, ParsedPane } from "./types";
+import { getFilesPanelDisplayState, getFilesPanelView } from "./files-panel-view-state";
 
 describe("files panel view state", () => {
   it("uses the first visible tree file as the initial selection", () => {
-    const rows = [
-      row("app/second.ts", ["c"], 2),
-      row("app/first.ts", ["a", "b"], 4),
-    ]
+    const rows = [row("app/second.ts", ["c"], 2), row("app/first.ts", ["a", "b"], 4)];
 
     expect(
       getFilesPanelDisplayState({
@@ -20,18 +14,18 @@ describe("files panel view state", () => {
         indexActiveFile: null,
         layout: "columns",
         rows,
-      })
+      }),
     ).toEqual({
       activeFile: "app/first.ts",
       activeFileByLane: {
         a: "app/first.ts",
         b: "app/first.ts",
       },
-    })
-  })
+    });
+  });
 
   it("selects from the visible rows supplied by the caller", () => {
-    const rows = [row("app/second.ts", ["b"])]
+    const rows = [row("app/second.ts", ["b"])];
 
     expect(
       getFilesPanelDisplayState({
@@ -40,9 +34,9 @@ describe("files panel view state", () => {
         indexActiveFile: null,
         layout: "columns",
         rows,
-      }).activeFile
-    ).toBe("app/second.ts")
-  })
+      }).activeFile,
+    ).toBe("app/second.ts");
+  });
 
   it("keeps existing visible lane state in columns overview", () => {
     expect(
@@ -52,9 +46,9 @@ describe("files panel view state", () => {
         indexActiveFile: "app/new.ts",
         layout: "columns",
         rows: [row("app/new.ts", ["a", "c"])],
-      }).activeFileByLane
-    ).toEqual({ c: "app/new.ts" })
-  })
+      }).activeFileByLane,
+    ).toEqual({ c: "app/new.ts" });
+  });
 
   it("falls back to every present lane in columns overview", () => {
     expect(
@@ -64,9 +58,9 @@ describe("files panel view state", () => {
         indexActiveFile: "app/new.ts",
         layout: "columns",
         rows: [row("app/new.ts", ["a", "c"])],
-      }).activeFileByLane
-    ).toEqual({ a: "app/new.ts", c: "app/new.ts" })
-  })
+      }).activeFileByLane,
+    ).toEqual({ a: "app/new.ts", c: "app/new.ts" });
+  });
 
   it("keeps only one lane active in rows overview", () => {
     expect(
@@ -76,8 +70,8 @@ describe("files panel view state", () => {
         indexActiveFile: "app/new.ts",
         layout: "rows",
         rows: [row("app/new.ts", ["a", "c"])],
-      }).activeFileByLane
-    ).toEqual({ c: "app/new.ts" })
+      }).activeFileByLane,
+    ).toEqual({ c: "app/new.ts" });
 
     expect(
       getFilesPanelDisplayState({
@@ -86,9 +80,9 @@ describe("files panel view state", () => {
         indexActiveFile: "app/new.ts",
         layout: "rows",
         rows: [row("app/new.ts", ["a", "c"])],
-      }).activeFileByLane
-    ).toEqual({ a: "app/new.ts" })
-  })
+      }).activeFileByLane,
+    ).toEqual({ a: "app/new.ts" });
+  });
 
   it("shows every present lane while focused", () => {
     expect(
@@ -98,16 +92,16 @@ describe("files panel view state", () => {
         indexActiveFile: "app/old.ts",
         layout: "rows",
         rows: [row("app/new.ts", ["a", "c"])],
-      }).activeFileByLane
-    ).toEqual({ a: "app/new.ts", c: "app/new.ts" })
-  })
+      }).activeFileByLane,
+    ).toEqual({ a: "app/new.ts", c: "app/new.ts" });
+  });
 
   it("builds the files panel view contract", () => {
-    const rows: FileRow[] = [row("app/new.ts", ["a", "c"])]
-    const hiddenFileRows: FileRow[] = []
-    const parsed: ParsedPane[] = []
-    const hidden = new Set(["b"])
-    const hiddenFiles = new Set(["app/old.ts"])
+    const rows: FileRow[] = [row("app/new.ts", ["a", "c"])];
+    const hiddenFileRows: FileRow[] = [];
+    const parsed: ParsedPane[] = [];
+    const hidden = new Set(["b"]);
+    const hiddenFiles = new Set(["app/old.ts"]);
 
     expect(
       getFilesPanelView({
@@ -127,7 +121,7 @@ describe("files panel view state", () => {
           laneMarkerStyle: "bars",
           layout: "rows",
         },
-      })
+      }),
     ).toEqual({
       activeFileByLane: { a: "app/new.ts", c: "app/new.ts" },
       activeFile: "app/new.ts",
@@ -143,9 +137,9 @@ describe("files panel view state", () => {
       query: "new",
       rows,
       sharedCount: 2,
-    })
-  })
-})
+    });
+  });
+});
 
 function row(name: string, presentIn: FileRow["presentIn"], additions = 1) {
   return {
@@ -154,5 +148,5 @@ function row(name: string, presentIn: FileRow["presentIn"], additions = 1) {
     name,
     panes: {},
     presentIn,
-  } satisfies FileRow
+  } satisfies FileRow;
 }

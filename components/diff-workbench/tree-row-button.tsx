@@ -1,10 +1,10 @@
-import { type ButtonHTMLAttributes, type ReactNode } from "react"
+import { type ButtonHTMLAttributes, type ReactNode } from "react";
 
 type TreeRowButtonProps = {
-  children: ReactNode
-  depth: number
-  selected?: boolean
-} & ButtonHTMLAttributes<HTMLButtonElement>
+  children: ReactNode;
+  depth: number;
+  selected?: boolean;
+} & ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function TreeRowButton({
   children,
@@ -26,9 +26,9 @@ export function TreeRowButton({
     >
       {children}
     </button>
-  )
+  );
 }
 
 function getTreeRowIndent(depth: number) {
-  return { paddingLeft: 6 + depth * 12 }
+  return { paddingLeft: 6 + depth * 12 };
 }

@@ -1,10 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import {
-  DIFF_FILE_HEADER_HEIGHT,
-  DIFF_LINE_HEIGHT_PX,
-} from "./diff-render-metrics"
-import { getLaneLayoutState } from "./lane-layout"
+import { DIFF_FILE_HEADER_HEIGHT, DIFF_LINE_HEIGHT_PX } from "./diff-render-metrics";
+import { getLaneLayoutState } from "./lane-layout";
 
 describe("lane layout", () => {
   it("keeps empty column lanes compact", () => {
@@ -15,9 +12,9 @@ describe("lane layout", () => {
         isEmpty: true,
         layout: "columns",
         codeHeight: 0,
-      }).columnHeight
-    ).toBe(192)
-  })
+      }).columnHeight,
+    ).toBe(192);
+  });
 
   it("prioritizes lane content states before layout rendering", () => {
     expect(
@@ -27,8 +24,8 @@ describe("lane layout", () => {
         hasError: true,
         isEmpty: true,
         layout: "columns",
-      }).contentKind
-    ).toBe("error")
+      }).contentKind,
+    ).toBe("error");
     expect(
       getLaneLayoutState({
         borderClass: "border-blue-500",
@@ -36,8 +33,8 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: true,
         layout: "rows",
-      }).contentKind
-    ).toBe("empty")
+      }).contentKind,
+    ).toBe("empty");
     expect(
       getLaneLayoutState({
         borderClass: "border-blue-500",
@@ -45,8 +42,8 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "rows",
-      }).contentKind
-    ).toBe("rows")
+      }).contentKind,
+    ).toBe("rows");
     expect(
       getLaneLayoutState({
         borderClass: "border-blue-500",
@@ -54,9 +51,9 @@ describe("lane layout", () => {
         hasError: false,
         isEmpty: false,
         layout: "columns",
-      }).contentKind
-    ).toBe("columns")
-  })
+      }).contentKind,
+    ).toBe("columns");
+  });
 
   it("uses estimated diff height for populated column lanes", () => {
     expect(
@@ -66,9 +63,9 @@ describe("lane layout", () => {
         isEmpty: false,
         layout: "columns",
         codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
-      }).columnHeight
-    ).toBe(44 + DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX)
-  })
+      }).columnHeight,
+    ).toBe(44 + DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX);
+  });
 
   it("builds lane shell classes from state", () => {
     expect(
@@ -78,8 +75,8 @@ describe("lane layout", () => {
         isEmpty: true,
         layout: "columns",
         codeHeight: 0,
-      }).sectionClass
-    ).toContain("border-dashed")
+      }).sectionClass,
+    ).toContain("border-dashed");
 
     expect(
       getLaneLayoutState({
@@ -88,8 +85,8 @@ describe("lane layout", () => {
         isEmpty: false,
         layout: "rows",
         codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
-      }).sectionClass
-    ).toContain("overflow-clip")
+      }).sectionClass,
+    ).toContain("overflow-clip");
     expect(
       getLaneLayoutState({
         borderClass: "border-blue-500",
@@ -97,9 +94,9 @@ describe("lane layout", () => {
         isEmpty: false,
         layout: "rows",
         codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
-      }).sectionClass
-    ).toContain("rounded-xl")
-  })
+      }).sectionClass,
+    ).toContain("rounded-xl");
+  });
 
   it("only applies explicit lane height in column mode", () => {
     expect(
@@ -109,10 +106,10 @@ describe("lane layout", () => {
         isEmpty: false,
         layout: "columns",
         codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
-      }).sectionStyle
+      }).sectionStyle,
     ).toEqual({
       height: `min(100%, ${44 + DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX}px)`,
-    })
+    });
     expect(
       getLaneLayoutState({
         borderClass: "border-blue-500",
@@ -120,9 +117,9 @@ describe("lane layout", () => {
         isEmpty: false,
         layout: "rows",
         codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
-      }).sectionStyle
-    ).toBeUndefined()
-  })
+      }).sectionStyle,
+    ).toBeUndefined();
+  });
 
   it("builds lane body classes from state", () => {
     expect(
@@ -132,8 +129,8 @@ describe("lane layout", () => {
         isEmpty: true,
         layout: "columns",
         codeHeight: 0,
-      }).bodyClass
-    ).toContain("shrink-0")
+      }).bodyClass,
+    ).toContain("shrink-0");
     expect(
       getLaneLayoutState({
         borderClass: "border-blue-500",
@@ -141,8 +138,8 @@ describe("lane layout", () => {
         isEmpty: false,
         layout: "rows",
         codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
-      }).bodyClass
-    ).toContain("block")
+      }).bodyClass,
+    ).toContain("block");
     expect(
       getLaneLayoutState({
         borderClass: "border-blue-500",
@@ -150,7 +147,7 @@ describe("lane layout", () => {
         isEmpty: false,
         layout: "columns",
         codeHeight: DIFF_FILE_HEADER_HEIGHT + 9 * DIFF_LINE_HEIGHT_PX,
-      }).bodyClass
-    ).toContain("flex-1")
-  })
-})
+      }).bodyClass,
+    ).toContain("flex-1");
+  });
+});

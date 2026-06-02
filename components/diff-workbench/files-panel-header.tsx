@@ -1,10 +1,10 @@
-import { ChevronLeft, Search } from "lucide-react"
+import { ChevronLeft, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
-import { formatFileCount } from "./file-count-format"
-import { FilesLaneFilter } from "./files-lane-filter"
-import type { LaneId, LanePane } from "./types"
+import { formatFileCount } from "./file-count-format";
+import { FilesLaneFilter } from "./files-lane-filter";
+import type { LaneId, LanePane } from "./types";
 
 export function FilesPanelHeader({
   focusTarget,
@@ -20,34 +20,30 @@ export function FilesPanelHeader({
   onToggleLane,
   onToggleFocusMode,
 }: {
-  focusTarget: string | null
-  focusFile: string | null
-  focusMode: boolean
-  hidden: Set<LaneId>
-  panes: LanePane[]
-  query: string
-  sharedCount: number
-  visibleCount: number
-  onOverview: () => void
-  onQuery: (q: string) => void
-  onToggleLane: (id: LaneId) => void
-  onToggleFocusMode: () => void
+  focusTarget: string | null;
+  focusFile: string | null;
+  focusMode: boolean;
+  hidden: Set<LaneId>;
+  panes: LanePane[];
+  query: string;
+  sharedCount: number;
+  visibleCount: number;
+  onOverview: () => void;
+  onQuery: (q: string) => void;
+  onToggleLane: (id: LaneId) => void;
+  onToggleFocusMode: () => void;
 }) {
   const status = getFilesHeaderStatus({
     focusFile,
     sharedCount,
     visibleCount,
-  })
-  const focusButton = getFocusButtonState({ focusMode, focusTarget })
+  });
+  const focusButton = getFocusButtonState({ focusMode, focusTarget });
 
   return (
     <>
       <div className="flex flex-col gap-2 border-b border-border/70 p-2.5">
-        <FilesLaneFilter
-          hidden={hidden}
-          panes={panes}
-          onToggleLane={onToggleLane}
-        />
+        <FilesLaneFilter hidden={hidden} panes={panes} onToggleLane={onToggleLane} />
 
         <div className="flex items-center gap-1.5">
           <div className="relative min-w-0 flex-1">
@@ -101,41 +97,41 @@ export function FilesPanelHeader({
         )}
       </div>
     </>
-  )
+  );
 }
 
 type FilesHeaderStatus =
   | { mode: "focused"; label: "All files" }
   | {
-      count: number
-      mode: "overview"
-      title: string | undefined
-    }
+      count: number;
+      mode: "overview";
+      title: string | undefined;
+    };
 
 function getFilesHeaderStatus({
   focusFile,
   sharedCount,
   visibleCount,
 }: {
-  focusFile: string | null
-  sharedCount: number
-  visibleCount: number
+  focusFile: string | null;
+  sharedCount: number;
+  visibleCount: number;
 }): FilesHeaderStatus {
-  if (focusFile) return { mode: "focused", label: "All files" }
+  if (focusFile) return { mode: "focused", label: "All files" };
 
   return {
     count: visibleCount,
     mode: "overview",
     title: getSharedCountTitle(sharedCount),
-  }
+  };
 }
 
 function getFocusButtonState({
   focusMode,
   focusTarget,
 }: {
-  focusMode: boolean
-  focusTarget: string | null
+  focusMode: boolean;
+  focusTarget: string | null;
 }) {
   if (focusMode) {
     return {
@@ -143,7 +139,7 @@ function getFocusButtonState({
       disabled: false,
       title: "Return to normal file navigation",
       variant: "secondary" as const,
-    }
+    };
   }
 
   return {
@@ -151,10 +147,10 @@ function getFocusButtonState({
     disabled: !focusTarget,
     title: focusTarget ? `Focus ${focusTarget}` : "No visible file to focus",
     variant: "outline" as const,
-  }
+  };
 }
 
 function getSharedCountTitle(sharedCount: number) {
-  if (sharedCount <= 0) return undefined
-  return `${formatFileCount(sharedCount)} changed in every lane`
+  if (sharedCount <= 0) return undefined;
+  return `${formatFileCount(sharedCount)} changed in every lane`;
 }

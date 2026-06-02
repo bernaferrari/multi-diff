@@ -1,12 +1,12 @@
-import type { CodeViewProps, FileDiffProps } from "@pierre/diffs/react"
+import type { CodeViewProps, FileDiffProps } from "@pierre/diffs/react";
 
-import { compactSeparatorCSS } from "./diff-separator-css"
-import type { DiffRenderSettings } from "./types"
+import { compactSeparatorCSS } from "./diff-separator-css";
+import type { DiffRenderSettings } from "./types";
 
 type DiffCodeSettings = Pick<
   DiffRenderSettings,
   "codeTheme" | "diffStyle" | "lineNumbers" | "wrap"
->
+>;
 
 const baseDiffOptions = {
   disableFileHeader: false,
@@ -16,7 +16,7 @@ const baseDiffOptions = {
   expansionLineCount: 30,
   theme: { light: "pierre-light", dark: "pierre-dark" },
   enableLineSelection: true,
-} satisfies Partial<NonNullable<FileDiffProps<undefined>["options"]>>
+} satisfies Partial<NonNullable<FileDiffProps<undefined>["options"]>>;
 
 export function fileDiffOptions({
   codeTheme,
@@ -32,7 +32,7 @@ export function fileDiffOptions({
     hunkSeparators: "simple",
     themeType: codeTheme,
     unsafeCSS: compactSeparatorCSS,
-  }
+  };
 }
 
 export function codeViewOptions({
@@ -58,5 +58,5 @@ export function codeViewOptions({
       paddingBottom: 0,
       paddingTop: 0,
     },
-  }
+  };
 }

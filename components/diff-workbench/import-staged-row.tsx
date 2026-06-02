@@ -1,14 +1,11 @@
-import { X } from "lucide-react"
+import { X } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import {
-  ImportLaneSelect,
-  ImportStagedMoveControls,
-} from "./import-staged-controls"
-import type { StagedImportFile } from "./import-staging-state"
-import { laneStyle } from "./lanes"
-import type { LaneId } from "./types"
+import { ImportLaneSelect, ImportStagedMoveControls } from "./import-staged-controls";
+import type { StagedImportFile } from "./import-staging-state";
+import { laneStyle } from "./lanes";
+import type { LaneId } from "./types";
 
 export function ImportStagedRow({
   file,
@@ -19,30 +16,25 @@ export function ImportStagedRow({
   onMove,
   onRemove,
 }: {
-  file: StagedImportFile
-  index: number
-  isLast: boolean
-  lane: LaneId
-  onLaneChange: (index: number, lane: LaneId) => void
-  onMove: (fromIndex: number, toIndex: number) => void
-  onRemove: (index: number) => void
+  file: StagedImportFile;
+  index: number;
+  isLast: boolean;
+  lane: LaneId;
+  onLaneChange: (index: number, lane: LaneId) => void;
+  onMove: (fromIndex: number, toIndex: number) => void;
+  onRemove: (index: number) => void;
 }) {
-  const style = laneStyle(lane)
-  const fileName = file.file.name
+  const style = laneStyle(lane);
+  const fileName = file.file.name;
 
   return (
     <li className="group flex min-w-0 items-center gap-2 rounded-lg bg-background/60 px-2 py-2 text-sm transition-colors hover:bg-background">
-      <ImportStagedMoveControls
-        fileName={fileName}
-        index={index}
-        isLast={isLast}
-        onMove={onMove}
-      />
+      <ImportStagedMoveControls fileName={fileName} index={index} isLast={isLast} onMove={onMove} />
       <span
         className={cn(
           "grid size-6 shrink-0 place-items-center rounded-md text-xs font-bold",
           style.soft,
-          style.text
+          style.text,
         )}
       >
         {lane.toUpperCase()}
@@ -62,5 +54,5 @@ export function ImportStagedRow({
         <X className="size-3.5" />
       </button>
     </li>
-  )
+  );
 }

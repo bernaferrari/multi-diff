@@ -1,12 +1,12 @@
-import { EyeOff } from "lucide-react"
+import { EyeOff } from "lucide-react";
 
-import { FileTypeIcon } from "./file-icons"
-import type { FileTreeNode } from "./file-tree-types"
-import { FileTreeLaneMarkers } from "./file-tree-lane-markers"
-import { getFileTreeRowChrome } from "./file-tree-row-state"
-import { DiffStats, HighlightMatch } from "./file-tree-row-parts"
-import { TreeRowButton } from "./tree-row-button"
-import type { LaneId, LaneMarkerStyle, Layout } from "./types"
+import { FileTypeIcon } from "./file-icons";
+import type { FileTreeNode } from "./file-tree-types";
+import { FileTreeLaneMarkers } from "./file-tree-lane-markers";
+import { getFileTreeRowChrome } from "./file-tree-row-state";
+import { DiffStats, HighlightMatch } from "./file-tree-row-parts";
+import { TreeRowButton } from "./tree-row-button";
+import type { LaneId, LaneMarkerStyle, Layout } from "./types";
 
 export function FileTreeRow({
   activeFile,
@@ -23,22 +23,22 @@ export function FileTreeRow({
   onContextFile,
   onNavigate,
 }: {
-  activeFile: string | null
-  activeLaneIds: LaneId[]
-  depth: number
-  focusFile: string | null
-  hidden: boolean
-  laneIds: LaneId[]
-  laneMarkerStyle: LaneMarkerStyle
-  layout: Layout
-  node: FileTreeNode
-  query: string
-  showLaneBadges: boolean
-  onContextFile: (name: string) => void
-  onNavigate: (name: string) => void
+  activeFile: string | null;
+  activeLaneIds: LaneId[];
+  depth: number;
+  focusFile: string | null;
+  hidden: boolean;
+  laneIds: LaneId[];
+  laneMarkerStyle: LaneMarkerStyle;
+  layout: Layout;
+  node: FileTreeNode;
+  query: string;
+  showLaneBadges: boolean;
+  onContextFile: (name: string) => void;
+  onNavigate: (name: string) => void;
 }) {
-  const row = node.row
-  if (!row) return null
+  const row = node.row;
+  if (!row) return null;
 
   const chrome = getFileTreeRowChrome({
     activeFile,
@@ -46,7 +46,7 @@ export function FileTreeRow({
     focusFile,
     hidden,
     row,
-  })
+  });
 
   return (
     <TreeRowButton
@@ -83,5 +83,5 @@ export function FileTreeRow({
         />
       ) : null}
     </TreeRowButton>
-  )
+  );
 }

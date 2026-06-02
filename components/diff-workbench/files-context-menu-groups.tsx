@@ -1,18 +1,9 @@
-import { ContextMenuGroup } from "@/components/ui/context-menu"
+import { ContextMenuGroup } from "@/components/ui/context-menu";
 
-import {
-  ShowMenuItem,
-  VisibilityMenuItem,
-} from "./files-context-menu-items"
-import {
-  DirectoryMenuSummary,
-  FileMenuSummary,
-  FilesMenuLabel,
-} from "./files-context-menu-parts"
-import {
-  getDirectoryMenuState,
-} from "./files-context-menu-state"
-import type { DirectoryContext } from "./types"
+import { ShowMenuItem, VisibilityMenuItem } from "./files-context-menu-items";
+import { DirectoryMenuSummary, FileMenuSummary, FilesMenuLabel } from "./files-context-menu-parts";
+import { getDirectoryMenuState } from "./files-context-menu-state";
+import type { DirectoryContext } from "./types";
 
 export function FileContextMenuGroup({
   hidden,
@@ -20,10 +11,10 @@ export function FileContextMenuGroup({
   onHideFiles,
   onShowFiles,
 }: {
-  hidden: boolean
-  name: string
-  onHideFiles: (names: string[]) => void
-  onShowFiles: (names: string[]) => void
+  hidden: boolean;
+  name: string;
+  onHideFiles: (names: string[]) => void;
+  onShowFiles: (names: string[]) => void;
 }) {
   return (
     <ContextMenuGroup>
@@ -37,7 +28,7 @@ export function FileContextMenuGroup({
         onShow={() => onShowFiles([name])}
       />
     </ContextMenuGroup>
-  )
+  );
 }
 
 export function DirectoryContextMenuGroup({
@@ -46,23 +37,20 @@ export function DirectoryContextMenuGroup({
   onHideFiles,
   onShowFiles,
 }: {
-  contextDirectory: DirectoryContext
-  hiddenFiles: Set<string>
-  onHideFiles: (names: string[]) => void
-  onShowFiles: (names: string[]) => void
+  contextDirectory: DirectoryContext;
+  hiddenFiles: Set<string>;
+  onHideFiles: (names: string[]) => void;
+  onShowFiles: (names: string[]) => void;
 }) {
   const { allHidden, hiddenNames, someHidden } = getDirectoryMenuState(
     contextDirectory,
-    hiddenFiles
-  )
+    hiddenFiles,
+  );
 
   return (
     <ContextMenuGroup>
       <FilesMenuLabel>Folder</FilesMenuLabel>
-      <DirectoryMenuSummary
-        count={contextDirectory.names.length}
-        label={contextDirectory.label}
-      />
+      <DirectoryMenuSummary count={contextDirectory.names.length} label={contextDirectory.label} />
       <VisibilityMenuItem
         hidden={allHidden}
         hideLabel="Hide folder"
@@ -71,10 +59,8 @@ export function DirectoryContextMenuGroup({
         onShow={() => onShowFiles(contextDirectory.names)}
       />
       {someHidden && !allHidden ? (
-        <ShowMenuItem onClick={() => onShowFiles(hiddenNames)}>
-          Show hidden children
-        </ShowMenuItem>
+        <ShowMenuItem onClick={() => onShowFiles(hiddenNames)}>Show hidden children</ShowMenuItem>
       ) : null}
     </ContextMenuGroup>
-  )
+  );
 }

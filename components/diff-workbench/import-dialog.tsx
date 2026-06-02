@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Upload } from "lucide-react"
+import { Upload } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,12 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { ImportDialogBody } from "./import-dialog-body"
-import type { ImportFileSource, StagedImportFile } from "./import-staging-state"
-import { useImportDialogState } from "./use-import-dialog-state"
-import type { Pane } from "./types"
+import { ImportDialogBody } from "./import-dialog-body";
+import type { ImportFileSource, StagedImportFile } from "./import-staging-state";
+import { useImportDialogState } from "./use-import-dialog-state";
+import type { Pane } from "./types";
 
 export function ImportDialog({
   onClearAll,
@@ -23,14 +23,12 @@ export function ImportDialog({
   onLoadSamples,
   panes,
 }: {
-  onClearAll: () => void
-  onImportFiles: (
-    files: ImportFileSource | StagedImportFile[]
-  ) => void | Promise<void>
-  onLoadSamples: () => void
-  panes: Pane[]
+  onClearAll: () => void;
+  onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
+  onLoadSamples: () => void;
+  panes: Pane[];
 }) {
-  const dialog = useImportDialogState({ onClearAll, onImportFiles, onLoadSamples })
+  const dialog = useImportDialogState({ onClearAll, onImportFiles, onLoadSamples });
 
   return (
     <Dialog open={dialog.open} onOpenChange={dialog.setOpen}>
@@ -50,11 +48,8 @@ export function ImportDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ImportDialogBody
-          actions={dialog.actions}
-          view={{ ...dialog.view, panes }}
-        />
+        <ImportDialogBody actions={dialog.actions} view={{ ...dialog.view, panes }} />
       </DialogContent>
     </Dialog>
-  )
+  );
 }

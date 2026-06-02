@@ -1,47 +1,49 @@
-"use client"
+"use client";
 
-import { PanelLeft } from "lucide-react"
+import { PanelLeft } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { DisplayPopover } from "./display-popover"
-import { ImportDialog } from "./import-dialog"
-import { ThemeToggle } from "./theme-toggle"
-import { DiffStyleControl, LayoutModeControl } from "./toolbar-mode-controls"
-import { ToolbarIconButton } from "./toolbar-controls"
-import type { ImportFileSource, StagedImportFile } from "./import-staging-state"
-import type { DiffStyle, LaneMarkerStyle, Layout, Pane } from "./types"
+import { ContentSearchPopover } from "./content-search-popover";
+import type { ContentSearchActions, ContentSearchView } from "./content-search-popover";
+import { DisplayPopover } from "./display-popover";
+import { ImportDialog } from "./import-dialog";
+import { ThemeToggle } from "./theme-toggle";
+import { DiffStyleControl, LayoutModeControl } from "./toolbar-mode-controls";
+import { ToolbarIconButton } from "./toolbar-controls";
+import type { ImportFileSource, StagedImportFile } from "./import-staging-state";
+import type { DiffStyle, LaneMarkerStyle, Layout, Pane } from "./types";
 
 export type ToolbarSettings = {
-  sidebarOpen: boolean
-  layout: Layout
-  diffStyle: DiffStyle
-  laneMarkerStyle: LaneMarkerStyle
-  wrap: boolean
-  lineNumbers: boolean
-  panes: Pane[]
-}
+  sidebarOpen: boolean;
+  layout: Layout;
+  diffStyle: DiffStyle;
+  laneMarkerStyle: LaneMarkerStyle;
+  wrap: boolean;
+  lineNumbers: boolean;
+  panes: Pane[];
+  search: ContentSearchView;
+};
 
 export type ToolbarActions = {
-  setSidebarOpen: (v: boolean) => void
-  setLayout: (l: Layout) => void
-  setDiffStyle: (s: DiffStyle) => void
-  setLaneMarkerStyle: (s: LaneMarkerStyle) => void
-  setWrap: (v: boolean) => void
-  setLineNumbers: (v: boolean) => void
-  onImportFiles: (
-    files: ImportFileSource | StagedImportFile[]
-  ) => void | Promise<void>
-  onClearAll: () => void
-  onLoadSamples: () => void
-}
+  setSidebarOpen: (v: boolean) => void;
+  setLayout: (l: Layout) => void;
+  setDiffStyle: (s: DiffStyle) => void;
+  setLaneMarkerStyle: (s: LaneMarkerStyle) => void;
+  setWrap: (v: boolean) => void;
+  setLineNumbers: (v: boolean) => void;
+  onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
+  onClearAll: () => void;
+  onLoadSamples: () => void;
+  search: ContentSearchActions;
+};
 
 export function Toolbar({
   actions,
   settings,
 }: {
-  actions: ToolbarActions
-  settings: ToolbarSettings
+  actions: ToolbarActions;
+  settings: ToolbarSettings;
 }) {
   return (
     <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/70 bg-card/80 px-3 py-2 backdrop-blur">
@@ -50,32 +52,23 @@ export function Toolbar({
           variant="ghost"
           onClick={() => actions.setSidebarOpen(!settings.sidebarOpen)}
           aria-pressed={settings.sidebarOpen}
-          aria-label={
-            settings.sidebarOpen ? "Hide files panel" : "Show files panel"
-          }
+          aria-label={settings.sidebarOpen ? "Hide files panel" : "Show files panel"}
           className={cn(
             "-ml-1 rounded-md",
             settings.sidebarOpen
               ? "text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           <PanelLeft className="size-4" />
         </ToolbarIconButton>
-        <span className="text-sm font-semibold tracking-tight">
-          Multi Diff
-        </span>
+        <ContentSearchPopover actions={actions.search} view={settings.search} />
+        <span className="text-sm font-semibold tracking-tight">Multi Diff</span>
       </div>
 
       <div className="ml-auto flex flex-wrap items-center gap-1.5">
-        <LayoutModeControl
-          layout={settings.layout}
-          onLayout={actions.setLayout}
-        />
-        <DiffStyleControl
-          diffStyle={settings.diffStyle}
-          onDiffStyle={actions.setDiffStyle}
-        />
+        <LayoutModeControl layout={settings.layout} onLayout={actions.setLayout} />
+        <DiffStyleControl diffStyle={settings.diffStyle} onDiffStyle={actions.setDiffStyle} />
 
         <DisplayPopover
           settings={{
@@ -102,5 +95,5 @@ export function Toolbar({
         <ThemeToggle />
       </div>
     </header>
-  )
+  );
 }

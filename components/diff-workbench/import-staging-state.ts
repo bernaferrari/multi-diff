@@ -1,25 +1,22 @@
-import { MAX_LANES } from "./lanes"
-import type { LaneId } from "./types"
+import { MAX_LANES } from "./lanes";
+import type { LaneId } from "./types";
 
-export type ImportFileSource = ArrayLike<File> | Iterable<File> | null
+export type ImportFileSource = ArrayLike<File> | Iterable<File> | null;
 
 export type StagedImportFile = {
-  file: File
-  targetLane?: LaneId
-}
+  file: File;
+  targetLane?: LaneId;
+};
 
 export function appendImportFiles(
   current: StagedImportFile[],
   incoming: ImportFileSource,
-  max = MAX_LANES
+  max = MAX_LANES,
 ) {
-  const incomingFiles = Array.from(incoming ?? [])
-  if (!incomingFiles.length) return current
+  const incomingFiles = Array.from(incoming ?? []);
+  if (!incomingFiles.length) return current;
 
-  return [
-    ...current,
-    ...incomingFiles.map((file) => ({ file })),
-  ].slice(0, max)
+  return [...current, ...incomingFiles.map((file) => ({ file }))].slice(0, max);
 }
 
 export function sortImportFilesByName(files: StagedImportFile[]) {
@@ -27,15 +24,11 @@ export function sortImportFilesByName(files: StagedImportFile[]) {
     a.file.name.localeCompare(b.file.name, undefined, {
       numeric: true,
       sensitivity: "base",
-    })
-  )
+    }),
+  );
 }
 
-export function reorderImportFiles(
-  files: StagedImportFile[],
-  fromIndex: number,
-  toIndex: number
-) {
+export function reorderImportFiles(files: StagedImportFile[], fromIndex: number, toIndex: number) {
   if (
     fromIndex === toIndex ||
     fromIndex < 0 ||
@@ -43,37 +36,33 @@ export function reorderImportFiles(
     fromIndex >= files.length ||
     toIndex >= files.length
   ) {
-    return files
+    return files;
   }
 
-  const next = [...files]
-  const [moved] = next.splice(fromIndex, 1)
-  next.splice(toIndex, 0, moved)
-  return next
+  const next = [...files];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return next;
 }
 
 export function removeImportFile(files: StagedImportFile[], index: number) {
-  if (index < 0 || index >= files.length) return files
-  return files.filter((_, itemIndex) => itemIndex !== index)
+  if (index < 0 || index >= files.length) return files;
+  return files.filter((_, itemIndex) => itemIndex !== index);
 }
 
-export function setImportFileTargetLane(
-  files: StagedImportFile[],
-  index: number,
-  lane: LaneId
-) {
-  if (index < 0 || index >= files.length) return files
+export function setImportFileTargetLane(files: StagedImportFile[], index: number, lane: LaneId) {
+  if (index < 0 || index >= files.length) return files;
   return files.map((item, itemIndex) =>
-    itemIndex === index ? { ...item, targetLane: lane } : item
-  )
+    itemIndex === index ? { ...item, targetLane: lane } : item,
+  );
 }
 
 export function getImportFiles(files: StagedImportFile[]) {
-  return files.map((item) => item.file)
+  return files.map((item) => item.file);
 }
 
 export function isStagedImportFiles(
-  files: ImportFileSource | StagedImportFile[]
+  files: ImportFileSource | StagedImportFile[],
 ): files is StagedImportFile[] {
-  return Array.isArray(files) && files.every((item) => "file" in item)
+  return Array.isArray(files) && files.every((item) => "file" in item);
 }

@@ -1,5 +1,5 @@
-import { type CodeViewHandle } from "@pierre/diffs/react"
-import { useCallback, useRef } from "react"
+import { type CodeViewHandle } from "@pierre/diffs/react";
+import { useCallback, useRef } from "react";
 
 import {
   cancelProgrammaticScroll,
@@ -8,65 +8,62 @@ import {
   isScrollDriver,
   scrollPaneToFile,
   suppressProgrammaticScroll,
-} from "./pane-scroll-state"
-import type { DisplayedPaneView } from "./pane-view-model"
-import { getActiveScrollFile } from "./scroll-spy-state"
-import type { LaneId, PaneView } from "./types"
+} from "./pane-scroll-state";
+import type { DisplayedPaneView } from "./pane-view-model";
+import { getActiveScrollFile } from "./scroll-spy-state";
+import type { LaneId, PaneView } from "./types";
 
 type PaneScrollOptions = {
-  displayedPaneViews: DisplayedPaneView[]
-  paneViews: Map<LaneId, PaneView>
-  onActiveFileChange: (name: string, sourceId: LaneId) => void
-}
+  displayedPaneViews: DisplayedPaneView[];
+  paneViews: Map<LaneId, PaneView>;
+  onActiveFileChange: (name: string, sourceId: LaneId) => void;
+};
 
 export function usePaneScroll({
   displayedPaneViews,
   paneViews,
   onActiveFileChange,
 }: PaneScrollOptions) {
-  const viewerRefs = useRef(new Map<LaneId, CodeViewHandle<undefined> | null>())
-  const driver = useRef<Parameters<typeof isScrollDriver>[0]>(null)
-  const suppressedUntil = useRef(new Map<LaneId, number>())
-  const spyFile = useRef<string | null>(null)
+  const viewerRefs = useRef(new Map<LaneId, CodeViewHandle<undefined> | null>());
+  const driver = useRef<Parameters<typeof isScrollDriver>[0]>(null);
+  const suppressedUntil = useRef(new Map<LaneId, number>());
+  const spyFile = useRef<string | null>(null);
 
-  const setViewerRef = useCallback(
-    (id: LaneId, handle: CodeViewHandle<undefined> | null) => {
-      viewerRefs.current.set(id, handle)
-    },
-    []
-  )
+  const setViewerRef = useCallback((id: LaneId, handle: CodeViewHandle<undefined> | null) => {
+    viewerRefs.current.set(id, handle);
+  }, []);
 
   const handleScroll = useCallback(
     (sourceId: LaneId) => {
-      if (!isScrollDriver(driver.current, sourceId)) return
+      if (!isScrollDriver(driver.current, sourceId)) return;
       if (isProgrammaticScrollSuppressed(suppressedUntil.current, sourceId)) {
-        return
+        return;
       }
-      claimScrollDriver(driver, sourceId)
+      claimScrollDriver(driver, sourceId);
 
-      const srcInst = viewerRefs.current.get(sourceId)?.getInstance()
-      const srcView = paneViews.get(sourceId)
-      if (!srcInst || !srcView || srcView.items.length === 0) return
+      const srcInst = viewerRefs.current.get(sourceId)?.getInstance();
+      const srcView = paneViews.get(sourceId);
+      if (!srcInst || !srcView || srcView.items.length === 0) return;
 
-      const activeFile = getActiveScrollFile(srcView, srcInst)
-      if (!activeFile) return
+      const activeFile = getActiveScrollFile(srcView, srcInst);
+      if (!activeFile) return;
 
-      const activeFileChanged = activeFile.name !== spyFile.current
+      const activeFileChanged = activeFile.name !== spyFile.current;
       if (activeFileChanged) {
-        spyFile.current = activeFile.name
-        onActiveFileChange(activeFile.name, sourceId)
+        spyFile.current = activeFile.name;
+        onActiveFileChange(activeFile.name, sourceId);
       }
 
-      if (!activeFileChanged) return
+      if (!activeFileChanged) return;
     },
-    [onActiveFileChange, paneViews]
-  )
+    [onActiveFileChange, paneViews],
+  );
 
   const markScrollDriver = useCallback((id: LaneId) => {
-    suppressedUntil.current.delete(id)
-    cancelProgrammaticScroll(viewerRefs.current.get(id)?.getInstance())
-    claimScrollDriver(driver, id)
-  }, [])
+    suppressedUntil.current.delete(id);
+    cancelProgrammaticScroll(viewerRefs.current.get(id)?.getInstance());
+    claimScrollDriver(driver, id);
+  }, []);
 
   const scrollToFile = useCallback(
     (name: string) => {
@@ -74,18 +71,18 @@ export function usePaneScroll({
         id: pane.id,
         instance: viewerRefs.current.get(pane.id)?.getInstance(),
         paneView,
-      }))
+      }));
 
       for (const target of targets) {
         if (target.instance && target.paneView.idByName.has(name)) {
-          suppressProgrammaticScroll(suppressedUntil.current, target.id)
+          suppressProgrammaticScroll(suppressedUntil.current, target.id);
         }
       }
 
-      return scrollPaneToFile(targets, name)
+      return scrollPaneToFile(targets, name);
     },
-    [displayedPaneViews]
-  )
+    [displayedPaneViews],
+  );
 
-  return { handleScroll, markScrollDriver, scrollToFile, setViewerRef }
+  return { handleScroll, markScrollDriver, scrollToFile, setViewerRef };
 }

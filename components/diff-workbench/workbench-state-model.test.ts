@@ -1,13 +1,11 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import {
-  createInitialWorkbenchState,
-} from "./workbench-state-model"
-import { createEmptyPanes } from "./sample-panes"
+import { createInitialWorkbenchState } from "./workbench-state-model";
+import { createEmptyPanes } from "./sample-panes";
 
 describe("workbench state model", () => {
   it("creates the default state for a new workbench session", () => {
-    const state = createInitialWorkbenchState()
+    const state = createInitialWorkbenchState();
 
     expect(state).toMatchObject({
       activeFile: null,
@@ -22,27 +20,27 @@ describe("workbench state model", () => {
       notesOpen: false,
       sidebarOpen: true,
       wrap: true,
-    })
-    expect(state.panes.map((pane) => pane.id)).toEqual(["a", "b", "c"])
-    expect(state.hidden.size).toBe(0)
-    expect(state.hiddenFiles.size).toBe(0)
-  })
+    });
+    expect(state.panes.map((pane) => pane.id)).toEqual(["a", "b", "c"]);
+    expect(state.hidden.size).toBe(0);
+    expect(state.hiddenFiles.size).toBe(0);
+  });
 
   it("returns fresh mutable collections for each initial state", () => {
-    const first = createInitialWorkbenchState()
-    const second = createInitialWorkbenchState()
+    const first = createInitialWorkbenchState();
+    const second = createInitialWorkbenchState();
 
-    first.hidden.add("a")
-    first.hiddenFiles.add("app/a.ts")
-    first.panes[0].text = "changed"
+    first.hidden.add("a");
+    first.hiddenFiles.add("app/a.ts");
+    first.panes[0].text = "changed";
 
-    expect(second.hidden.size).toBe(0)
-    expect(second.hiddenFiles.size).toBe(0)
-    expect(second.panes[0].text).not.toBe("changed")
-  })
+    expect(second.hidden.size).toBe(0);
+    expect(second.hiddenFiles.size).toBe(0);
+    expect(second.panes[0].text).not.toBe("changed");
+  });
 
   it("creates empty lanes for a cleared workbench", () => {
-    expect(createEmptyPanes().map((pane) => pane.id)).toEqual(["a", "b", "c"])
-    expect(createEmptyPanes().every((pane) => pane.text === "")).toBe(true)
-  })
-})
+    expect(createEmptyPanes().map((pane) => pane.id)).toEqual(["a", "b", "c"]);
+    expect(createEmptyPanes().every((pane) => pane.text === "")).toBe(true);
+  });
+});

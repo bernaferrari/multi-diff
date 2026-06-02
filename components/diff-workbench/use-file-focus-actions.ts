@@ -1,6 +1,6 @@
-import { type Dispatch, type SetStateAction, useCallback } from "react"
+import { type Dispatch, type SetStateAction, useCallback } from "react";
 
-import type { FileRow } from "./types"
+import type { FileRow } from "./types";
 
 export function useFileFocusActions({
   activeFile,
@@ -8,10 +8,10 @@ export function useFileFocusActions({
   focusFile,
   setFocusFile,
 }: {
-  activeFile: string | null
-  fileRows: FileRow[]
-  focusFile: string | null
-  setFocusFile: Dispatch<SetStateAction<string | null>>
+  activeFile: string | null;
+  fileRows: FileRow[];
+  focusFile: string | null;
+  setFocusFile: Dispatch<SetStateAction<string | null>>;
 }) {
   const focusFileByOffset = useCallback(
     (delta: number) => {
@@ -20,28 +20,28 @@ export function useFileFocusActions({
         delta,
         focusFile,
         rows: fileRows,
-      })
-      if (next) setFocusFile(next)
+      });
+      if (next) setFocusFile(next);
     },
-    [activeFile, fileRows, focusFile, setFocusFile]
-  )
+    [activeFile, fileRows, focusFile, setFocusFile],
+  );
 
   const clearFocusedFile = useCallback(() => {
-    setFocusFile(null)
-  }, [setFocusFile])
+    setFocusFile(null);
+  }, [setFocusFile]);
 
   const toggleFocusFile = useCallback(
     (name: string) => {
-      setFocusFile((current) => (current === name ? null : name))
+      setFocusFile((current) => (current === name ? null : name));
     },
-    [setFocusFile]
-  )
+    [setFocusFile],
+  );
 
   return {
     clearFocusedFile,
     focusFileByOffset,
     toggleFocusFile,
-  }
+  };
 }
 
 function getFileFocusByOffset({
@@ -50,19 +50,17 @@ function getFileFocusByOffset({
   focusFile,
   rows,
 }: {
-  activeFile: string | null
-  delta: number
-  focusFile: string | null
-  rows: FileRow[]
+  activeFile: string | null;
+  delta: number;
+  focusFile: string | null;
+  rows: FileRow[];
 }) {
-  if (rows.length === 0) return null
+  if (rows.length === 0) return null;
 
-  const current = focusFile ?? activeFile
-  const currentIndex = current
-    ? rows.findIndex((row) => row.name === current)
-    : -1
-  if (currentIndex < 0) return rows[0].name
+  const current = focusFile ?? activeFile;
+  const currentIndex = current ? rows.findIndex((row) => row.name === current) : -1;
+  if (currentIndex < 0) return rows[0].name;
 
-  const nextIndex = (currentIndex + delta + rows.length) % rows.length
-  return rows[nextIndex].name
+  const nextIndex = (currentIndex + delta + rows.length) % rows.length;
+  return rows[nextIndex].name;
 }

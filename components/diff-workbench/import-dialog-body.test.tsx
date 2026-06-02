@@ -1,8 +1,8 @@
-import { renderToStaticMarkup } from "react-dom/server"
-import { describe, expect, it } from "vitest"
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
 
-import { createPane } from "./diff-data"
-import { ImportDialogBody } from "./import-dialog-body"
+import { createPane } from "./diff-data";
+import { ImportDialogBody } from "./import-dialog-body";
 
 describe("ImportDialogBody", () => {
   it("separates sample loading, clearing, and importing actions", () => {
@@ -29,14 +29,14 @@ describe("ImportDialogBody", () => {
           onRemove: () => {},
           onSort: () => {},
         }}
-      />
-    )
+      />,
+    );
 
-    expect(html).toContain("Load samples")
-    expect(html).toContain("Clear all")
-    expect(html).toContain("Nothing staged")
-    expect(html).toContain("Import")
-  })
+    expect(html).toContain("Load samples");
+    expect(html).toContain("Clear all");
+    expect(html).toContain("Nothing staged");
+    expect(html).toContain("Import");
+  });
 
   it("shows staged import count when files are pending", () => {
     const html = renderToStaticMarkup(
@@ -62,10 +62,10 @@ describe("ImportDialogBody", () => {
           onRemove: () => {},
           onSort: () => {},
         }}
-      />
-    )
+      />,
+    );
 
-    expect(html).toContain("1 staged")
-    expect(html).toContain("Import 1")
-  })
-})
+    expect(html).toContain("1 staged");
+    expect(html).toContain("Import 1");
+  });
+});

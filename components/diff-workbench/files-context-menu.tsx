@@ -1,15 +1,9 @@
-import {
-  ContextMenuContent,
-  ContextMenuSeparator,
-} from "@/components/ui/context-menu"
+import { ContextMenuContent, ContextMenuSeparator } from "@/components/ui/context-menu";
 
-import {
-  DirectoryContextMenuGroup,
-  FileContextMenuGroup,
-} from "./files-context-menu-groups"
-import { getFilesContextMenuState } from "./files-context-menu-state"
-import { RestoreContextMenuGroup } from "./restore-context-menu-group"
-import type { DirectoryContext, FileRow } from "./types"
+import { DirectoryContextMenuGroup, FileContextMenuGroup } from "./files-context-menu-groups";
+import { getFilesContextMenuState } from "./files-context-menu-state";
+import { RestoreContextMenuGroup } from "./restore-context-menu-group";
+import type { DirectoryContext, FileRow } from "./types";
 
 export function FilesContextMenuContent({
   contextDirectory,
@@ -21,23 +15,23 @@ export function FilesContextMenuContent({
   onShowAllFiles,
   onShowFiles,
 }: {
-  contextDirectory: DirectoryContext | null
-  contextFile: string | null
-  hiddenFileRows: FileRow[]
-  hiddenFiles: Set<string>
-  restorableRows: FileRow[]
-  onHideFiles: (names: string[]) => void
-  onShowAllFiles: () => void
-  onShowFiles: (names: string[]) => void
+  contextDirectory: DirectoryContext | null;
+  contextFile: string | null;
+  hiddenFileRows: FileRow[];
+  hiddenFiles: Set<string>;
+  restorableRows: FileRow[];
+  onHideFiles: (names: string[]) => void;
+  onShowAllFiles: () => void;
+  onShowFiles: (names: string[]) => void;
 }) {
   const menu = getFilesContextMenuState({
     contextDirectory,
     contextFile,
     hiddenFileRows,
     restorableRows,
-  })
+  });
 
-  if (!menu.shouldRender) return null
+  if (!menu.shouldRender) return null;
 
   return (
     <ContextMenuContent className="w-72 p-1.5">
@@ -69,5 +63,5 @@ export function FilesContextMenuContent({
         />
       ) : null}
     </ContextMenuContent>
-  )
+  );
 }

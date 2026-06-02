@@ -1,10 +1,10 @@
-import { useRef, useState, type DragEvent } from "react"
+import { useRef, useState, type DragEvent } from "react";
 
 import {
   isFileDragEvent,
   prepareImportDrop,
   stopImportDragPropagation,
-} from "./import-drag-events"
+} from "./import-drag-events";
 import {
   appendImportFiles,
   removeImportFile,
@@ -13,110 +13,103 @@ import {
   sortImportFilesByName,
   type ImportFileSource,
   type StagedImportFile,
-} from "./import-staging-state"
-import type { LaneId } from "./types"
-import type {
-  ImportDialogBodyActions,
-  ImportDialogBodyView,
-} from "./import-dialog-model"
+} from "./import-staging-state";
+import type { LaneId } from "./types";
+import type { ImportDialogBodyActions, ImportDialogBodyView } from "./import-dialog-model";
 
 export function useImportDialogState({
   onClearAll,
   onImportFiles,
   onLoadSamples,
 }: {
-  onClearAll: () => void
-  onImportFiles: (
-    files: ImportFileSource | StagedImportFile[]
-  ) => void | Promise<void>
-  onLoadSamples: () => void
+  onClearAll: () => void;
+  onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
+  onLoadSamples: () => void;
 }) {
-  const [open, setOpen] = useState(false)
-  const [dragging, setDragging] = useState(false)
-  const [pendingFiles, setPendingFiles] = useState<StagedImportFile[]>([])
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [open, setOpen] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<StagedImportFile[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen)
-    setDragging(false)
-    if (!nextOpen) setPendingFiles([])
+    setOpen(nextOpen);
+    setDragging(false);
+    if (!nextOpen) setPendingFiles([]);
   }
 
   function handleFiles(files: ImportFileSource) {
-    setPendingFiles((current) => appendImportFiles(current, files))
+    setPendingFiles((current) => appendImportFiles(current, files));
   }
 
   function handleMove(fromIndex: number, toIndex: number) {
-    setPendingFiles((current) =>
-      reorderImportFiles(current, fromIndex, toIndex)
-    )
+    setPendingFiles((current) => reorderImportFiles(current, fromIndex, toIndex));
   }
 
   function handleLaneChange(index: number, lane: LaneId) {
-    setPendingFiles((current) => setImportFileTargetLane(current, index, lane))
+    setPendingFiles((current) => setImportFileTargetLane(current, index, lane));
   }
 
   function handleRemove(index: number) {
-    setPendingFiles((current) => removeImportFile(current, index))
+    setPendingFiles((current) => removeImportFile(current, index));
   }
 
   function handleSort() {
-    setPendingFiles((current) => sortImportFilesByName(current))
+    setPendingFiles((current) => sortImportFilesByName(current));
   }
 
   function handleAdd() {
-    inputRef.current?.click()
+    inputRef.current?.click();
   }
 
   async function handleImport() {
-    if (!pendingFiles.length) return
-    await onImportFiles(pendingFiles)
-    closeAndClear()
+    if (!pendingFiles.length) return;
+    await onImportFiles(pendingFiles);
+    closeAndClear();
   }
 
   function handleClearAll() {
-    onClearAll()
-    closeAndClear()
+    onClearAll();
+    closeAndClear();
   }
 
   function handleLoadSamples() {
-    onLoadSamples()
-    closeAndClear()
+    onLoadSamples();
+    closeAndClear();
   }
 
   function handleDragEnter(event: DragEvent<HTMLElement>) {
-    if (isFileDragEvent(event)) setDragging(true)
+    if (isFileDragEvent(event)) setDragging(true);
   }
 
   function handleDragOver(event: DragEvent<HTMLElement>) {
-    if (!isFileDragEvent(event)) return
-    prepareImportDrop(event)
-    event.dataTransfer.dropEffect = "copy"
-    setDragging(true)
+    if (!isFileDragEvent(event)) return;
+    prepareImportDrop(event);
+    event.dataTransfer.dropEffect = "copy";
+    setDragging(true);
   }
 
   function handleDragLeave(event: DragEvent<HTMLElement>) {
-    stopImportDragPropagation(event)
-    setDragging(false)
+    stopImportDragPropagation(event);
+    setDragging(false);
   }
 
   function handleDrop(event: DragEvent<HTMLElement>) {
-    if (!isFileDragEvent(event)) return
-    prepareImportDrop(event)
-    setDragging(false)
-    handleFiles(event.dataTransfer.files)
+    if (!isFileDragEvent(event)) return;
+    prepareImportDrop(event);
+    setDragging(false);
+    handleFiles(event.dataTransfer.files);
   }
 
   function closeAndClear() {
-    setOpen(false)
-    setPendingFiles([])
+    setOpen(false);
+    setPendingFiles([]);
   }
 
   const view: Omit<ImportDialogBodyView, "panes"> = {
     dragging,
     inputRef,
     pendingFiles,
-  }
+  };
 
   const actions: ImportDialogBodyActions = {
     onAdd: handleAdd,
@@ -132,12 +125,12 @@ export function useImportDialogState({
     onClearAll: handleClearAll,
     onLoadSamples: handleLoadSamples,
     onSort: handleSort,
-  }
+  };
 
   return {
     actions,
     open,
     setOpen: handleOpenChange,
     view,
-  }
+  };
 }

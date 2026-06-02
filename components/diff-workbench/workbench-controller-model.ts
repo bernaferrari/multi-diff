@@ -1,13 +1,8 @@
-import type { DiffPaneViewportActions } from "./diff-pane-viewport"
-import type { FilesPanelActions } from "./files-panel-model"
-import type { ToolbarActions, ToolbarSettings } from "./toolbar"
-import type { DisplayedPaneView } from "./pane-view-model"
-import type {
-  DiffRenderSettings,
-  FileNavigationTarget,
-  Layout,
-  ParsedPane,
-} from "./types"
+import type { DiffPaneViewportActions } from "./diff-pane-viewport";
+import type { FilesPanelActions } from "./files-panel-model";
+import type { ToolbarActions, ToolbarSettings } from "./toolbar";
+import type { DisplayedPaneView } from "./pane-view-model";
+import type { DiffRenderSettings, FileNavigationTarget, Layout, ParsedPane } from "./types";
 
 export function getRenderSettings({
   codeTheme,
@@ -20,23 +15,19 @@ export function getRenderSettings({
     diffStyle,
     lineNumbers,
     wrap,
-  }
+  };
 }
 
-export function getToolbarSettings(
-  settings: ToolbarSettings
-): ToolbarSettings {
-  return settings
+export function getToolbarSettings(settings: ToolbarSettings): ToolbarSettings {
+  return settings;
 }
 
 export function getToolbarActions(actions: ToolbarActions): ToolbarActions {
-  return actions
+  return actions;
 }
 
-export function getFilesPanelActions(
-  actions: FilesPanelActions
-): FilesPanelActions {
-  return actions
+export function getFilesPanelActions(actions: FilesPanelActions): FilesPanelActions {
+  return actions;
 }
 
 export function getViewportView({
@@ -48,13 +39,13 @@ export function getViewportView({
   renderSettings,
   visiblePanes,
 }: {
-  displayedPaneViews: DisplayedPaneView[]
-  hasErrors: boolean
-  layout: Layout
-  navigationTarget: FileNavigationTarget | null
-  parseErrors: { label: string; message: string }[]
-  renderSettings: DiffRenderSettings
-  visiblePanes: ParsedPane[]
+  displayedPaneViews: DisplayedPaneView[];
+  hasErrors: boolean;
+  layout: Layout;
+  navigationTarget: FileNavigationTarget | null;
+  parseErrors: { label: string; message: string }[];
+  renderSettings: DiffRenderSettings;
+  visiblePanes: ParsedPane[];
 }) {
   return {
     displayedPaneViews,
@@ -64,11 +55,9 @@ export function getViewportView({
     parseErrors,
     renderSettings,
     visiblePanes,
-  }
+  };
 }
 
-export function getViewportActions(
-  actions: DiffPaneViewportActions
-): DiffPaneViewportActions {
-  return actions
+export function getViewportActions(actions: DiffPaneViewportActions): DiffPaneViewportActions {
+  return actions;
 }

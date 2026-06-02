@@ -133,4 +133,4 @@ export const compactSeparatorCSS = `
     padding-inline: 0 !important;
   }
 }
-`
+`;

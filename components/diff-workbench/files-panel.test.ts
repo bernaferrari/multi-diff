@@ -1,9 +1,9 @@
-import { createElement } from "react"
-import { renderToStaticMarkup } from "react-dom/server"
-import { describe, expect, it } from "vitest"
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
 
-import { FilesPanel } from "./files-panel"
-import type { FilesPanelActions, FilesPanelView } from "./files-panel-model"
+import { FilesPanel } from "./files-panel";
+import type { FilesPanelActions, FilesPanelView } from "./files-panel-model";
 
 describe("FilesPanel", () => {
   it("fills the sidebar shell height and constrains internal scrolling", () => {
@@ -11,14 +11,14 @@ describe("FilesPanel", () => {
       createElement(FilesPanel, {
         actions: emptyActions,
         view: emptyView,
-      })
-    )
+      }),
+    );
 
-    expect(html).toContain("h-full")
-    expect(html).toContain("min-h-0")
-    expect(html).toContain("overflow-hidden")
-  })
-})
+    expect(html).toContain("h-full");
+    expect(html).toContain("min-h-0");
+    expect(html).toContain("overflow-hidden");
+  });
+});
 
 const emptyView: FilesPanelView = {
   activeFileByLane: {},
@@ -35,7 +35,7 @@ const emptyView: FilesPanelView = {
   query: "",
   rows: [],
   sharedCount: 0,
-}
+};
 
 const emptyActions: FilesPanelActions = {
   onFilterFile: () => {},
@@ -47,4 +47,4 @@ const emptyActions: FilesPanelActions = {
   onShowFiles: () => {},
   onToggleFocusMode: () => {},
   onToggleLane: () => {},
-}
+};

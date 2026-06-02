@@ -1,7 +1,7 @@
-import type { FileRow, LaneId, LaneMarkerStyle, Layout } from "./types"
+import type { FileRow, LaneId, LaneMarkerStyle, Layout } from "./types";
 
-import { LaneBadge } from "./lane-badge"
-import { laneStyle } from "./lanes"
+import { LaneBadge } from "./lane-badge";
+import { laneStyle } from "./lanes";
 
 export function FileTreeLaneMarkers({
   laneIds,
@@ -9,10 +9,10 @@ export function FileTreeLaneMarkers({
   markerStyle = "letters",
   row,
 }: {
-  laneIds: LaneId[]
-  layout: Layout
-  markerStyle?: LaneMarkerStyle
-  row: FileRow
+  laneIds: LaneId[];
+  layout: Layout;
+  markerStyle?: LaneMarkerStyle;
+  row: FileRow;
 }) {
   if (markerStyle === "bars") {
     return (
@@ -32,22 +32,16 @@ export function FileTreeLaneMarkers({
           />
         ))}
       </span>
-    )
+    );
   }
 
   return (
     <span className="ml-1 flex shrink-0 justify-end gap-0.5">
       {laneIds.map((id) => (
-        <LaneBadge
-          key={id}
-          id={id}
-          present={Boolean(row.panes[id])}
-          size="sm"
-          tone="soft"
-        />
+        <LaneBadge key={id} id={id} present={Boolean(row.panes[id])} size="sm" tone="soft" />
       ))}
     </span>
-  )
+  );
 }
 
 function FileTreeLaneMarkerBar({
@@ -55,21 +49,19 @@ function FileTreeLaneMarkerBar({
   layout,
   present,
 }: {
-  id: LaneId
-  layout: Layout
-  present: boolean
+  id: LaneId;
+  layout: Layout;
+  present: boolean;
 }) {
-  const style = laneStyle(id)
-  const shape = layout === "rows" ? "h-1 w-3.5" : "h-3 w-1.5"
+  const style = laneStyle(id);
+  const shape = layout === "rows" ? "h-1 w-3.5" : "h-3 w-1.5";
 
   return (
     <span
       aria-hidden
       className={
-        present
-          ? `${shape} rounded-[2px] ${style.bar}`
-          : `${shape} rounded-[2px] bg-muted`
+        present ? `${shape} rounded-[2px] ${style.bar}` : `${shape} rounded-[2px] bg-muted`
       }
     />
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import type { ReactNode } from "react"
-import { SlidersHorizontal } from "lucide-react"
+import type { ReactNode } from "react";
+import { SlidersHorizontal } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -9,23 +9,19 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
-import {
-  DISPLAY_OPTIONS,
-  type DisplayActions,
-  type DisplaySettings,
-} from "./display-options"
-import { LaneMarkerStyleControl } from "./lane-marker-style-control"
+import { DISPLAY_OPTIONS, type DisplayActions, type DisplaySettings } from "./display-options";
+import { LaneMarkerStyleControl } from "./lane-marker-style-control";
 
 export function DisplayPopover({
   actions,
   settings,
 }: {
-  actions: DisplayActions
-  settings: DisplaySettings
+  actions: DisplayActions;
+  settings: DisplaySettings;
 }) {
   return (
     <Popover>
@@ -48,9 +44,7 @@ export function DisplayPopover({
             <SlidersHorizontal className="size-4 text-muted-foreground" />
             Display
           </PopoverTitle>
-          <PopoverDescription className="text-xs">
-            Tune how diffs are rendered.
-          </PopoverDescription>
+          <PopoverDescription className="text-xs">Tune how diffs are rendered.</PopoverDescription>
         </PopoverHeader>
 
         <div className="grid gap-1">
@@ -73,7 +67,7 @@ export function DisplayPopover({
         />
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 function DisplaySwitch({
@@ -83,11 +77,11 @@ function DisplaySwitch({
   label,
   onCheckedChange,
 }: {
-  checked: boolean
-  description: string
-  icon: ReactNode
-  label: string
-  onCheckedChange: (checked: boolean) => void
+  checked: boolean;
+  description: string;
+  icon: ReactNode;
+  label: string;
+  onCheckedChange: (checked: boolean) => void;
 }) {
   return (
     <label className="flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/65">
@@ -96,16 +90,14 @@ function DisplaySwitch({
           "mt-0.5 grid size-8 shrink-0 place-items-center rounded-md border",
           checked
             ? "border-primary/20 bg-primary/10 text-primary"
-            : "border-border bg-background text-muted-foreground"
+            : "border-border bg-background text-muted-foreground",
         )}
       >
         {icon}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-sm leading-none font-medium">{label}</span>
-        <span className="mt-1 block text-xs leading-snug text-muted-foreground">
-          {description}
-        </span>
+        <span className="mt-1 block text-xs leading-snug text-muted-foreground">{description}</span>
       </span>
       <Switch
         checked={checked}
@@ -114,5 +106,5 @@ function DisplaySwitch({
         size="sm"
       />
     </label>
-  )
+  );
 }

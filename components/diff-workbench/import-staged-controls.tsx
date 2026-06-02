@@ -1,7 +1,7 @@
-import { ArrowDown, ArrowUp } from "lucide-react"
+import { ArrowDown, ArrowUp } from "lucide-react";
 
-import { LANE_ORDER } from "./lanes"
-import type { LaneId } from "./types"
+import { LANE_ORDER } from "./lanes";
+import type { LaneId } from "./types";
 
 export function ImportStagedMoveControls({
   fileName,
@@ -9,10 +9,10 @@ export function ImportStagedMoveControls({
   isLast,
   onMove,
 }: {
-  fileName: string
-  index: number
-  isLast: boolean
-  onMove: (fromIndex: number, toIndex: number) => void
+  fileName: string;
+  index: number;
+  isLast: boolean;
+  onMove: (fromIndex: number, toIndex: number) => void;
 }) {
   return (
     <div className="flex shrink-0 items-center gap-0.5">
@@ -35,7 +35,7 @@ export function ImportStagedMoveControls({
         <ArrowDown className="size-3.5" />
       </button>
     </div>
-  )
+  );
 }
 
 export function ImportLaneSelect({
@@ -43,9 +43,9 @@ export function ImportLaneSelect({
   lane,
   onChange,
 }: {
-  fileName: string
-  lane: LaneId
-  onChange: (lane: LaneId) => void
+  fileName: string;
+  lane: LaneId;
+  onChange: (lane: LaneId) => void;
 }) {
   return (
     <select
@@ -60,5 +60,5 @@ export function ImportLaneSelect({
         </option>
       ))}
     </select>
-  )
+  );
 }

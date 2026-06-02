@@ -1,16 +1,12 @@
-import type { FileDiffMetadata } from "@pierre/diffs/react"
+import type { FileDiffMetadata } from "@pierre/diffs/react";
 
-import { diffTotalsForFiles } from "./diff-totals"
-import type { DiffCodeItem, FileRow, PaneView, ParsedPane } from "./types"
+import { diffTotalsForFiles } from "./diff-totals";
+import type { DiffCodeItem, FileRow, PaneView, ParsedPane } from "./types";
 
-type TestHunk = FileDiffMetadata["hunks"][number]
+type TestHunk = FileDiffMetadata["hunks"][number];
 
-export function testFileDiff(
-  name: string,
-  additions: number,
-  deletions: number
-): FileDiffMetadata {
-  const lineCount = additions + deletions
+export function testFileDiff(name: string, additions: number, deletions: number): FileDiffMetadata {
+  const lineCount = additions + deletions;
   const hunk: TestHunk = {
     additionCount: additions,
     additionLineIndex: 0,
@@ -28,7 +24,7 @@ export function testFileDiff(
     splitLineStart: 0,
     unifiedLineCount: lineCount,
     unifiedLineStart: 0,
-  }
+  };
 
   return {
     additionLines: [],
@@ -39,14 +35,11 @@ export function testFileDiff(
     splitLineCount: lineCount,
     type: "change",
     unifiedLineCount: lineCount,
-  }
+  };
 }
 
-export function testParsedPane(
-  id: string,
-  files: FileDiffMetadata[]
-): ParsedPane {
-  const { additions, deletions } = diffTotalsForFiles(files)
+export function testParsedPane(id: string, files: FileDiffMetadata[]): ParsedPane {
+  const { additions, deletions } = diffTotalsForFiles(files);
 
   return {
     id,
@@ -60,22 +53,19 @@ export function testParsedPane(
     })),
     additions,
     deletions,
-  }
+  };
 }
 
 export function testPaneView(id: string, files: FileDiffMetadata[]): PaneView {
-  const pane = testParsedPane(id, files)
+  const pane = testParsedPane(id, files);
 
   return {
     ...pane,
     idByName: new Map(pane.items.map((item) => [item.fileDiff.name, item.id])),
-  }
+  };
 }
 
-export function testFileRow(
-  name: string,
-  overrides: Partial<Omit<FileRow, "name">> = {}
-): FileRow {
+export function testFileRow(name: string, overrides: Partial<Omit<FileRow, "name">> = {}): FileRow {
   return {
     additions: 0,
     deletions: 0,
@@ -83,5 +73,5 @@ export function testFileRow(
     panes: {},
     presentIn: [],
     ...overrides,
-  }
+  };
 }

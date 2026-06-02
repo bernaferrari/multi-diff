@@ -1,6 +1,6 @@
-import { Copy } from "lucide-react"
+import { Copy } from "lucide-react";
 
-import { laneRangeLabel, MAX_LANES } from "./lanes"
+import { laneRangeLabel, MAX_LANES } from "./lanes";
 
 export function DropOverlay() {
   return (
@@ -15,5 +15,5 @@ export function DropOverlay() {
         </div>
       </div>
     </div>
-  )
+  );
 }

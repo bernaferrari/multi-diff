@@ -1,25 +1,22 @@
-import { EyeOff } from "lucide-react"
+import { EyeOff } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { getEqualColumnGridStyle } from "./grid-layout"
-import { laneLabel, laneStyle } from "./lanes"
-import type { LaneId, LanePane } from "./types"
+import { getEqualColumnGridStyle } from "./grid-layout";
+import { laneLabel, laneStyle } from "./lanes";
+import type { LaneId, LanePane } from "./types";
 
 export function FilesLaneFilter({
   hidden,
   panes,
   onToggleLane,
 }: {
-  hidden: Set<LaneId>
-  panes: LanePane[]
-  onToggleLane: (id: LaneId) => void
+  hidden: Set<LaneId>;
+  panes: LanePane[];
+  onToggleLane: (id: LaneId) => void;
 }) {
   return (
-    <div
-      className="grid gap-1"
-      style={getEqualColumnGridStyle(panes.length)}
-    >
+    <div className="grid gap-1" style={getEqualColumnGridStyle(panes.length)}>
       {panes.map((pane) => (
         <FilesLaneFilterButton
           key={pane.id}
@@ -29,7 +26,7 @@ export function FilesLaneFilter({
         />
       ))}
     </div>
-  )
+  );
 }
 
 function FilesLaneFilterButton({
@@ -37,12 +34,12 @@ function FilesLaneFilterButton({
   pane,
   onToggleLane,
 }: {
-  hidden: boolean
-  pane: LanePane
-  onToggleLane: (id: LaneId) => void
+  hidden: boolean;
+  pane: LanePane;
+  onToggleLane: (id: LaneId) => void;
 }) {
-  const style = laneStyle(pane.id)
-  const label = `${hidden ? "Show" : "Hide"} ${pane.label}`
+  const style = laneStyle(pane.id);
+  const label = `${hidden ? "Show" : "Hide"} ${pane.label}`;
 
   return (
     <button
@@ -55,11 +52,11 @@ function FilesLaneFilterButton({
         "flex flex-1 items-center justify-center gap-1.5 rounded-md border py-1 text-xs font-medium transition-[background-color,border-color,color,opacity]",
         hidden
           ? "border-dashed border-border text-muted-foreground/50"
-          : cn("border-transparent", style.soft, style.text)
+          : cn("border-transparent", style.soft, style.text),
       )}
     >
       <span>{laneLabel(pane.id)}</span>
       {hidden ? <EyeOff className="size-3" /> : null}
     </button>
-  )
+  );
 }

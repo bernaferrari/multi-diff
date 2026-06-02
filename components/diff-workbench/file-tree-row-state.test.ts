@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest";
 
-import { getFileTreeRowChrome } from "./file-tree-row-state"
-import type { FileRow } from "./types"
+import { getFileTreeRowChrome } from "./file-tree-row-state";
+import type { FileRow } from "./types";
 
 describe("file tree row state", () => {
   it("builds a compact file title from row metadata", () => {
@@ -11,7 +11,7 @@ describe("file tree row state", () => {
       name: "app/search.ts",
       panes: {},
       presentIn: ["a", "c"],
-    }
+    };
 
     expect(
       getFileTreeRowChrome({
@@ -19,12 +19,12 @@ describe("file tree row state", () => {
         focusFile: null,
         hidden: false,
         row,
-      })
+      }),
     ).toMatchObject({
       ariaLabel: "app/search.ts, changed in A, C, 12 additions, 3 deletions",
       title: "app/search.ts\nin A, C · +12 −3",
-    })
-  })
+    });
+  });
 
   it("prioritizes hidden, focused, and active row tones", () => {
     expect(
@@ -33,24 +33,24 @@ describe("file tree row state", () => {
         focusFile: "a.ts",
         hidden: true,
         row: testRow("a.ts"),
-      }).className
-    ).toContain("opacity-60")
+      }).className,
+    ).toContain("opacity-60");
     expect(
       getFileTreeRowChrome({
         activeFile: null,
         focusFile: "a.ts",
         hidden: false,
         row: testRow("a.ts"),
-      }).className
-    ).toContain("bg-foreground/10")
+      }).className,
+    ).toContain("bg-foreground/10");
     expect(
       getFileTreeRowChrome({
         activeFile: "a.ts",
         focusFile: null,
         hidden: false,
         row: testRow("a.ts"),
-      }).className
-    ).toContain("text-foreground")
+      }).className,
+    ).toContain("text-foreground");
     expect(
       getFileTreeRowChrome({
         activeFile: null,
@@ -58,8 +58,8 @@ describe("file tree row state", () => {
         focusFile: null,
         hidden: false,
         row: testRow("a.ts"),
-      }).activeBorderStyle?.boxShadow
-    ).toBeUndefined()
+      }).activeBorderStyle?.boxShadow,
+    ).toBeUndefined();
     expect(
       getFileTreeRowChrome({
         activeFile: null,
@@ -67,9 +67,9 @@ describe("file tree row state", () => {
         focusFile: null,
         hidden: false,
         row: testRow("a.ts"),
-      }).activeBorderStyle?.background
-    ).toContain("var(--lane-a)")
-  })
+      }).activeBorderStyle?.background,
+    ).toContain("var(--lane-a)");
+  });
 
   it("builds active border gradients from fallback or active lanes", () => {
     const fallbackStyle = getFileTreeRowChrome({
@@ -81,11 +81,11 @@ describe("file tree row state", () => {
         ...testRow("a.ts"),
         presentIn: ["c"],
       },
-    }).activeBorderStyle
+    }).activeBorderStyle;
 
-    expect(fallbackStyle?.background).toContain("var(--lane-c)")
-    expect(fallbackStyle?.padding).toBe(1)
-    expect(fallbackStyle?.maskComposite).toBe("exclude")
+    expect(fallbackStyle?.background).toContain("var(--lane-c)");
+    expect(fallbackStyle?.padding).toBe(1);
+    expect(fallbackStyle?.maskComposite).toBe("exclude");
 
     const activeStyle = getFileTreeRowChrome({
       activeFile: null,
@@ -96,13 +96,13 @@ describe("file tree row state", () => {
         ...testRow("a.ts"),
         presentIn: ["c"],
       },
-    }).activeBorderStyle
+    }).activeBorderStyle;
 
-    expect(activeStyle?.background).toContain("var(--lane-a)")
-    expect(activeStyle?.background).toContain("var(--lane-e)")
-    expect(activeStyle?.background).not.toContain("var(--lane-c), var(--lane-c)")
-  })
-})
+    expect(activeStyle?.background).toContain("var(--lane-a)");
+    expect(activeStyle?.background).toContain("var(--lane-e)");
+    expect(activeStyle?.background).not.toContain("var(--lane-c), var(--lane-c)");
+  });
+});
 
 function testRow(name: string): FileRow {
   return {
@@ -111,5 +111,5 @@ function testRow(name: string): FileRow {
     name,
     panes: {},
     presentIn: ["a"],
-  }
+  };
 }
