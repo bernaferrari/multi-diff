@@ -63,12 +63,3 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
-
-Before shipping changes:
-
-```bash
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm build
-```
