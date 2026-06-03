@@ -7,6 +7,10 @@
 Multi Diff is a local-first workbench for comparing multiple unified diff files
 at once.
 
+<p align="center">
+  <img src="assets/screenshot-dark.png" alt="Multi Diff comparing multiple diffs in dark mode" width="100%">
+</p>
+
 Instead of opening one patch at a time, you can load **2-5 diffs**, assign them
 to lanes A-E, and review the same changed files across every candidate:
 
