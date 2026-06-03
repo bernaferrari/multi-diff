@@ -2,8 +2,6 @@
 
 import { PanelLeft } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-
 import { ContentSearchPopover } from "../search/content-search-popover";
 import type { ContentSearchActions, ContentSearchView } from "../search/content-search-popover";
 import { DisplayPopover } from "./display-popover";
@@ -53,17 +51,15 @@ export function Toolbar({
           onClick={() => actions.setSidebarOpen(!settings.sidebarOpen)}
           aria-pressed={settings.sidebarOpen}
           aria-label={settings.sidebarOpen ? "Hide files panel" : "Show files panel"}
-          className={cn(
-            "-ml-1 rounded-md",
-            settings.sidebarOpen
-              ? "text-foreground"
-              : "text-muted-foreground hover:text-foreground",
-          )}
+          title={settings.sidebarOpen ? "Hide files panel" : "Show files panel"}
+          className="-ml-1 rounded-md text-muted-foreground hover:text-foreground"
         >
           <PanelLeft className="size-4" />
         </ToolbarIconButton>
         <ContentSearchPopover actions={actions.search} view={settings.search} />
-        <span className="text-sm font-semibold tracking-tight">Multi Diff</span>
+        <span className="text-sm font-semibold tracking-tight text-muted-foreground">
+          Multi Diff
+        </span>
       </div>
 
       <div className="ml-auto flex flex-wrap items-center gap-1.5">
