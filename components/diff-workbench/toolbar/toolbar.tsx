@@ -92,6 +92,7 @@ export function Toolbar({
         />
         <ToolbarTooltip label="Open GitHub repository">
           <Button
+            nativeButton={false}
             render={
               <a
                 href="https://github.com/bernaferrari/multi-diff"
