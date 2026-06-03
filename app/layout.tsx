@@ -14,18 +14,22 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
+const metadataTitle = "Multi Diff - Compare Multiple Diff Files Side by Side";
+const metadataDescription =
+  "Compare up to five unified diff files side by side, search changed content, and review competing patches without uploading anything.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL ?? "multi-diff.vercel.app"}`,
   ),
-  title: "Multi Diff",
-  description: "Compare multiple unified diff files side by side.",
+  title: metadataTitle,
+  description: metadataDescription,
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Multi Diff",
-    description: "Compare multiple unified diff files side by side.",
+    title: metadataTitle,
+    description: metadataDescription,
     url: "/",
     siteName: "Multi Diff",
     images: [
@@ -39,8 +43,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Multi Diff",
-    description: "Compare multiple unified diff files side by side.",
+    title: metadataTitle,
+    description: metadataDescription,
     images: ["/og.png"],
   },
 };
