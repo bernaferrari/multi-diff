@@ -63,3 +63,7 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+<p align="center">
+  <img src="assets/screenshot-light.png" alt="Multi Diff comparing multiple diffs in light mode" width="100%">
+</p>
