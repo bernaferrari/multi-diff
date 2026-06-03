@@ -46,4 +46,16 @@ describe("file tree row parts", () => {
     expect(html).not.toContain("x6");
     expect(html).not.toContain("x7");
   });
+
+  it("does not reserve stat space when there are no visible changes", () => {
+    const row: FileRow = {
+      additions: 0,
+      deletions: 0,
+      name: "packages/engine.io/lib/contrib/socket.ts",
+      panes: {},
+      presentIn: ["a"],
+    };
+
+    expect(renderToStaticMarkup(createElement(DiffStats, { row }))).toBe("");
+  });
 });

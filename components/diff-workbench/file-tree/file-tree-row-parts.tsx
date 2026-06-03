@@ -57,9 +57,10 @@ export function HighlightMatch({ query, text }: { query: string; text: string })
 
 export function DiffStats({ row }: { row: FileRow }) {
   const stats = getVisibleDiffStatParts(row);
+  if (!stats.additions && !stats.deletions) return null;
 
   return (
-    <span className="flex w-20 shrink-0 items-center justify-end gap-1.5 text-right font-mono text-[10px] leading-none tabular-nums">
+    <span className="flex shrink-0 items-center justify-end gap-1.5 whitespace-nowrap text-right font-mono text-[10px] leading-none tabular-nums">
       {stats.additions ? <span className="text-add">{stats.additions}</span> : null}
       {stats.deletions ? <span className="text-del">{stats.deletions}</span> : null}
     </span>
