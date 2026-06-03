@@ -1,15 +1,21 @@
 # Multi Diff
 
 <p align="center">
-  <img src="assets/header.png" alt="Multi Diff" width="100%">
+  <a href="https://multi-diff.vercel.app/">
+    <img src="assets/header.png" alt="Multi Diff" width="100%">
+  </a>
 </p>
 
 Multi Diff is a local-first workbench for comparing multiple unified diff files
 at once.
 
 <p align="center">
-  <img src="assets/screenshot-dark.png" alt="Multi Diff comparing multiple diffs in dark mode" width="100%">
+  <a href="https://multi-diff.vercel.app/">
+    <img src="assets/screenshot-dark.png" alt="Multi Diff comparing multiple diffs in dark mode" width="100%">
+  </a>
 </p>
+
+Visit [multi-diff.vercel.app](https://multi-diff.vercel.app/) to use Multi Diff.
 
 Instead of opening one patch at a time, you can load **2-5 diffs**, assign them
 to lanes A-E, and review the same changed files across every candidate:
@@ -65,5 +71,7 @@ pnpm dev
 Open [http://localhost:3000](http://localhost:3000).
 
 <p align="center">
-  <img src="assets/screenshot-light.png" alt="Multi Diff comparing multiple diffs in light mode" width="100%">
+  <a href="https://multi-diff.vercel.app/">
+    <img src="assets/screenshot-light.png" alt="Multi Diff comparing multiple diffs in light mode" width="100%">
+  </a>
 </p>
