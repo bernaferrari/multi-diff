@@ -1,20 +1,23 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
+import { useMobileDrawer } from "./use-mobile-drawer";
+
 export function WorkbenchShell({
-  onSidebarClose,
+  mobileSidebarOpen,
+  onMobileSidebarOpenChange,
   sidebar,
   sidebarOpen,
   viewport,
 }: {
-  onSidebarClose: () => void;
+  mobileSidebarOpen: boolean;
+  onMobileSidebarOpenChange: (open: boolean) => void;
   sidebar: ReactNode;
   sidebarOpen: boolean;
   viewport: ReactNode;
@@ -23,7 +26,10 @@ export function WorkbenchShell({
 
   return (
     <div className={workbenchGridClass(sidebarOpen)}>
-      <Sheet open={sidebarOpen && mobileDrawer} onOpenChange={(open) => !open && onSidebarClose()}>
+      <Sheet
+        open={mobileDrawer && mobileSidebarOpen}
+        onOpenChange={(open) => onMobileSidebarOpenChange(open)}
+      >
         <SheetContent
           side="left"
           showCloseButton={false}
@@ -58,21 +64,6 @@ export function WorkbenchShell({
       <div className="flex min-h-0 min-w-0 overflow-hidden">{viewport}</div>
     </div>
   );
-}
-
-function useMobileDrawer() {
-  const [mobile, setMobile] = useState(false);
-
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 767px)");
-    const update = () => setMobile(query.matches);
-
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-
-  return mobile;
 }
 
 function workbenchGridClass(sidebarOpen: boolean) {

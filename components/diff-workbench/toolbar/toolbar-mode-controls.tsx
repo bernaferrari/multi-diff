@@ -1,5 +1,5 @@
 import { Columns3, Rows3 } from "lucide-react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +24,16 @@ const LAYOUT_OPTIONS = [
     value: "rows",
   },
 ] satisfies Array<ModeOption<Layout>>;
+
+const diffGlyphVariables = {
+  "--diffs-addition-base": "light-dark(#18a46c, #07c480)",
+  "--diffs-deletion-base": "light-dark(#d52c36, #ff2e3f)",
+} as CSSProperties;
+
+const DIFF_GLYPH_DELETION_FILL =
+  "var(--diffs-fg-number-deletion-override,var(--diffs-deletion-base))";
+const DIFF_GLYPH_ADDITION_FILL =
+  "var(--diffs-fg-number-addition-override,var(--diffs-addition-base))";
 
 export function LayoutModeControl({
   layout,
@@ -70,38 +80,64 @@ function DiffStyleIcon({ diffStyle }: { diffStyle: DiffStyle }) {
 
 function UnifiedDiffGlyph() {
   return (
-    <svg aria-hidden="true" className="size-[18px]" viewBox="0 0 24 24">
+    <svg aria-hidden="true" className="size-[18px]" viewBox="0 0 24 24" style={diffGlyphVariables}>
       <rect
         x="3.5"
         y="3.5"
         width="17"
         height="17"
         rx="4"
-        fill="var(--background)"
-        stroke="color-mix(in oklch, var(--foreground) 42%, transparent)"
+        className="fill-card stroke-muted-foreground/55 dark:fill-background dark:stroke-muted-foreground/70"
         strokeWidth="2.5"
       />
-      <rect x="5.75" y="5.75" width="12.5" height="5.75" rx="1.75" fill="#991b1b" />
-      <rect x="5.75" y="12.5" width="12.5" height="5.75" rx="1.75" fill="#15803d" />
+      <rect
+        x="5.75"
+        y="5.75"
+        width="12.5"
+        height="5.75"
+        rx="1.75"
+        style={{ fill: DIFF_GLYPH_DELETION_FILL }}
+      />
+      <rect
+        x="5.75"
+        y="12.5"
+        width="12.5"
+        height="5.75"
+        rx="1.75"
+        style={{ fill: DIFF_GLYPH_ADDITION_FILL }}
+      />
     </svg>
   );
 }
 
 function SplitDiffGlyph() {
   return (
-    <svg aria-hidden="true" className="size-[18px]" viewBox="0 0 24 24">
+    <svg aria-hidden="true" className="size-[18px]" viewBox="0 0 24 24" style={diffGlyphVariables}>
       <rect
         x="3.5"
         y="3.5"
         width="17"
         height="17"
         rx="4"
-        fill="var(--background)"
-        stroke="color-mix(in oklch, var(--foreground) 42%, transparent)"
+        className="fill-card stroke-muted-foreground/55 dark:fill-background dark:stroke-muted-foreground/70"
         strokeWidth="2.5"
       />
-      <rect x="5.75" y="5.75" width="5.75" height="12.5" rx="1.75" fill="#991b1b" />
-      <rect x="12.5" y="5.75" width="5.75" height="12.5" rx="1.75" fill="#15803d" />
+      <rect
+        x="5.75"
+        y="5.75"
+        width="5.75"
+        height="12.5"
+        rx="1.75"
+        style={{ fill: DIFF_GLYPH_DELETION_FILL }}
+      />
+      <rect
+        x="12.5"
+        y="5.75"
+        width="5.75"
+        height="12.5"
+        rx="1.75"
+        style={{ fill: DIFF_GLYPH_ADDITION_FILL }}
+      />
     </svg>
   );
 }

@@ -1,7 +1,9 @@
 import { useTheme } from "next-themes";
+import { useCallback, useEffect, useState } from "react";
 
 import { useDiffDropImport } from "../importing/use-diff-drop-import";
 import { useContentSearch } from "../search/use-content-search";
+import { useMobileDrawer } from "./use-mobile-drawer";
 import { useWorkbenchActions } from "./use-workbench-actions";
 import { useWorkbenchControllerModels } from "./use-workbench-controller-models";
 import { useWorkbenchKeyboard } from "../navigation/use-workbench-keyboard";
@@ -13,7 +15,24 @@ export function useWorkbenchController() {
   const { resolvedTheme } = useTheme();
 
   const { state, setters } = useWorkbenchState();
+  const mobileDrawer = useMobileDrawer();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const codeTheme = resolvedTheme === "dark" ? "dark" : "light";
+
+  useEffect(() => {
+    if (!mobileDrawer) setMobileSidebarOpen(false);
+  }, [mobileDrawer]);
+
+  const setResponsiveSidebarOpen = useCallback(
+    (open: boolean) => {
+      if (mobileDrawer) {
+        setMobileSidebarOpen(open);
+        return;
+      }
+      setters.setSidebarOpen(open);
+    },
+    [mobileDrawer, setters],
+  );
 
   const {
     allFileRows,
@@ -119,9 +138,11 @@ export function useWorkbenchController() {
     searchTarget: contentSearch.target,
     sharedCount,
     setLayout,
+    setSidebarOpen: setResponsiveSidebarOpen,
     setters,
     setViewerRef,
     state,
+    toolbarSidebarOpen: mobileDrawer ? mobileSidebarOpen : state.sidebarOpen,
     toggleFocusMode,
     visiblePanes,
   });
@@ -132,6 +153,8 @@ export function useWorkbenchController() {
       actions: filesPanelActions,
       view: filesPanelView,
     },
+    mobileSidebarOpen,
+    setMobileSidebarOpen,
     notes: {
       ...notes,
     },

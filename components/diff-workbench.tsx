@@ -9,14 +9,24 @@ import { useWorkbenchController } from "./diff-workbench/workbench/use-workbench
 import { WorkbenchShell } from "./diff-workbench/workbench/workbench-shell";
 
 export function DiffWorkbench() {
-  const { dragging, filesPanel, notes, sidebarOpen, toolbar, viewport } = useWorkbenchController();
+  const {
+    dragging,
+    filesPanel,
+    mobileSidebarOpen,
+    notes,
+    setMobileSidebarOpen,
+    sidebarOpen,
+    toolbar,
+    viewport,
+  } = useWorkbenchController();
 
   return (
     <main className="bg-grid flex h-svh flex-col overflow-hidden bg-background text-foreground">
       <Toolbar settings={toolbar.settings} actions={toolbar.actions} />
 
       <WorkbenchShell
-        onSidebarClose={() => toolbar.actions.setSidebarOpen(false)}
+        mobileSidebarOpen={mobileSidebarOpen}
+        onMobileSidebarOpenChange={setMobileSidebarOpen}
         sidebarOpen={sidebarOpen}
         sidebar={<FilesPanel view={filesPanel.view} actions={filesPanel.actions} />}
         viewport={<DiffPaneViewport view={viewport.view} actions={viewport.actions} />}

@@ -49,10 +49,12 @@ export function useWorkbenchControllerModels({
   search,
   searchTarget,
   setLayout,
+  setSidebarOpen,
   setters,
   setViewerRef,
   sharedCount,
   state,
+  toolbarSidebarOpen,
   toggleFocusMode,
   visiblePanes,
 }: {
@@ -80,10 +82,12 @@ export function useWorkbenchControllerModels({
   search: ContentSearchActions & ContentSearchView;
   searchTarget: SearchNavigationTarget | null;
   setLayout: (layout: Layout) => void;
+  setSidebarOpen: (open: boolean) => void;
   setters: WorkbenchSetters;
   setViewerRef: DiffPaneViewportActions["onViewerRef"];
   sharedCount: number;
   state: WorkbenchState;
+  toolbarSidebarOpen: boolean;
   toggleFocusMode: (preferredFile?: string | null) => void;
   visiblePanes: ParsedPane[];
 }) {
@@ -113,7 +117,7 @@ export function useWorkbenchControllerModels({
           query: search.query,
           results: search.results,
         },
-        sidebarOpen: state.sidebarOpen,
+        sidebarOpen: toolbarSidebarOpen,
         wrap: state.wrap,
       }),
     [
@@ -127,7 +131,7 @@ export function useWorkbenchControllerModels({
       search.query,
       search.results,
       searchTarget,
-      state.sidebarOpen,
+      toolbarSidebarOpen,
       state.wrap,
     ],
   );
@@ -148,7 +152,7 @@ export function useWorkbenchControllerModels({
         setLaneMarkerStyle: setters.setLaneMarkerStyle,
         setLayout,
         setLineNumbers: setters.setLineNumbers,
-        setSidebarOpen: setters.setSidebarOpen,
+        setSidebarOpen,
         setWrap: setters.setWrap,
       }),
     [
@@ -160,7 +164,7 @@ export function useWorkbenchControllerModels({
       setters.setDiffStyle,
       setters.setLaneMarkerStyle,
       setters.setLineNumbers,
-      setters.setSidebarOpen,
+      setSidebarOpen,
       setters.setWrap,
     ],
   );

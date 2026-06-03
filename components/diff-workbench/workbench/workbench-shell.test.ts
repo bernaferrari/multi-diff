@@ -5,10 +5,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { mobileSheetContentClass, WorkbenchShell } from "./workbench-shell";
 
 describe("workbench shell classes", () => {
-  function renderShell(sidebarOpen: boolean) {
+  function renderShell(sidebarOpen: boolean, mobileSidebarOpen = false) {
     return renderToStaticMarkup(
       createElement(WorkbenchShell, {
-        onSidebarClose: () => {},
+        mobileSidebarOpen,
+        onMobileSidebarOpenChange: () => {},
         sidebar: createElement("aside", null, "Sidebar"),
         sidebarOpen,
         viewport: createElement("main", null, "Viewport"),
@@ -28,6 +29,10 @@ describe("workbench shell classes", () => {
 
   it("keeps the desktop sidebar out of the mobile layout", () => {
     expect(renderShell(true)).toContain("hidden min-w-0 overflow-hidden md:block");
+  });
+
+  it("does not derive the mobile sheet from the desktop sidebar state", () => {
+    expect(renderShell(true)).not.toContain('data-state="open"');
   });
 
   it("bounds the viewport so panel content scrolls inside the app shell", () => {
