@@ -67,7 +67,7 @@ export function useContentSearch({ parsed, onNavigateResult }: UseContentSearchO
         token: (current?.token ?? 0) + 1,
       }));
       setOpen(false);
-      onNavigateResult(result.paneId, result.fileName, { behavior: "smooth" });
+      onNavigateResult(result.paneId, result.fileName, { behavior: "smooth-auto" });
     },
     [onNavigateResult, query],
   );

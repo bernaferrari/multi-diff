@@ -95,7 +95,7 @@ describe("pane scroll helpers", () => {
     expect(scrollC).not.toHaveBeenCalled();
   });
 
-  it("can smooth-scroll a requested file and matching panes", () => {
+  it("can use adaptive smooth scrolling for a requested file and matching panes", () => {
     const scrollA = paneScrollTo();
     const scrollB = paneScrollTo();
     const targets: PaneScrollTarget[] = [
@@ -103,16 +103,16 @@ describe("pane scroll helpers", () => {
       target("b", ["route.ts"], scrollB),
     ];
 
-    expect(scrollPaneToFile(targets, "route.ts", "smooth")).toBe(true);
+    expect(scrollPaneToFile(targets, "route.ts", "smooth-auto")).toBe(true);
 
     expect(scrollA).toHaveBeenCalledWith(
       expect.objectContaining({
-        behavior: "smooth",
+        behavior: "smooth-auto",
       }),
     );
     expect(scrollB).toHaveBeenCalledWith(
       expect.objectContaining({
-        behavior: "smooth",
+        behavior: "smooth-auto",
       }),
     );
   });
@@ -168,11 +168,9 @@ function target(
   fileNames: string[],
   scrollTo: PaneScrollInstance["scrollTo"],
 ): PaneScrollTarget {
-  const instance: PaneScrollInstance = { scrollTo };
-
   return {
     id,
-    instance,
+    instance: { scrollTo },
     paneView: testPaneView(
       id,
       fileNames.map((fileName) => testFileDiff(fileName, 1, 1)),

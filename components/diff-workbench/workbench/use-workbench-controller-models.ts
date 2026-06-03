@@ -177,12 +177,17 @@ export function useWorkbenchControllerModels({
     state,
   });
 
+  const navigateFromFilesPanel = useCallback(
+    (name: string) => navigateOrFocusFile(name, { behavior: "smooth-auto" }),
+    [navigateOrFocusFile],
+  );
+
   const filesPanelActions = useMemo(
     () =>
       getFilesPanelActions({
         onFilterFile: actions.toggleFocusFile,
         onHideFiles: actions.hideFiles,
-        onNavigate: navigateOrFocusFile,
+        onNavigate: navigateFromFilesPanel,
         onOverview: clearFocusMode,
         onQuery: setters.setFileQuery,
         onShowAllFiles: actions.showAllFiles,
@@ -197,7 +202,7 @@ export function useWorkbenchControllerModels({
       actions.toggleFocusFile,
       actions.toggleLane,
       clearFocusMode,
-      navigateOrFocusFile,
+      navigateFromFilesPanel,
       setters.setFileQuery,
       toggleFocusMode,
     ],

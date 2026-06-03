@@ -1,6 +1,6 @@
 import { type UIEvent, type WheelEvent, useEffect, useRef } from "react";
 
-import { getActiveRowsFile } from "./row-viewport-state";
+import { getActiveRowsFile, getRowNavigationTop } from "./row-viewport-state";
 import { routeWheelToScroller } from "./scrolling";
 import type { FileNavigationTarget, LaneId, Layout } from "../shared/types";
 
@@ -49,10 +49,17 @@ export function useRowViewportScroll({
     const block = rowScrollerRef.current?.querySelector<HTMLElement>(
       `${fileSelector}${laneSelector}`,
     );
-    block?.scrollIntoView({
-      block: "start",
-      behavior: navigationTarget.behavior === "smooth" ? "smooth" : "auto",
-    });
+    const behavior =
+      navigationTarget.behavior === "smooth" || navigationTarget.behavior === "smooth-auto"
+        ? "smooth"
+        : "auto";
+
+    if (block && rowScrollerRef.current) {
+      rowScrollerRef.current.scrollTo({
+        top: getRowNavigationTop(rowScrollerRef.current, block),
+        behavior,
+      });
+    }
     appliedRowsNavigationToken.current = navigationTarget.token;
   }, [layout, navigationTarget]);
 

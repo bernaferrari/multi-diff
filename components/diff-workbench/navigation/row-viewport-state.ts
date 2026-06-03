@@ -9,8 +9,11 @@ type RowViewportBlock = {
 };
 
 type RowViewportScroller = {
+  clientHeight?: number;
   getBoundingClientRect: () => Pick<DOMRect, "height" | "top">;
   querySelectorAll: (selector: string) => Iterable<RowViewportBlock>;
+  scrollHeight?: number;
+  scrollTop?: number;
 };
 
 export function getActiveRowsFile(scroller: RowViewportScroller) {
@@ -36,4 +39,17 @@ export function getActiveRowsFile(scroller: RowViewportScroller) {
   const firstName = blocks[0]?.dataset.rowFileName;
   const firstLaneId = blocks[0]?.dataset.rowLaneId;
   return firstName && firstLaneId ? { laneId: firstLaneId as LaneId, name: firstName } : null;
+}
+
+export function getRowNavigationTop(scroller: RowViewportScroller, block: RowViewportBlock) {
+  const blockRect = block.getBoundingClientRect();
+  const scrollerRect = scroller.getBoundingClientRect();
+  const scrollTop = scroller.scrollTop ?? 0;
+  const targetTop = blockRect.top - scrollerRect.top + scrollTop;
+  const maxScrollTop =
+    typeof scroller.scrollHeight === "number" && typeof scroller.clientHeight === "number"
+      ? Math.max(scroller.scrollHeight - scroller.clientHeight, 0)
+      : targetTop;
+
+  return Math.max(0, Math.min(targetTop, maxScrollTop));
 }

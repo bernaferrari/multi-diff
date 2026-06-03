@@ -8,7 +8,7 @@ export type CodeTheme = "light" | "dark";
 export type LaneMarkerStyle = "letters" | "bars";
 
 export type FileNavigationTarget = {
-  behavior?: "instant" | "smooth";
+  behavior?: "instant" | "smooth" | "smooth-auto";
   laneIds?: LaneId[];
   name: string;
   token: number;
