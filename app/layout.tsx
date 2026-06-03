@@ -15,8 +15,27 @@ const fontMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Multi Diff",
   description: "Compare multiple unified diff files side by side.",
+  openGraph: {
+    title: "Multi Diff",
+    description: "Compare multiple unified diff files side by side.",
+    images: [
+      {
+        url: "/og.png",
+        width: 1280,
+        height: 640,
+        alt: "Multi Diff",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Multi Diff",
+    description: "Compare multiple unified diff files side by side.",
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({
