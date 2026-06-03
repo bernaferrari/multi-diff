@@ -17,6 +17,7 @@ export type SearchNavigationTarget = {
   fileName: string;
   lineNumber: number | null;
   paneId: LaneId;
+  query: string;
   side: "added" | "context" | "deleted";
   token: number;
 };

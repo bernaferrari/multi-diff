@@ -83,16 +83,13 @@ function ParseErrorBanner({ errors }: { errors: DiffPaneViewportView["parseError
       : `${count} diffs could not be parsed.`;
 
   return (
-    <div
-      role="status"
-      className="shrink-0 border-b border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive"
-    >
+    <output className="shrink-0 border-b border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive">
       <div className="font-medium">{summary}</div>
       {errors.length ? (
         <div className="mt-0.5 truncate text-destructive/80">
           {errors.map((error) => `${error.label}: ${error.message}`).join(" · ")}
         </div>
       ) : null}
-    </div>
+    </output>
   );
 }

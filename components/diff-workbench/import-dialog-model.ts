@@ -17,6 +17,7 @@ export type ImportDialogBodyActions = {
   onDragOver: (event: DragEvent<HTMLElement>) => void;
   onDrop: (event: DragEvent<HTMLElement>) => void;
   onFiles: (files: ImportFileSource) => void;
+  onLoadGuide: () => void;
   onImport: () => void | Promise<void>;
   onLaneChange: (index: number, lane: LaneId) => void;
   onLoadSamples: () => void;

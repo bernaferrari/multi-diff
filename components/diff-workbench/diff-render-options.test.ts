@@ -21,6 +21,7 @@ describe("diff render options", () => {
       enableLineSelection: true,
     });
     expect(fileDiffOptions(common)?.unsafeCSS).toContain("line-info-basic");
+    expect(fileDiffOptions(common)?.onPostRender).toBeUndefined();
   });
 
   it("keeps column code view options sticky, compact, and zero padded", () => {
@@ -39,5 +40,22 @@ describe("diff render options", () => {
         paddingTop: 0,
       },
     });
+    expect(
+      codeViewOptions({ ...common, lineNumbers: false, wrap: true })?.onPostRender,
+    ).toBeUndefined();
+  });
+
+  it("adds a post-render hook only when a search result is selected", () => {
+    const searchTarget = {
+      fileName: "app/search.ts",
+      lineNumber: 12,
+      paneId: "a",
+      query: "search",
+      side: "added",
+      token: 1,
+    } as const;
+
+    expect(fileDiffOptions(common, searchTarget)?.onPostRender).toEqual(expect.any(Function));
+    expect(codeViewOptions(common, searchTarget)?.onPostRender).toEqual(expect.any(Function));
   });
 });

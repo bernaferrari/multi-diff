@@ -20,9 +20,11 @@ import type { ImportDialogBodyActions, ImportDialogBodyView } from "./import-dia
 
 export function useImportDialogState({
   onImportFiles,
+  onLoadGuide,
   onLoadSamples,
 }: {
   onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
+  onLoadGuide: () => void;
   onLoadSamples: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -87,6 +89,11 @@ export function useImportDialogState({
     closeAndClear();
   }
 
+  function handleLoadGuide() {
+    onLoadGuide();
+    closeAndClear();
+  }
+
   function handleDragEnter(event: DragEvent<HTMLElement>) {
     if (!isFileDragEvent(event)) return;
     stopImportDragPropagation(event);
@@ -132,6 +139,7 @@ export function useImportDialogState({
     onFiles: handleFiles,
     onImport: handleImport,
     onLaneChange: handleLaneChange,
+    onLoadGuide: handleLoadGuide,
     onMove: handleMove,
     onRemove: handleRemove,
     onLoadSamples: handleLoadSamples,

@@ -23,6 +23,7 @@ describe("ImportDialogBody", () => {
           onFiles: () => {},
           onImport: () => {},
           onLaneChange: () => {},
+          onLoadGuide: () => {},
           onLoadSamples: () => {},
           onMove: () => {},
           onRemove: () => {},
@@ -32,6 +33,7 @@ describe("ImportDialogBody", () => {
     );
 
     expect(html).toContain("Load samples");
+    expect(html).toContain("Guide");
     expect(html).toContain("Import");
     expect(html).not.toContain("Clear all");
     expect(html).not.toContain("Nothing staged");
@@ -55,6 +57,7 @@ describe("ImportDialogBody", () => {
           onFiles: () => {},
           onImport: () => {},
           onLaneChange: () => {},
+          onLoadGuide: () => {},
           onLoadSamples: () => {},
           onMove: () => {},
           onRemove: () => {},

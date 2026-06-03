@@ -12,7 +12,7 @@ import { useWorkbenchKeyboard } from "./use-workbench-keyboard";
 import { useWorkbenchNavigation } from "./use-workbench-navigation";
 import { useWorkbenchState } from "./use-workbench-state";
 import { useWorkbenchViewModel } from "./use-workbench-view-model";
-import type { LaneId } from "./types";
+import type { LaneId, SearchNavigationTarget } from "./types";
 
 export function useWorkbenchController() {
   const { resolvedTheme } = useTheme();
@@ -22,13 +22,9 @@ export function useWorkbenchController() {
   const [contentSearchOpen, setContentSearchOpen] = useState(false);
   const [contentSearchQuery, setContentSearchQuery] = useState("");
   const [contentSearchLaneIds, setContentSearchLaneIds] = useState<LaneId[] | null>(null);
-  const [contentSearchTarget, setContentSearchTarget] = useState<{
-    fileName: string;
-    lineNumber: number | null;
-    paneId: string;
-    side: ContentSearchResult["side"];
-    token: number;
-  } | null>(null);
+  const [contentSearchTarget, setContentSearchTarget] = useState<SearchNavigationTarget | null>(
+    null,
+  );
 
   const {
     allFileRows,
@@ -123,13 +119,14 @@ export function useWorkbenchController() {
         fileName: result.fileName,
         lineNumber: result.lineNumber,
         paneId: result.paneId,
+        query: contentSearchQuery,
         side: result.side,
         token: (current?.token ?? 0) + 1,
       }));
       setContentSearchOpen(false);
       navigateOrFocusFile(result.fileName, { behavior: "smooth" });
     },
-    [navigateOrFocusFile],
+    [contentSearchQuery, navigateOrFocusFile],
   );
 
   const toggleContentSearchLane = useCallback(

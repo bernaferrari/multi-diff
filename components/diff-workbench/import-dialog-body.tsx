@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, Upload } from "lucide-react";
+import { BookOpen, FlaskConical, Upload } from "lucide-react";
 import { type DragEvent, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export function ImportDialogBody({
     onFiles,
     onImport,
     onLaneChange,
+    onLoadGuide,
     onLoadSamples,
     onMove,
     onRemove,
@@ -60,6 +61,7 @@ export function ImportDialogBody({
       ) : (
         <ImportEmptyDropzone
           dragging={dragging}
+          onBrowse={onAdd}
           onDragEnter={onDragEnter}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
@@ -71,6 +73,7 @@ export function ImportDialogBody({
         count={pendingCount}
         hasPending={hasPending}
         onImport={onImport}
+        onLoadGuide={onLoadGuide}
         onLoadSamples={onLoadSamples}
       />
     </div>
@@ -81,16 +84,27 @@ function ImportDialogFooter({
   count,
   hasPending,
   onImport,
+  onLoadGuide,
   onLoadSamples,
 }: {
   count: number;
   hasPending: boolean;
   onImport: () => void | Promise<void>;
+  onLoadGuide: () => void;
   onLoadSamples: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
       <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onLoadGuide}
+          className="px-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <BookOpen className="size-3.5" />
+          Guide
+        </Button>
         <Button
           variant="ghost"
           size="sm"

@@ -31,7 +31,7 @@ export function ColumnCodeView({
       ref={refCallback}
       items={view.items}
       onScroll={onScroll}
-      options={codeViewOptions(settings)}
+      options={codeViewOptions(settings, searchTarget)}
       selectedLines={getCodeViewSearchSelection(view, searchTarget)}
       renderCustomHeader={(item) => {
         if (item.type !== "diff") return null;

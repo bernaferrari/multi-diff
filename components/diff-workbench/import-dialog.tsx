@@ -19,14 +19,16 @@ import type { Pane } from "./types";
 
 export function ImportDialog({
   onImportFiles,
+  onLoadGuide,
   onLoadSamples,
   panes,
 }: {
   onImportFiles: (files: ImportFileSource | StagedImportFile[]) => void | Promise<void>;
+  onLoadGuide: () => void;
   onLoadSamples: () => void;
   panes: Pane[];
 }) {
-  const dialog = useImportDialogState({ onImportFiles, onLoadSamples });
+  const dialog = useImportDialogState({ onImportFiles, onLoadGuide, onLoadSamples });
 
   return (
     <Dialog open={dialog.open} onOpenChange={dialog.setOpen}>

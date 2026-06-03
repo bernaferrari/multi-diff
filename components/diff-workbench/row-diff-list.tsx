@@ -79,7 +79,7 @@ function RowFileDiff({
         fileDiff={fileDiff}
         selectedLines={getSearchSelectedLineRange(paneId, fileDiff.name, searchTarget)}
         metrics={ROW_DIFF_METRICS}
-        options={fileDiffOptions(settings)}
+        options={fileDiffOptions(settings, searchTarget)}
         renderCustomHeader={() => null}
         className={cn("block bg-card", isLast && "overflow-hidden rounded-b-xl")}
         style={diffStyleVariables}

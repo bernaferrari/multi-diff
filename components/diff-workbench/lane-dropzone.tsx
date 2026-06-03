@@ -1,4 +1,5 @@
 import { Upload } from "lucide-react";
+import { useId } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -13,15 +14,18 @@ export function LaneDropzone({
   style: LaneStyle;
   onImport: (files: ImportFileSource) => void;
 }) {
+  const inputId = useId();
+
   return (
     <label
+      htmlFor={inputId}
       aria-label="Import a diff file into this lane"
       className={cn(
         "grid flex-1 cursor-pointer place-items-center text-center transition-colors hover:bg-muted/30",
         style.text,
       )}
     >
-      <DiffFileInput onFiles={onImport} />
+      <DiffFileInput id={inputId} label="Import a diff file into this lane" onFiles={onImport} />
       <div className="px-6 pt-4 pb-0">
         <div
           className={cn(

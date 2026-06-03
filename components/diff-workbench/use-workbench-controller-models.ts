@@ -133,6 +133,7 @@ export function useWorkbenchControllerModels({
     () =>
       getToolbarActions({
         onImportFiles: actions.importFiles,
+        onLoadGuide: actions.loadGuideWorkbench,
         onLoadSamples: actions.loadSampleWorkbench,
         search: {
           onOpenChange: search.onOpenChange,
@@ -149,6 +150,7 @@ export function useWorkbenchControllerModels({
       }),
     [
       actions.importFiles,
+      actions.loadGuideWorkbench,
       actions.loadSampleWorkbench,
       search,
       setLayout,

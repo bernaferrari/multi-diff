@@ -100,8 +100,8 @@ export function Notepad({ open, value, onChange, onOpen, onClose }: NotepadProps
         </Button>
       </div>
       <textarea
-        autoFocus
         value={value}
+        aria-label="Notes"
         onChange={(event) => onChange(event.target.value)}
         spellCheck={false}
         placeholder="Loose notes, questions, tradeoffs..."

@@ -51,6 +51,7 @@ export function FilesTreeList({
           <div
             ref={listRef}
             role="tree"
+            tabIndex={0}
             aria-label="Files"
             className="scroll-thin min-h-0 flex-1 overflow-y-auto p-1.5"
             onContextMenu={(event) => {

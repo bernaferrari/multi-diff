@@ -12,16 +12,20 @@ export function ImportEmptyDropzone({
   onDragLeave,
   onDragOver,
   onDrop,
+  onBrowse,
 }: {
   dragging: boolean;
-  onDragEnter: (event: DragEvent<HTMLLabelElement>) => void;
-  onDragLeave: (event: DragEvent<HTMLLabelElement>) => void;
-  onDragOver: (event: DragEvent<HTMLLabelElement>) => void;
-  onDrop: (event: DragEvent<HTMLLabelElement>) => void;
+  onBrowse: () => void;
+  onDragEnter: (event: DragEvent<HTMLButtonElement>) => void;
+  onDragLeave: (event: DragEvent<HTMLButtonElement>) => void;
+  onDragOver: (event: DragEvent<HTMLButtonElement>) => void;
+  onDrop: (event: DragEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <label
+    <button
+      type="button"
       aria-label="Import diff files"
+      onClick={onBrowse}
       onDragEnter={onDragEnter}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -49,6 +53,6 @@ export function ImportEmptyDropzone({
           {DIFF_FILE_ACCEPT_LABEL} · up to {MAX_LANES}
         </span>
       </span>
-    </label>
+    </button>
   );
 }

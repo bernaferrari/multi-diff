@@ -6,12 +6,22 @@ import { useFileVisibilityActions } from "./use-file-visibility-actions";
 import { useImportActions } from "./use-import-actions";
 import { useLaneActions } from "./use-lane-actions";
 import { clearHiddenFileNames } from "./file-visibility-state";
+import { createGuidePanes, GUIDE_NOTES } from "./guide-panes";
 import { createEmptyPanes, createSamplePanes } from "./sample-panes";
 import type { WorkbenchSetters } from "./workbench-state-model";
 
 type WorkbenchActionSetters = Pick<
   WorkbenchSetters,
-  "setActiveFile" | "setFocusFile" | "setHidden" | "setHiddenFiles" | "setNotesOpen" | "setPanes"
+  | "setActiveFile"
+  | "setDiffStyle"
+  | "setFocusFile"
+  | "setHidden"
+  | "setHiddenFiles"
+  | "setLayout"
+  | "setNotes"
+  | "setNotesOpen"
+  | "setPanes"
+  | "setWrap"
 >;
 
 export function useWorkbenchActions({
@@ -27,8 +37,18 @@ export function useWorkbenchActions({
   panes: Pane[];
   setters: WorkbenchActionSetters;
 }) {
-  const { setActiveFile, setFocusFile, setHidden, setHiddenFiles, setNotesOpen, setPanes } =
-    setters;
+  const {
+    setActiveFile,
+    setDiffStyle,
+    setFocusFile,
+    setHidden,
+    setHiddenFiles,
+    setLayout,
+    setNotes,
+    setNotesOpen,
+    setPanes,
+    setWrap,
+  } = setters;
 
   const { clearLaneDiff, moveLaneDiff, toggleLane } = useLaneActions({
     panes,
@@ -71,6 +91,16 @@ export function useWorkbenchActions({
     resetSelectionState();
   }, [resetSelectionState, setPanes]);
 
+  const loadGuideWorkbench = useCallback(() => {
+    setPanes(createGuidePanes());
+    setLayout("columns");
+    setDiffStyle("unified");
+    setWrap(true);
+    setNotes(GUIDE_NOTES);
+    setNotesOpen(true);
+    resetSelectionState();
+  }, [resetSelectionState, setDiffStyle, setLayout, setNotes, setNotesOpen, setPanes, setWrap]);
+
   const clearWorkbench = useCallback(() => {
     setPanes(createEmptyPanes());
     resetSelectionState();
@@ -83,6 +113,7 @@ export function useWorkbenchActions({
       focusFileByOffset,
       hideFiles,
       importFiles,
+      loadGuideWorkbench,
       moveLaneDiff,
       clearWorkbench,
       loadSampleWorkbench,
@@ -98,6 +129,7 @@ export function useWorkbenchActions({
       focusFileByOffset,
       hideFiles,
       importFiles,
+      loadGuideWorkbench,
       moveLaneDiff,
       clearWorkbench,
       loadSampleWorkbench,
