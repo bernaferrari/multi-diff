@@ -1,33 +1,61 @@
 import { describe, expect, it } from "vitest";
 
-import { getFilesPanelDerivedState } from "./files-panel-derived-state";
+import { getFilesPanelDerivedState, getFilesPanelTreeState } from "./files-panel-derived-state";
+import type { FileRow, LaneId } from "../shared/types";
 import { testFileRow } from "../shared/test-builders";
+
+function deriveFilesPanelState({
+  activeFile = null,
+  collapsedDirs = new Set<string>(),
+  contextFile = null,
+  focusableRows,
+  hidden = new Set<LaneId>(),
+  hiddenFileRows = [],
+  laneIds = ["a"],
+  query = "",
+  rows,
+}: {
+  activeFile?: string | null;
+  collapsedDirs?: Set<string>;
+  contextFile?: string | null;
+  focusableRows?: FileRow[];
+  hidden?: Set<LaneId>;
+  hiddenFileRows?: FileRow[];
+  laneIds?: LaneId[];
+  query?: string;
+  rows: FileRow[];
+}) {
+  return getFilesPanelDerivedState({
+    activeFile,
+    contextFile,
+    focusableRows,
+    hidden,
+    hiddenFileRows,
+    laneIds,
+    query,
+    rows,
+    treeRows: getFilesPanelTreeState({
+      collapsedDirs,
+      query,
+      rows,
+    }).treeRows,
+  });
+}
 
 describe("files panel derived state", () => {
   it("does not duplicate the current context file in restore rows", () => {
     const rows = [testFileRow("a.ts"), testFileRow("b.ts")];
 
     expect(
-      getFilesPanelDerivedState({
-        activeFile: null,
-        collapsedDirs: new Set(),
+      deriveFilesPanelState({
         contextFile: "a.ts",
-        hidden: new Set(),
         hiddenFileRows: rows,
-        laneIds: ["a"],
-        query: "",
         rows,
       }).restorableRows.map((item) => item.name),
     ).toEqual(["b.ts"]);
     expect(
-      getFilesPanelDerivedState({
-        activeFile: null,
-        collapsedDirs: new Set(),
-        contextFile: null,
-        hidden: new Set(),
+      deriveFilesPanelState({
         hiddenFileRows: rows,
-        laneIds: ["a"],
-        query: "",
         rows,
       }).restorableRows,
     ).toEqual(rows);
@@ -37,10 +65,7 @@ describe("files panel derived state", () => {
     const rows = [testFileRow("a.ts"), testFileRow("b.ts"), testFileRow("c.ts")];
     const hiddenRows = [testFileRow("b.ts")];
     const laneIds = ["a", "b", "c"];
-    const derived = getFilesPanelDerivedState({
-      activeFile: null,
-      collapsedDirs: new Set(),
-      contextFile: null,
+    const derived = deriveFilesPanelState({
       hidden: new Set(["b"]),
       hiddenFileRows: hiddenRows,
       laneIds,
@@ -51,10 +76,7 @@ describe("files panel derived state", () => {
     expect(derived.visibleCount).toBe(2);
     expect(derived.treeLaneIds).toEqual(["a", "c"]);
     expect(
-      getFilesPanelDerivedState({
-        activeFile: null,
-        collapsedDirs: new Set(),
-        contextFile: null,
+      deriveFilesPanelState({
         hidden: new Set(["b"]),
         hiddenFileRows: hiddenRows,
         laneIds,
@@ -67,14 +89,8 @@ describe("files panel derived state", () => {
 
   it("keeps visible file count non-negative while hidden state settles", () => {
     expect(
-      getFilesPanelDerivedState({
-        activeFile: null,
-        collapsedDirs: new Set(),
-        contextFile: null,
-        hidden: new Set(),
+      deriveFilesPanelState({
         hiddenFileRows: [testFileRow("a.ts"), testFileRow("stale.ts")],
-        laneIds: ["a"],
-        query: "",
         rows: [testFileRow("a.ts")],
       }).visibleCount,
     ).toBe(0);
@@ -86,9 +102,7 @@ describe("files panel derived state", () => {
       testFileRow("components/result-list.tsx"),
       testFileRow("lib/search.ts"),
     ];
-    const derived = getFilesPanelDerivedState({
-      activeFile: null,
-      collapsedDirs: new Set(),
+    const derived = deriveFilesPanelState({
       contextFile: "lib/search.ts",
       hidden: new Set(["b"]),
       hiddenFileRows: [rows[2]],
@@ -108,13 +122,7 @@ describe("files panel derived state", () => {
     const rows = [testFileRow("a.ts"), testFileRow("b.ts")];
 
     expect(
-      getFilesPanelDerivedState({
-        activeFile: null,
-        collapsedDirs: new Set(),
-        contextFile: null,
-        hidden: new Set(),
-        hiddenFileRows: [],
-        laneIds: ["a"],
+      deriveFilesPanelState({
         query: "  ",
         rows,
       }).treeRows.map((item) => item.node.path),
@@ -125,14 +133,8 @@ describe("files panel derived state", () => {
     const rows = [testFileRow("a.ts"), testFileRow("b.ts")];
 
     expect(
-      getFilesPanelDerivedState({
+      deriveFilesPanelState({
         activeFile: "b.ts",
-        collapsedDirs: new Set(),
-        contextFile: null,
-        hidden: new Set(),
-        hiddenFileRows: [],
-        laneIds: ["a"],
-        query: "",
         rows,
       }).focusTarget,
     ).toBe("b.ts");
@@ -142,13 +144,8 @@ describe("files panel derived state", () => {
     const rows = [testFileRow("app/route.ts"), testFileRow("components/result-list.tsx")];
 
     expect(
-      getFilesPanelDerivedState({
+      deriveFilesPanelState({
         activeFile: "components/result-list.tsx",
-        collapsedDirs: new Set(),
-        contextFile: null,
-        hidden: new Set(),
-        hiddenFileRows: [],
-        laneIds: ["a"],
         query: "route",
         rows,
       }).focusTarget,
@@ -163,15 +160,10 @@ describe("files panel derived state", () => {
     ];
 
     expect(
-      getFilesPanelDerivedState({
+      deriveFilesPanelState({
         activeFile: "hidden.ts",
-        collapsedDirs: new Set(),
-        contextFile: null,
         focusableRows: rows.slice(1),
-        hidden: new Set(),
         hiddenFileRows: [rows[0]],
-        laneIds: ["a"],
-        query: "",
         rows,
       }).focusTarget,
     ).toBe("b-visible.ts");
@@ -182,28 +174,33 @@ describe("files panel derived state", () => {
     const collapsedDirs = new Set(["app", "components"]);
 
     expect(
-      getFilesPanelDerivedState({
+      deriveFilesPanelState({
         activeFile: "components/list.tsx",
         collapsedDirs,
-        contextFile: null,
-        hidden: new Set(),
-        hiddenFileRows: [],
-        laneIds: ["a"],
-        query: "",
         rows,
       }).focusTarget,
     ).toBe("components/list.tsx");
     expect(
-      getFilesPanelDerivedState({
-        activeFile: null,
+      deriveFilesPanelState({
         collapsedDirs,
-        contextFile: null,
-        hidden: new Set(),
-        hiddenFileRows: [],
-        laneIds: ["a"],
-        query: "",
         rows,
       }).focusTarget,
     ).toBe("app/route.ts");
+  });
+
+  it("builds tree shape independently from active and hidden metadata", () => {
+    const rows = [
+      testFileRow("app/api/search/route.ts"),
+      testFileRow("components/result-list.tsx"),
+      testFileRow("lib/search.ts"),
+    ];
+
+    expect(
+      getFilesPanelTreeState({
+        collapsedDirs: new Set(),
+        query: "search",
+        rows,
+      }).treeRows.map((item) => item.node.path),
+    ).toEqual(["lib", "lib/search.ts"]);
   });
 });

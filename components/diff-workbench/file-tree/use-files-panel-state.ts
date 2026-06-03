@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 
-import { getFilesPanelDerivedState } from "./files-panel-derived-state";
+import { getFilesPanelDerivedState, getFilesPanelTreeState } from "./files-panel-derived-state";
 import type { VisibleFileTreeRow } from "./file-tree-types";
 import type { DirectoryContext, FileRow, LaneId } from "../shared/types";
 
@@ -47,11 +47,20 @@ export function useFilesPanelState({
   const [context, setContext] = useState<FilesPanelContextState>(clearFilesPanelContext);
   const [collapsedDirs, setCollapsedDirs] = useState<Set<string>>(new Set());
 
+  const tree = useMemo(
+    () =>
+      getFilesPanelTreeState({
+        collapsedDirs,
+        query,
+        rows,
+      }),
+    [collapsedDirs, query, rows],
+  );
+
   const derived = useMemo(
     () =>
       getFilesPanelDerivedState({
         activeFile,
-        collapsedDirs,
         contextFile: context.contextFile,
         focusableRows,
         hidden,
@@ -59,10 +68,10 @@ export function useFilesPanelState({
         laneIds,
         query,
         rows,
+        treeRows: tree.treeRows,
       }),
     [
       activeFile,
-      collapsedDirs,
       context.contextFile,
       focusableRows,
       hidden,
@@ -70,6 +79,7 @@ export function useFilesPanelState({
       laneIds,
       query,
       rows,
+      tree.treeRows,
     ],
   );
 

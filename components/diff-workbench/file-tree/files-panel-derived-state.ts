@@ -2,6 +2,10 @@ import { buildVisibleFileTreeRows } from "./file-tree";
 import type { VisibleFileTreeRow } from "./file-tree-types";
 import type { FileRow, LaneId } from "../shared/types";
 
+type FilesPanelTreeState = {
+  treeRows: VisibleFileTreeRow[];
+};
+
 type FilesPanelDerivedState = {
   focusTarget: string | null;
   restorableRows: FileRow[];
@@ -11,9 +15,24 @@ type FilesPanelDerivedState = {
   visibleCount: number;
 };
 
+export function getFilesPanelTreeState({
+  collapsedDirs,
+  query,
+  rows,
+}: {
+  collapsedDirs: Set<string>;
+  query: string;
+  rows: FileRow[];
+}): FilesPanelTreeState {
+  const filteredRows = filterFileRows(rows, query);
+
+  return {
+    treeRows: buildVisibleFileTreeRows(filteredRows, collapsedDirs),
+  };
+}
+
 export function getFilesPanelDerivedState({
   activeFile,
-  collapsedDirs,
   contextFile,
   focusableRows,
   hidden,
@@ -21,9 +40,9 @@ export function getFilesPanelDerivedState({
   laneIds,
   query,
   rows,
+  treeRows,
 }: {
   activeFile: string | null;
-  collapsedDirs: Set<string>;
   contextFile: string | null;
   focusableRows?: FileRow[];
   hidden: Set<LaneId>;
@@ -31,11 +50,10 @@ export function getFilesPanelDerivedState({
   laneIds: LaneId[];
   query: string;
   rows: FileRow[];
+  treeRows: VisibleFileTreeRow[];
 }): FilesPanelDerivedState {
-  const filteredRows = filterFileRows(rows, query);
   const focusRows = focusableRows ?? rows;
   const treeLaneIds = getTreeLaneIds(laneIds, hidden);
-  const treeRows = buildVisibleFileTreeRows(filteredRows, collapsedDirs);
 
   return {
     focusTarget: getFilesPanelFocusTarget({
