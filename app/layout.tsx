@@ -15,12 +15,19 @@ const fontMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL ?? "multi-diff.vercel.app"}`,
+  ),
   title: "Multi Diff",
   description: "Compare multiple unified diff files side by side.",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Multi Diff",
     description: "Compare multiple unified diff files side by side.",
+    url: "/",
+    siteName: "Multi Diff",
     images: [
       {
         url: "/og.png",

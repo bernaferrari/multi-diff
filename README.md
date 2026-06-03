@@ -33,12 +33,8 @@ Most diff viewers are excellent at reviewing one patch. They become awkward when
 you need to compare several generated fixes, refactor attempts, or implementation
 variants.
 
-Multi Diff is built for that comparison step. It keeps lane membership visible,
-lets you move between files intentionally, and avoids fragile automatic scroll
-syncing when patches do not have the same shape.
-
-Click a file once and the relevant panes align to it. After that, normal
-scrolling stays predictable.
+Multi Diff is built for that comparison step. It keeps lane membership visible
+and lets you move between files intentionally.
 
 ## Features
 
@@ -52,7 +48,7 @@ scrolling stays predictable.
   active path, and hide or restore files recursively.
 - **Content search** — Search additions, deletions, and context with lane
   filters and highlighted matches.
-- **Sticky file headers** — Keep the current file visible while scrolling.
+- **Sticky file headers** — Keep the current file visible in each pane.
 - **Copy paths** — Click file headers to copy paths with immediate feedback.
 - **Notes** — Keep lightweight review notes next to the diff.
 - **Persistence** — Layout, panes, notes, and display settings survive reloads.
