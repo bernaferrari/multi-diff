@@ -89,7 +89,10 @@ describe("workbench navigation state", () => {
         paneLookup("b", ["first.ts", "second.ts"]),
       ],
       fallbackName: "first.ts",
+      lineNumber: 12,
       name: "second.ts",
+      navigationLockUntil: 1000 + NAVIGATION_SCROLL_SPY_LOCK_MS,
+      side: "additions",
       token: 1000,
       type: "activate",
     });
@@ -102,7 +105,9 @@ describe("workbench navigation state", () => {
       focusMode: false,
       navigationLockUntil: 1000 + NAVIGATION_SCROLL_SPY_LOCK_MS,
       navigationTarget: {
+        lineNumber: 12,
         name: "second.ts",
+        side: "additions",
         token: 1000,
       },
       rowsNavigationFile: "second.ts",
@@ -126,6 +131,7 @@ describe("workbench navigation state", () => {
         ],
         laneIds: ["b"],
         name: "route.ts",
+        navigationLockUntil: 1000 + NAVIGATION_SCROLL_SPY_LOCK_MS,
         token: 1000,
         type: "activate",
       },

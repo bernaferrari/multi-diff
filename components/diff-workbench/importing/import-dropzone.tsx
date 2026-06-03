@@ -31,7 +31,7 @@ export function ImportEmptyDropzone({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       className={cn(
-        "group flex min-h-36 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-6 text-center transition-colors",
+        "group flex min-h-36 w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-6 text-center transition-colors",
         dragging
           ? "border-primary bg-primary/10 text-primary"
           : "border-border bg-background hover:border-primary/45 hover:bg-muted/25",
@@ -45,11 +45,11 @@ export function ImportEmptyDropzone({
       >
         <Upload className="size-5" />
       </span>
-      <span className="grid gap-0.5">
-        <span className="text-sm font-medium text-foreground">
+      <span className="grid w-full min-w-0 gap-0.5">
+        <span className="text-wrap text-sm font-medium text-foreground">
           Drop diff files here, or click to browse
         </span>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-wrap text-xs text-muted-foreground">
           {DIFF_FILE_ACCEPT_LABEL} · up to {MAX_LANES}
         </span>
       </span>

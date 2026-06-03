@@ -25,7 +25,12 @@ export function scrollMatchingPaneTargets({
   sourceId,
   targets,
 }: {
-  activeFile: { name: string; intraOffset: number };
+  activeFile: {
+    name: string;
+    intraOffset: number;
+    lineNumber?: FileNavigationTarget["lineNumber"];
+    side?: FileNavigationTarget["side"];
+  };
   behavior?: FileNavigationTarget["behavior"];
   onTargetScroll?: (id: LaneId) => void;
   sourceId: LaneId;
@@ -36,12 +41,12 @@ export function scrollMatchingPaneTargets({
     const targetId = target.paneView.idByName.get(activeFile.name);
     if (!target.instance || !targetId) continue;
     onTargetScroll?.(target.id);
-    target.instance.scrollTo({
-      type: "item",
-      id: targetId,
-      align: "start",
-      offset: activeFile.intraOffset,
+    scrollPaneTarget(target.instance, {
       behavior,
+      id: targetId,
+      lineNumber: activeFile.lineNumber,
+      offset: activeFile.intraOffset,
+      side: activeFile.side,
     });
   }
 }
@@ -51,6 +56,8 @@ export function scrollPaneToFile(
   name: string,
   behavior: FileNavigationTarget["behavior"] = "instant",
   laneIds?: FileNavigationTarget["laneIds"],
+  lineNumber?: FileNavigationTarget["lineNumber"],
+  side?: FileNavigationTarget["side"],
 ) {
   const laneFilter = laneIds ? new Set(laneIds) : null;
   const visibleTargets = laneFilter
@@ -62,21 +69,58 @@ export function scrollPaneToFile(
   const targetId = primary?.paneView.idByName.get(name);
   if (!primary?.instance || !targetId) return false;
 
-  primary.instance.scrollTo({
-    type: "item",
-    id: targetId,
-    align: "start",
-    offset: 0,
+  scrollPaneTarget(primary.instance, {
     behavior,
+    id: targetId,
+    lineNumber,
+    offset: 0,
+    side,
   });
 
   scrollMatchingPaneTargets({
-    activeFile: { name, intraOffset: 0 },
+    activeFile: { name, intraOffset: 0, lineNumber, side },
     behavior,
     sourceId: primary.id,
     targets: visibleTargets,
   });
   return true;
+}
+
+function scrollPaneTarget(
+  instance: PaneScrollInstance,
+  {
+    behavior,
+    id,
+    lineNumber,
+    offset,
+    side,
+  }: {
+    behavior: FileNavigationTarget["behavior"];
+    id: string;
+    lineNumber?: FileNavigationTarget["lineNumber"];
+    offset: number;
+    side?: FileNavigationTarget["side"];
+  },
+) {
+  if (lineNumber) {
+    instance.scrollTo({
+      type: "line",
+      id,
+      lineNumber,
+      side,
+      align: "center",
+      behavior,
+    });
+    return;
+  }
+
+  instance.scrollTo({
+    type: "item",
+    id,
+    align: "start",
+    offset,
+    behavior,
+  });
 }
 
 export function cancelProgrammaticScroll(instance: PaneScrollCancelableInstance | undefined) {

@@ -1,8 +1,9 @@
-import { useCallback, useReducer } from "react";
+import { useCallback, useReducer, useRef } from "react";
 
 import {
   getFocusModeToggleAction,
   getNavigationFallbackFile,
+  getNavigationScrollLockUntil,
   getRowsLayoutNavigationTarget,
   initialWorkbenchNavigationState,
   isNavigationScrollLocked,
@@ -40,6 +41,7 @@ export function useWorkbenchNavigation({
     reduceWorkbenchNavigationState,
     initialWorkbenchNavigationState,
   );
+  const navigationToken = useRef(0);
 
   const activateFile = useCallback(
     ({
@@ -47,15 +49,19 @@ export function useWorkbenchNavigation({
       clearFocus,
       focus,
       laneIds,
+      lineNumber,
       name,
+      side,
     }: {
       behavior?: FileNavigationTarget["behavior"];
       clearFocus?: boolean;
       focus?: boolean;
       laneIds?: LaneId[];
+      lineNumber?: FileNavigationTarget["lineNumber"];
       name: string;
+      side?: FileNavigationTarget["side"];
     }) => {
-      const token = Date.now();
+      navigationToken.current += 1;
       if (clearFocus) clearFocusedFile();
       setters.setActiveFile(name);
       if (focus) setters.setFocusFile(name);
@@ -69,8 +75,11 @@ export function useWorkbenchNavigation({
         }),
         focusMode: focus ? true : undefined,
         laneIds,
+        lineNumber,
         name,
-        token,
+        navigationLockUntil: getNavigationScrollLockUntil(Date.now()),
+        side,
+        token: navigationToken.current,
         type: "activate",
       });
     },
@@ -113,7 +122,7 @@ export function useWorkbenchNavigation({
   );
 
   const navigateOrFocusFile = useCallback(
-    (name: string, options?: { behavior?: FileNavigationTarget["behavior"] }) => {
+    (name: string, options?: FileNavigationOptions) => {
       if (navigation.focusMode) {
         focusFile(name, options?.behavior);
         return;
@@ -124,13 +133,15 @@ export function useWorkbenchNavigation({
   );
 
   const navigateLaneFile = useCallback(
-    (laneId: LaneId, name: string, options?: { behavior?: FileNavigationTarget["behavior"] }) => {
+    (laneId: LaneId, name: string, options?: FileNavigationOptions) => {
       activateFile({
         behavior: options?.behavior,
         clearFocus: !navigation.focusMode,
         focus: navigation.focusMode,
         laneIds: [laneId],
+        lineNumber: options?.lineNumber,
         name,
+        side: options?.side,
       });
     },
     [activateFile, navigation.focusMode],
@@ -212,3 +223,5 @@ export function useWorkbenchNavigation({
     toggleFocusMode,
   };
 }
+
+type FileNavigationOptions = Pick<FileNavigationTarget, "behavior" | "lineNumber" | "side">;

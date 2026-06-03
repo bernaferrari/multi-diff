@@ -6,6 +6,7 @@ import type {
   ParsedPane,
   SearchNavigationTarget,
 } from "../shared/types";
+import { ADAPTIVE_FILE_NAVIGATION_BEHAVIOR } from "../shared/types";
 import type { ContentSearchActions, ContentSearchView } from "./content-search-popover";
 import type { ContentSearchResult } from "./content-search-state";
 import { buildContentSearchIndex, searchContentIndex } from "./content-search-state";
@@ -15,7 +16,7 @@ type UseContentSearchOptions = {
   onNavigateResult: (
     paneId: LaneId,
     fileName: string,
-    options?: { behavior?: FileNavigationTarget["behavior"] },
+    options?: Pick<FileNavigationTarget, "behavior" | "lineNumber" | "side">,
   ) => void;
 };
 
@@ -67,7 +68,11 @@ export function useContentSearch({ parsed, onNavigateResult }: UseContentSearchO
         token: (current?.token ?? 0) + 1,
       }));
       setOpen(false);
-      onNavigateResult(result.paneId, result.fileName, { behavior: "smooth-auto" });
+      onNavigateResult(result.paneId, result.fileName, {
+        behavior: ADAPTIVE_FILE_NAVIGATION_BEHAVIOR,
+        lineNumber: result.lineNumber,
+        side: getNavigationSide(result.side),
+      });
     },
     [onNavigateResult, query],
   );
@@ -106,4 +111,8 @@ export function useContentSearch({ parsed, onNavigateResult }: UseContentSearchO
       results,
     } satisfies ContentSearchView,
   };
+}
+
+function getNavigationSide(side: ContentSearchResult["side"]): FileNavigationTarget["side"] {
+  return side === "deleted" ? "deletions" : "additions";
 }

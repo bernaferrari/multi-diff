@@ -117,6 +117,22 @@ describe("pane scroll helpers", () => {
     );
   });
 
+  it("scrolls to a requested line when navigation includes a line target", () => {
+    const scrollA = paneScrollTo();
+    const targets: PaneScrollTarget[] = [target("a", ["route.ts"], scrollA)];
+
+    expect(scrollPaneToFile(targets, "route.ts", "smooth-auto", ["a"], 12, "additions")).toBe(true);
+
+    expect(scrollA).toHaveBeenCalledWith({
+      type: "line",
+      id: "a-0-route.ts",
+      lineNumber: 12,
+      side: "additions",
+      align: "center",
+      behavior: "smooth-auto",
+    });
+  });
+
   it("does nothing when no visible pane contains the requested file", () => {
     const scrollTo = paneScrollTo();
 

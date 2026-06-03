@@ -192,6 +192,7 @@
 
   /* Lined-paper texture for the sticky note */
   .bg-paper {
+    background-attachment: local;
     background-image: repeating-linear-gradient(
       to bottom,
       transparent,

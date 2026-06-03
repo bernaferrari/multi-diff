@@ -41,9 +41,9 @@ export function ImportDialog({
         }
       />
       <DialogContent className="overflow-hidden p-0 sm:max-w-lg">
-        <DialogHeader className="px-5 pt-5 pr-12 pb-3">
+        <DialogHeader className="w-full px-5 pt-5 pr-12 pb-3">
           <DialogTitle className="text-lg">Import diffs</DialogTitle>
-          <DialogDescription className="text-sm">
+          <DialogDescription className="w-full max-w-none text-sm">
             Stage files and confirm lane assignments before importing.
           </DialogDescription>
         </DialogHeader>

@@ -22,6 +22,7 @@ import type {
   ParsedPane,
   SearchNavigationTarget,
 } from "../shared/types";
+import { ADAPTIVE_FILE_NAVIGATION_BEHAVIOR } from "../shared/types";
 import type { WorkbenchSetters, WorkbenchState } from "./workbench-state-model";
 
 type WorkbenchActionModel = ReturnType<typeof useWorkbenchActions>;
@@ -72,7 +73,7 @@ export function useWorkbenchControllerModels({
   markScrollDriver: (id: LaneId) => void;
   navigateOrFocusFile: (
     name: string,
-    options?: { behavior?: FileNavigationTarget["behavior"] },
+    options?: Pick<FileNavigationTarget, "behavior" | "lineNumber" | "side">,
   ) => void;
   navigationTarget: FileNavigationTarget | null;
   parsed: ParsedPane[];
@@ -178,7 +179,7 @@ export function useWorkbenchControllerModels({
   });
 
   const navigateFromFilesPanel = useCallback(
-    (name: string) => navigateOrFocusFile(name, { behavior: "smooth-auto" }),
+    (name: string) => navigateOrFocusFile(name, { behavior: ADAPTIVE_FILE_NAVIGATION_BEHAVIOR }),
     [navigateOrFocusFile],
   );
 

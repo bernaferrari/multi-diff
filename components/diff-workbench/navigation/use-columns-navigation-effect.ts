@@ -29,6 +29,8 @@ export function useColumnsNavigationEffect({
     name: string,
     behavior?: FileNavigationTarget["behavior"],
     laneIds?: FileNavigationTarget["laneIds"],
+    lineNumber?: FileNavigationTarget["lineNumber"],
+    side?: FileNavigationTarget["side"],
   ) => void;
 }) {
   const appliedToken = useRef<number | null>(null);
@@ -47,7 +49,7 @@ export function useColumnsNavigationEffect({
       return;
     }
 
-    scrollToFile(target.name, target.behavior, target.laneIds);
+    scrollToFile(target.name, target.behavior, target.laneIds, target.lineNumber, target.side);
     appliedToken.current = target.token;
   }, [layout, navigationTarget, scrollToFile]);
 }

@@ -3,6 +3,7 @@ import { type UIEvent, type WheelEvent, useEffect, useRef } from "react";
 import { getActiveRowsFile, getRowNavigationTop } from "./row-viewport-state";
 import { routeWheelToScroller } from "./scrolling";
 import type { FileNavigationTarget, LaneId, Layout } from "../shared/types";
+import { ADAPTIVE_FILE_NAVIGATION_BEHAVIOR } from "../shared/types";
 
 type RowViewportScrollOptions = {
   layout: Layout;
@@ -50,13 +51,21 @@ export function useRowViewportScroll({
       `${fileSelector}${laneSelector}`,
     );
     const behavior =
-      navigationTarget.behavior === "smooth" || navigationTarget.behavior === "smooth-auto"
+      navigationTarget.behavior === "smooth" ||
+      navigationTarget.behavior === ADAPTIVE_FILE_NAVIGATION_BEHAVIOR
         ? "smooth"
         : "auto";
 
     if (block && rowScrollerRef.current) {
+      const line =
+        navigationTarget.lineNumber != null
+          ? block.querySelector<HTMLElement>(
+              `[data-line="${CSS.escape(String(navigationTarget.lineNumber))}"]`,
+            )
+          : null;
+
       rowScrollerRef.current.scrollTo({
-        top: getRowNavigationTop(rowScrollerRef.current, block),
+        top: getRowNavigationTop(rowScrollerRef.current, line ?? block),
         behavior,
       });
     }

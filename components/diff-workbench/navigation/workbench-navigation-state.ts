@@ -29,7 +29,10 @@ export type WorkbenchNavigationAction =
       fallbackName?: string | null;
       focusMode?: boolean;
       laneIds?: LaneId[];
+      lineNumber?: FileNavigationTarget["lineNumber"];
       name: string;
+      navigationLockUntil: number;
+      side?: FileNavigationTarget["side"];
       token: number;
       type: "activate";
     }
@@ -59,11 +62,13 @@ export function reduceWorkbenchNavigationState(
         name: action.name,
       }),
       focusMode: action.focusMode ?? state.focusMode,
-      navigationLockUntil: getNavigationScrollLockUntil(action.token),
+      navigationLockUntil: action.navigationLockUntil,
       navigationTarget: {
         behavior: action.behavior,
         laneIds: action.laneIds,
+        lineNumber: action.lineNumber,
         name: action.name,
+        side: action.side,
         token: action.token,
       },
       rowsNavigationFile: action.name,

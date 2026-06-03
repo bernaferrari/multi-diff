@@ -1,4 +1,9 @@
-import type { CodeViewItem, FileDiffMetadata } from "@pierre/diffs/react";
+import type {
+  CodeViewItem,
+  CodeViewScrollBehavior,
+  FileDiffMetadata,
+  SelectionSide,
+} from "@pierre/diffs/react";
 
 export type DiffCodeItem = Extract<CodeViewItem, { type: "diff" }>;
 export type LaneId = string;
@@ -6,11 +11,16 @@ export type Layout = "columns" | "rows";
 export type DiffStyle = "split" | "unified";
 export type CodeTheme = "light" | "dark";
 export type LaneMarkerStyle = "letters" | "bars";
+export type FileNavigationBehavior = CodeViewScrollBehavior;
+
+export const ADAPTIVE_FILE_NAVIGATION_BEHAVIOR = "smooth-auto" satisfies FileNavigationBehavior;
 
 export type FileNavigationTarget = {
-  behavior?: "instant" | "smooth" | "smooth-auto";
+  behavior?: FileNavigationBehavior;
   laneIds?: LaneId[];
+  lineNumber?: number | null;
   name: string;
+  side?: SelectionSide;
   token: number;
 };
 
