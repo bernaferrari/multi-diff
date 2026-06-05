@@ -1,17 +1,25 @@
 import { type UIEvent, type WheelEvent, useEffect, useRef } from "react";
 
-import { getActiveRowsFile, getRowNavigationTop } from "./row-viewport-state";
+import {
+  getActiveRowsFile,
+  getRowNavigationLineTop,
+  getRowNavigationTop,
+} from "./row-viewport-state";
 import { routeWheelToScroller } from "./scrolling";
-import type { FileNavigationTarget, LaneId, Layout } from "../shared/types";
+import type { FileNavigationTarget, LaneId, Layout, PaneView } from "../shared/types";
 import { ADAPTIVE_FILE_NAVIGATION_BEHAVIOR } from "../shared/types";
 
 type RowViewportScrollOptions = {
+  displayedPaneViews: { pane: { id: LaneId }; paneView: PaneView }[];
+  diffStyle: "split" | "unified";
   layout: Layout;
   navigationTarget: FileNavigationTarget | null;
   onActiveFileChange: (name: string, laneId: LaneId) => void;
 };
 
 export function useRowViewportScroll({
+  displayedPaneViews,
+  diffStyle,
   layout,
   navigationTarget,
   onActiveFileChange,
@@ -63,14 +71,23 @@ export function useRowViewportScroll({
               `[data-line="${CSS.escape(String(navigationTarget.lineNumber))}"]`,
             )
           : null;
+      const computedLineTop =
+        !line && navigationTarget.lineNumber != null
+          ? getComputedRowLineTop({
+              block,
+              displayedPaneViews,
+              diffStyle,
+              navigationTarget,
+            })
+          : null;
 
       rowScrollerRef.current.scrollTo({
-        top: getRowNavigationTop(rowScrollerRef.current, line ?? block),
+        top: computedLineTop ?? getRowNavigationTop(rowScrollerRef.current, line ?? block),
         behavior,
       });
     }
     appliedRowsNavigationToken.current = navigationTarget.token;
-  }, [layout, navigationTarget]);
+  }, [displayedPaneViews, diffStyle, layout, navigationTarget]);
 
   useEffect(() => {
     if (layout !== "rows" || !rowScrollerRef.current) return;
@@ -85,4 +102,45 @@ export function useRowViewportScroll({
     onRowsWheel: handleRowsWheel,
     rowScrollerRef,
   };
+}
+
+function getComputedRowLineTop({
+  block,
+  displayedPaneViews,
+  diffStyle,
+  navigationTarget,
+}: {
+  block: HTMLElement;
+  displayedPaneViews: RowViewportScrollOptions["displayedPaneViews"];
+  diffStyle: RowViewportScrollOptions["diffStyle"];
+  navigationTarget: FileNavigationTarget;
+}) {
+  if (navigationTarget.lineNumber == null) return null;
+
+  const paneId = navigationTarget.laneIds?.length === 1 ? navigationTarget.laneIds[0] : null;
+  if (!paneId) return null;
+
+  const paneView = displayedPaneViews.find(({ pane }) => pane.id === paneId)?.paneView;
+  const fileDiff = paneView?.files.find((file) => file.name === navigationTarget.name);
+  if (!fileDiff) return null;
+
+  const lineTop = getRowNavigationLineTop({
+    diffStyle,
+    fileDiff,
+    lineNumber: navigationTarget.lineNumber,
+    side: navigationTarget.side,
+  });
+  if (lineTop == null) return null;
+
+  const blockTop = block.getBoundingClientRect().top;
+  const scroller = block.closest<HTMLElement>("[data-row-viewport]");
+  const scrollerTop = scroller?.getBoundingClientRect().top ?? 0;
+  const scrollTop = scroller?.scrollTop ?? 0;
+  const targetTop = blockTop - scrollerTop + scrollTop + lineTop;
+  const maxScrollTop =
+    typeof scroller?.scrollHeight === "number" && typeof scroller.clientHeight === "number"
+      ? Math.max(scroller.scrollHeight - scroller.clientHeight, 0)
+      : targetTop;
+
+  return Math.max(0, Math.min(targetTop, maxScrollTop));
 }

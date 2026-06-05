@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { getActiveRowsFile, getRowNavigationTop } from "./row-viewport-state";
+import {
+  getActiveRowsFile,
+  getRowNavigationLineTop,
+  getRowNavigationTop,
+} from "./row-viewport-state";
+import { testFileDiff } from "../shared/test-builders";
 
 type RowViewportScroller = Parameters<typeof getActiveRowsFile>[0];
 
@@ -55,6 +60,51 @@ describe("row viewport state", () => {
     const block = Array.from(scroller.querySelectorAll("[data-row-file-name]"))[0];
 
     expect(block ? getRowNavigationTop(scroller, block) : null).toBe(300);
+  });
+
+  it("computes a row line offset from diff metadata when the line is not rendered", () => {
+    const file = testFileDiff("large.ts", 8, 3);
+    file.hunks[0] = {
+      ...file.hunks[0],
+      additionCount: 8,
+      additionStart: 20,
+      deletionCount: 3,
+      deletionStart: 20,
+      hunkContent: [
+        {
+          additionLineIndex: 0,
+          deletionLineIndex: 0,
+          lines: 2,
+          type: "context",
+        },
+        {
+          additions: 2,
+          additionLineIndex: 2,
+          deletions: 3,
+          deletionLineIndex: 2,
+          type: "change",
+        },
+      ],
+      splitLineCount: 5,
+      unifiedLineCount: 7,
+    };
+
+    expect(
+      getRowNavigationLineTop({
+        diffStyle: "unified",
+        fileDiff: file,
+        lineNumber: 22,
+        side: "additions",
+      }),
+    ).toBe(140);
+    expect(
+      getRowNavigationLineTop({
+        diffStyle: "split",
+        fileDiff: file,
+        lineNumber: 22,
+        side: "additions",
+      }),
+    ).toBe(80);
   });
 });
 

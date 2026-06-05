@@ -40,6 +40,8 @@ export function DiffPaneViewport({ actions, view }: DiffPaneViewportProps) {
     visiblePaneCount: view.visiblePanes.length,
   });
   const { onRowsScroll, onRowsWheel, rowScrollerRef } = useRowViewportScroll({
+    displayedPaneViews: view.displayedPaneViews,
+    diffStyle: view.renderSettings.diffStyle,
     layout: view.layout,
     navigationTarget: view.navigationTarget,
     onActiveFileChange: actions.onRowsActiveFileChange,
@@ -51,6 +53,7 @@ export function DiffPaneViewport({ actions, view }: DiffPaneViewportProps) {
 
       <section
         ref={rowScrollerRef}
+        data-row-viewport
         className={layoutState.sectionClass}
         onScroll={onRowsScroll}
         onWheelCapture={onRowsWheel}

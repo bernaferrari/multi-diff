@@ -1,4 +1,9 @@
+import type { FileDiffMetadata, SelectionSide } from "@pierre/diffs/react";
+
 import type { LaneId } from "../shared/types";
+import { DIFF_LINE_HEIGHT_PX } from "../rendering/diff-render-metrics";
+
+const ROW_FILE_HEADER_HEIGHT_PX = 40;
 
 type RowViewportBlock = {
   dataset: {
@@ -52,4 +57,103 @@ export function getRowNavigationTop(scroller: RowViewportScroller, block: RowVie
       : targetTop;
 
   return Math.max(0, Math.min(targetTop, maxScrollTop));
+}
+
+export function getRowNavigationLineTop({
+  diffStyle,
+  fileDiff,
+  lineNumber,
+  side = "additions",
+}: {
+  diffStyle: "split" | "unified";
+  fileDiff: FileDiffMetadata;
+  lineNumber: number;
+  side?: SelectionSide;
+}) {
+  const lineIndex = getDiffLineIndex({ diffStyle, fileDiff, lineNumber, side });
+  if (lineIndex == null) return null;
+
+  return ROW_FILE_HEADER_HEIGHT_PX + lineIndex * DIFF_LINE_HEIGHT_PX;
+}
+
+function getDiffLineIndex({
+  diffStyle,
+  fileDiff,
+  lineNumber,
+  side,
+}: {
+  diffStyle: "split" | "unified";
+  fileDiff: FileDiffMetadata;
+  lineNumber: number;
+  side: SelectionSide;
+}) {
+  const targetLineIndexes = getDiffLineIndexes(fileDiff, lineNumber, side);
+  if (targetLineIndexes == null) return null;
+
+  const [unifiedIndex, splitIndex] = targetLineIndexes;
+  return diffStyle === "split" ? splitIndex : unifiedIndex;
+}
+
+function getDiffLineIndexes(fileDiff: FileDiffMetadata, lineNumber: number, side: SelectionSide) {
+  const lastHunk = fileDiff.hunks.at(-1);
+  let targetUnifiedIndex: number | undefined;
+  let targetSplitIndex: number | undefined;
+
+  hunkIterator: for (const hunk of fileDiff.hunks) {
+    let currentLineNumber = side === "deletions" ? hunk.deletionStart : hunk.additionStart;
+    const hunkCount = side === "deletions" ? hunk.deletionCount : hunk.additionCount;
+    let splitIndex = hunk.splitLineStart;
+    let unifiedIndex = hunk.unifiedLineStart;
+
+    if (lineNumber < currentLineNumber) {
+      const difference = currentLineNumber - lineNumber;
+      targetUnifiedIndex = Math.max(unifiedIndex - difference, 0);
+      targetSplitIndex = Math.max(splitIndex - difference, 0);
+      break hunkIterator;
+    }
+
+    if (lineNumber >= currentLineNumber + hunkCount) {
+      if (hunk === lastHunk) {
+        const difference = lineNumber - (currentLineNumber + hunkCount);
+        targetUnifiedIndex = unifiedIndex + hunk.unifiedLineCount + difference;
+        targetSplitIndex = splitIndex + hunk.splitLineCount + difference;
+        break hunkIterator;
+      }
+      continue;
+    }
+
+    for (const content of hunk.hunkContent) {
+      if (content.type === "context") {
+        if (lineNumber < currentLineNumber + content.lines) {
+          const difference = lineNumber - currentLineNumber;
+          targetSplitIndex = splitIndex + difference;
+          targetUnifiedIndex = unifiedIndex + difference;
+          break hunkIterator;
+        }
+
+        currentLineNumber += content.lines;
+        splitIndex += content.lines;
+        unifiedIndex += content.lines;
+        continue;
+      }
+
+      const sideCount = side === "deletions" ? content.deletions : content.additions;
+      if (lineNumber < currentLineNumber + sideCount) {
+        const indexDifference = lineNumber - currentLineNumber;
+        targetUnifiedIndex =
+          unifiedIndex + (side === "additions" ? content.deletions : 0) + indexDifference;
+        targetSplitIndex = splitIndex + indexDifference;
+        break hunkIterator;
+      }
+
+      currentLineNumber += sideCount;
+      splitIndex += Math.max(content.deletions, content.additions);
+      unifiedIndex += content.deletions + content.additions;
+    }
+
+    break hunkIterator;
+  }
+
+  if (targetUnifiedIndex == null || targetSplitIndex == null) return null;
+  return [targetUnifiedIndex, targetSplitIndex] as const;
 }
