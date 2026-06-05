@@ -30,6 +30,7 @@ export function useColumnsNavigationEffect({
     behavior?: FileNavigationTarget["behavior"],
     laneIds?: FileNavigationTarget["laneIds"],
     lineNumber?: FileNavigationTarget["lineNumber"],
+    occurrenceIndex?: FileNavigationTarget["occurrenceIndex"],
     side?: FileNavigationTarget["side"],
   ) => void;
 }) {
@@ -49,7 +50,14 @@ export function useColumnsNavigationEffect({
       return;
     }
 
-    scrollToFile(target.name, target.behavior, target.laneIds, target.lineNumber, target.side);
+    scrollToFile(
+      target.name,
+      target.behavior,
+      target.laneIds,
+      target.lineNumber,
+      target.occurrenceIndex,
+      target.side,
+    );
     appliedToken.current = target.token;
   }, [layout, navigationTarget, scrollToFile]);
 }

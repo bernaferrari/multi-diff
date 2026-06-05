@@ -12,6 +12,7 @@ describe("content search DOM highlight", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "search",
           side: "added",
@@ -34,6 +35,7 @@ describe("content search DOM highlight", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: " ",
           side: "added",
@@ -48,6 +50,7 @@ describe("content search DOM highlight", () => {
         {
           fileName: "app/search.ts",
           lineNumber: null,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "search",
           side: "added",
@@ -62,6 +65,7 @@ describe("content search DOM highlight", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "search",
           side: "added",
@@ -76,6 +80,7 @@ describe("content search DOM highlight", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "search",
           side: "added",

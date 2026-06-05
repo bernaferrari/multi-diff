@@ -51,6 +51,7 @@ export function useWorkbenchNavigation({
       laneIds,
       lineNumber,
       name,
+      occurrenceIndex,
       side,
     }: {
       behavior?: FileNavigationTarget["behavior"];
@@ -59,6 +60,7 @@ export function useWorkbenchNavigation({
       laneIds?: LaneId[];
       lineNumber?: FileNavigationTarget["lineNumber"];
       name: string;
+      occurrenceIndex?: FileNavigationTarget["occurrenceIndex"];
       side?: FileNavigationTarget["side"];
     }) => {
       navigationToken.current += 1;
@@ -78,6 +80,7 @@ export function useWorkbenchNavigation({
         lineNumber,
         name,
         navigationLockUntil: getNavigationScrollLockUntil(Date.now()),
+        occurrenceIndex,
         side,
         token: navigationToken.current,
         type: "activate",
@@ -141,6 +144,7 @@ export function useWorkbenchNavigation({
         laneIds: [laneId],
         lineNumber: options?.lineNumber,
         name,
+        occurrenceIndex: options?.occurrenceIndex,
         side: options?.side,
       });
     },
@@ -224,4 +228,7 @@ export function useWorkbenchNavigation({
   };
 }
 
-type FileNavigationOptions = Pick<FileNavigationTarget, "behavior" | "lineNumber" | "side">;
+type FileNavigationOptions = Pick<
+  FileNavigationTarget,
+  "behavior" | "lineNumber" | "occurrenceIndex" | "side"
+>;

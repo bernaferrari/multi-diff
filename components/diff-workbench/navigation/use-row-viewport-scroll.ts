@@ -56,8 +56,11 @@ export function useRowViewportScroll({
       navigationTarget.laneIds?.length === 1
         ? `[data-row-lane-id="${CSS.escape(navigationTarget.laneIds[0] ?? "")}"]`
         : "";
+    const occurrenceSelector = navigationTarget.occurrenceIndex
+      ? `[data-row-file-occurrence="${CSS.escape(String(navigationTarget.occurrenceIndex))}"]`
+      : "";
     const block = rowScrollerRef.current?.querySelector<HTMLElement>(
-      `${fileSelector}${laneSelector}`,
+      `${fileSelector}${laneSelector}${occurrenceSelector}`,
     );
     const behavior =
       navigationTarget.behavior === "smooth" ||

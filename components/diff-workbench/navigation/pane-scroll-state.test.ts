@@ -121,12 +121,32 @@ describe("pane scroll helpers", () => {
     const scrollA = paneScrollTo();
     const targets: PaneScrollTarget[] = [target("a", ["route.ts"], scrollA)];
 
-    expect(scrollPaneToFile(targets, "route.ts", "smooth-auto", ["a"], 12, "additions")).toBe(true);
+    expect(
+      scrollPaneToFile(targets, "route.ts", "smooth-auto", ["a"], 12, undefined, "additions"),
+    ).toBe(true);
 
     expect(scrollA).toHaveBeenCalledWith({
       type: "line",
       id: "a-0-route.ts",
       lineNumber: 12,
+      side: "additions",
+      align: "center",
+      behavior: "smooth-auto",
+    });
+  });
+
+  it("scrolls to the requested repeated file occurrence", () => {
+    const scrollA = paneScrollTo();
+    const targets: PaneScrollTarget[] = [target("a", ["same.ts", "same.ts"], scrollA)];
+
+    expect(scrollPaneToFile(targets, "same.ts", "smooth-auto", ["a"], 42, 2, "additions")).toBe(
+      true,
+    );
+
+    expect(scrollA).toHaveBeenCalledWith({
+      type: "line",
+      id: "a-1-same.ts",
+      lineNumber: 42,
       side: "additions",
       align: "center",
       behavior: "smooth-auto",

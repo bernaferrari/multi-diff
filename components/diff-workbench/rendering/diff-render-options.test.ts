@@ -49,6 +49,7 @@ describe("diff render options", () => {
     const searchTarget = {
       fileName: "app/search.ts",
       lineNumber: 12,
+      occurrenceIndex: 1,
       paneId: "a",
       query: "search",
       side: "added",

@@ -16,7 +16,7 @@ type UseContentSearchOptions = {
   onNavigateResult: (
     paneId: LaneId,
     fileName: string,
-    options?: Pick<FileNavigationTarget, "behavior" | "lineNumber" | "side">,
+    options?: Pick<FileNavigationTarget, "behavior" | "lineNumber" | "occurrenceIndex" | "side">,
   ) => void;
 };
 
@@ -62,6 +62,7 @@ export function useContentSearch({ parsed, onNavigateResult }: UseContentSearchO
       setTarget((current) => ({
         fileName: result.fileName,
         lineNumber: result.lineNumber,
+        occurrenceIndex: result.occurrenceIndex,
         paneId: result.paneId,
         query,
         side: result.side,
@@ -71,6 +72,7 @@ export function useContentSearch({ parsed, onNavigateResult }: UseContentSearchO
       onNavigateResult(result.paneId, result.fileName, {
         behavior: ADAPTIVE_FILE_NAVIGATION_BEHAVIOR,
         lineNumber: result.lineNumber,
+        occurrenceIndex: result.occurrenceIndex,
         side: getNavigationSide(result.side),
       });
     },

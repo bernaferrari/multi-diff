@@ -7,6 +7,7 @@ describe("content search popover", () => {
     fileName: "app/search.ts",
     id: "a:app/search.ts:added:12:0",
     lineNumber: 12,
+    occurrenceIndex: 1,
     paneId: "a",
     paneLabel: "Diff A",
     preview: 'const query = searchParams.get("q")',
@@ -20,6 +21,7 @@ describe("content search popover", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "QUERY",
           side: "added",
@@ -37,6 +39,7 @@ describe("content search popover", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "b",
           query: "query",
           side: "added",
@@ -51,6 +54,7 @@ describe("content search popover", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 13,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "query",
           side: "added",
@@ -65,6 +69,7 @@ describe("content search popover", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "query",
           side: "deleted",
@@ -79,6 +84,7 @@ describe("content search popover", () => {
         {
           fileName: "app/other.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "query",
           side: "added",
@@ -93,6 +99,7 @@ describe("content search popover", () => {
         {
           fileName: "app/search.ts",
           lineNumber: 12,
+          occurrenceIndex: 1,
           paneId: "a",
           query: "search",
           side: "added",

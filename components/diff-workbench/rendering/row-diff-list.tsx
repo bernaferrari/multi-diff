@@ -28,6 +28,7 @@ export function RowDiffList({
           fileDiff={fileDiff}
           isLast={index === view.files.length - 1}
           occurrence={getRowFileOccurrence(view, index)}
+          occurrenceIndex={getRowFileOccurrenceIndex(view, index)}
           paneId={paneId}
           searchTarget={searchTarget}
           settings={settings}
@@ -46,10 +47,15 @@ function getRowFileOccurrence(view: PaneView, index: number) {
   return item ? view.occurrenceById.get(item.id) : undefined;
 }
 
+function getRowFileOccurrenceIndex(view: PaneView, index: number) {
+  return getRowFileOccurrence(view, index)?.index ?? 1;
+}
+
 function RowFileDiff({
   fileDiff,
   isLast,
   occurrence,
+  occurrenceIndex,
   paneId,
   searchTarget,
   settings,
@@ -57,6 +63,7 @@ function RowFileDiff({
   fileDiff: PaneView["files"][number];
   isLast: boolean;
   occurrence: ReturnType<typeof getRowFileOccurrence>;
+  occurrenceIndex: number;
   paneId: LaneId;
   searchTarget: SearchNavigationTarget | null;
   settings: DiffRenderSettings;
@@ -64,7 +71,11 @@ function RowFileDiff({
   const totals = diffTotalsFor(fileDiff);
 
   return (
-    <div data-row-file-name={fileDiff.name} data-row-lane-id={paneId}>
+    <div
+      data-row-file-name={fileDiff.name}
+      data-row-file-occurrence={occurrenceIndex}
+      data-row-lane-id={paneId}
+    >
       <DiffFileHeader
         additions={totals.additions}
         deletions={totals.deletions}

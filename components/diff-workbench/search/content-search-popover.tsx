@@ -249,6 +249,7 @@ export function isContentSearchResultActive(
     target?.paneId === result.paneId &&
     target.fileName === result.fileName &&
     target.lineNumber === result.lineNumber &&
+    target.occurrenceIndex === result.occurrenceIndex &&
     target.side === result.side &&
     target.query.trim().toLocaleLowerCase() === query.trim().toLocaleLowerCase()
   );

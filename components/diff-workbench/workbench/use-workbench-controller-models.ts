@@ -75,7 +75,7 @@ export function useWorkbenchControllerModels({
   markScrollDriver: (id: LaneId) => void;
   navigateOrFocusFile: (
     name: string,
-    options?: Pick<FileNavigationTarget, "behavior" | "lineNumber" | "side">,
+    options?: Pick<FileNavigationTarget, "behavior" | "lineNumber" | "occurrenceIndex" | "side">,
   ) => void;
   navigationTarget: FileNavigationTarget | null;
   parsed: ParsedPane[];

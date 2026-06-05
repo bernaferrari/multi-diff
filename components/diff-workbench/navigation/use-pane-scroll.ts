@@ -71,6 +71,7 @@ export function usePaneScroll({
       behavior?: FileNavigationTarget["behavior"],
       laneIds?: FileNavigationTarget["laneIds"],
       lineNumber?: FileNavigationTarget["lineNumber"],
+      occurrenceIndex?: FileNavigationTarget["occurrenceIndex"],
       side?: FileNavigationTarget["side"],
     ) => {
       const laneFilter = laneIds ? new Set(laneIds) : null;
@@ -88,7 +89,7 @@ export function usePaneScroll({
         }
       }
 
-      return scrollPaneToFile(targets, name, behavior, laneIds, lineNumber, side);
+      return scrollPaneToFile(targets, name, behavior, laneIds, lineNumber, occurrenceIndex, side);
     },
     [displayedPaneViews],
   );

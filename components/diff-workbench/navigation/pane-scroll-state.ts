@@ -29,6 +29,7 @@ export function scrollMatchingPaneTargets({
     name: string;
     intraOffset: number;
     lineNumber?: FileNavigationTarget["lineNumber"];
+    occurrenceIndex?: FileNavigationTarget["occurrenceIndex"];
     side?: FileNavigationTarget["side"];
   };
   behavior?: FileNavigationTarget["behavior"];
@@ -38,7 +39,11 @@ export function scrollMatchingPaneTargets({
 }) {
   for (const target of targets) {
     if (target.id === sourceId) continue;
-    const targetId = target.paneView.idByName.get(activeFile.name);
+    const targetId = getPaneViewTargetId(
+      target.paneView,
+      activeFile.name,
+      activeFile.occurrenceIndex,
+    );
     if (!target.instance || !targetId) continue;
     onTargetScroll?.(target.id);
     scrollPaneTarget(target.instance, {
@@ -57,6 +62,7 @@ export function scrollPaneToFile(
   behavior: FileNavigationTarget["behavior"] = "instant",
   laneIds?: FileNavigationTarget["laneIds"],
   lineNumber?: FileNavigationTarget["lineNumber"],
+  occurrenceIndex?: FileNavigationTarget["occurrenceIndex"],
   side?: FileNavigationTarget["side"],
 ) {
   const laneFilter = laneIds ? new Set(laneIds) : null;
@@ -64,9 +70,11 @@ export function scrollPaneToFile(
     ? targets.filter((target) => laneFilter.has(target.id))
     : targets;
   const primary = visibleTargets.find(
-    (target) => target.instance && target.paneView.idByName.has(name),
+    (target) => target.instance && getPaneViewTargetId(target.paneView, name, occurrenceIndex),
   );
-  const targetId = primary?.paneView.idByName.get(name);
+  const targetId = primary
+    ? getPaneViewTargetId(primary.paneView, name, occurrenceIndex)
+    : undefined;
   if (!primary?.instance || !targetId) return false;
 
   scrollPaneTarget(primary.instance, {
@@ -78,12 +86,28 @@ export function scrollPaneToFile(
   });
 
   scrollMatchingPaneTargets({
-    activeFile: { name, intraOffset: 0, lineNumber, side },
+    activeFile: { name, intraOffset: 0, lineNumber, occurrenceIndex, side },
     behavior,
     sourceId: primary.id,
     targets: visibleTargets,
   });
   return true;
+}
+
+function getPaneViewTargetId(
+  paneView: PaneView,
+  name: string,
+  occurrenceIndex: FileNavigationTarget["occurrenceIndex"],
+) {
+  if (!occurrenceIndex || occurrenceIndex <= 1) return paneView.idByName.get(name);
+
+  for (const item of paneView.items) {
+    if (item.fileDiff.name !== name) continue;
+    const occurrence = paneView.occurrenceById.get(item.id);
+    if (occurrence?.index === occurrenceIndex) return item.id;
+  }
+
+  return undefined;
 }
 
 function scrollPaneTarget(

@@ -20,6 +20,7 @@ export type FileNavigationTarget = {
   laneIds?: LaneId[];
   lineNumber?: number | null;
   name: string;
+  occurrenceIndex?: number;
   side?: SelectionSide;
   token: number;
 };
@@ -27,6 +28,7 @@ export type FileNavigationTarget = {
 export type SearchNavigationTarget = {
   fileName: string;
   lineNumber: number | null;
+  occurrenceIndex: number;
   paneId: LaneId;
   query: string;
   side: "added" | "context" | "deleted";

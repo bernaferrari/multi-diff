@@ -32,6 +32,7 @@ export type WorkbenchNavigationAction =
       lineNumber?: FileNavigationTarget["lineNumber"];
       name: string;
       navigationLockUntil: number;
+      occurrenceIndex?: FileNavigationTarget["occurrenceIndex"];
       side?: FileNavigationTarget["side"];
       token: number;
       type: "activate";
@@ -68,6 +69,7 @@ export function reduceWorkbenchNavigationState(
         laneIds: action.laneIds,
         lineNumber: action.lineNumber,
         name: action.name,
+        occurrenceIndex: action.occurrenceIndex,
         side: action.side,
         token: action.token,
       },

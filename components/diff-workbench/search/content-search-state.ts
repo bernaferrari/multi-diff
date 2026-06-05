@@ -6,6 +6,7 @@ export type ContentSearchResult = {
   id: string;
   fileName: string;
   lineNumber: number | null;
+  occurrenceIndex: number;
   paneId: string;
   paneLabel: string;
   preview: string;
@@ -20,6 +21,7 @@ type SearchLine = {
 
 type SearchIndexLine = SearchLine & {
   fileName: string;
+  occurrenceIndex: number;
   paneId: string;
   paneLabel: string;
   textLower: string;
@@ -49,11 +51,17 @@ export function buildContentSearchIndex(panes: ParsedPane[]): ContentSearchIndex
   const index: ContentSearchIndex = [];
 
   for (const pane of panes) {
+    const occurrenceByFileName = new Map<string, number>();
+
     for (const file of pane.files) {
+      const occurrenceIndex = (occurrenceByFileName.get(file.name) ?? 0) + 1;
+      occurrenceByFileName.set(file.name, occurrenceIndex);
+
       for (const line of getSearchableLines(file)) {
         index.push({
           ...line,
           fileName: file.name,
+          occurrenceIndex,
           paneId: pane.id,
           paneLabel: pane.label,
           textLower: line.text.toLocaleLowerCase(),
@@ -84,8 +92,9 @@ export function searchContentIndex({
 
     results.push({
       fileName: line.fileName,
-      id: `${line.paneId}:${line.fileName}:${line.side}:${line.lineNumber ?? "old"}:${results.length}`,
+      id: `${line.paneId}:${line.fileName}:${line.occurrenceIndex}:${line.side}:${line.lineNumber ?? "old"}:${results.length}`,
       lineNumber: line.lineNumber,
+      occurrenceIndex: line.occurrenceIndex,
       paneId: line.paneId,
       paneLabel: line.paneLabel,
       preview: line.text.trim() || "(blank line)",
