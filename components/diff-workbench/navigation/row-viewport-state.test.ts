@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   getActiveRowsFile,
   getRowNavigationLineTop,
+  getRowNavigationTargetLine,
   getRowNavigationTop,
 } from "./row-viewport-state";
 import { testFileDiff } from "../shared/test-builders";
@@ -62,6 +63,20 @@ describe("row viewport state", () => {
     expect(block ? getRowNavigationTop(scroller, block) : null).toBe(300);
   });
 
+  it("finds a rendered target line inside a diff shadow root", () => {
+    const targetLine = lineElement("42", "change-addition");
+    const shadowRoot = queryRoot([targetLine]);
+    const host = queryElement([], shadowRoot);
+    const block = queryRoot([host]);
+
+    expect(getRowNavigationTargetLine({ lineNumber: 42, root: block, side: "additions" })).toBe(
+      targetLine,
+    );
+    expect(getRowNavigationTargetLine({ lineNumber: 42, root: block, side: "deletions" })).toBe(
+      null,
+    );
+  });
+
   it("computes a row line offset from diff metadata when the line is not rendered", () => {
     const file = testFileDiff("large.ts", 8, 3);
     file.hunks[0] = {
@@ -110,6 +125,37 @@ describe("row viewport state", () => {
 
 function row(name: string, laneId: string, top: number, bottom: number) {
   return { bottom, laneId, name, top };
+}
+
+function lineElement(lineNumber: string, lineType: string) {
+  return {
+    getAttribute: (name: string) =>
+      name === "data-line-type" ? lineType : name === "data-line" ? lineNumber : null,
+    shadowRoot: null,
+  } as unknown as HTMLElement;
+}
+
+function queryElement(children: HTMLElement[], shadowRoot: ParentNode | null = null) {
+  return {
+    getAttribute: () => null,
+    querySelectorAll: (selector: string) => queryChildren(children, selector),
+    shadowRoot,
+  } as unknown as HTMLElement;
+}
+
+function queryRoot(children: HTMLElement[]) {
+  return {
+    querySelectorAll: (selector: string) => queryChildren(children, selector),
+  } as unknown as ParentNode;
+}
+
+function queryChildren(children: HTMLElement[], selector: string) {
+  if (selector === "*") return children;
+
+  const lineMatch = selector.match(/^\[data-line="(.+)"\]$/);
+  if (!lineMatch) return [];
+
+  return children.filter((child) => child.getAttribute("data-line") === lineMatch[1]);
 }
 
 function rowScroller({

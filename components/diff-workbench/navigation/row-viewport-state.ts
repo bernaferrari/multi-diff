@@ -59,6 +59,28 @@ export function getRowNavigationTop(scroller: RowViewportScroller, block: RowVie
   return Math.max(0, Math.min(targetTop, maxScrollTop));
 }
 
+export function getRowNavigationTargetLine({
+  lineNumber,
+  root,
+  side,
+}: {
+  lineNumber: number;
+  root: ParentNode;
+  side?: SelectionSide;
+}) {
+  const selector = `[data-line="${escapeSelectorValue(String(lineNumber))}"]`;
+
+  for (const searchRoot of getSearchRoots(root)) {
+    const lines = Array.from(searchRoot.querySelectorAll<HTMLElement>(selector));
+    if (!side && lines[0]) return lines[0];
+
+    const sideMatch = lines.find((line) => lineMatchesNavigationSide(line, side));
+    if (sideMatch) return sideMatch;
+  }
+
+  return null;
+}
+
 export function getRowNavigationLineTop({
   diffStyle,
   fileDiff,
@@ -74,6 +96,28 @@ export function getRowNavigationLineTop({
   if (lineIndex == null) return null;
 
   return ROW_FILE_HEADER_HEIGHT_PX + lineIndex * DIFF_LINE_HEIGHT_PX;
+}
+
+function getSearchRoots(root: ParentNode) {
+  const roots: ParentNode[] = [root];
+
+  for (const element of root.querySelectorAll<HTMLElement>("*")) {
+    if (element.shadowRoot) roots.push(element.shadowRoot);
+  }
+
+  return roots;
+}
+
+function lineMatchesNavigationSide(line: HTMLElement, side: SelectionSide | undefined) {
+  if (!side) return true;
+  const lineType = line.getAttribute("data-line-type") ?? "";
+
+  if (side === "deletions") return lineType.includes("deletion");
+  return lineType.includes("addition") || lineType === "context";
+}
+
+function escapeSelectorValue(value: string) {
+  return globalThis.CSS?.escape?.(value) ?? value.replaceAll('"', '\\"');
 }
 
 function getDiffLineIndex({

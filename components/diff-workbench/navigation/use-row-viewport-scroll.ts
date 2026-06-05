@@ -3,6 +3,7 @@ import { type UIEvent, type WheelEvent, useEffect, useRef } from "react";
 import {
   getActiveRowsFile,
   getRowNavigationLineTop,
+  getRowNavigationTargetLine,
   getRowNavigationTop,
 } from "./row-viewport-state";
 import { routeWheelToScroller } from "./scrolling";
@@ -67,9 +68,11 @@ export function useRowViewportScroll({
     if (block && rowScrollerRef.current) {
       const line =
         navigationTarget.lineNumber != null
-          ? block.querySelector<HTMLElement>(
-              `[data-line="${CSS.escape(String(navigationTarget.lineNumber))}"]`,
-            )
+          ? getRowNavigationTargetLine({
+              lineNumber: navigationTarget.lineNumber,
+              root: block,
+              side: navigationTarget.side,
+            })
           : null;
       const computedLineTop =
         !line && navigationTarget.lineNumber != null
