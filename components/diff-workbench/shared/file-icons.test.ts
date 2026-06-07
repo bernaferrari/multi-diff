@@ -23,11 +23,12 @@ describe("file icons", () => {
     const phpHtml = renderToStaticMarkup(createElement(FileTypeIcon, { path: "public/index.php" }));
 
     expect(javaHtml).toContain("text-[#e76f00]");
-    expect(javaHtml).toContain("#file-tree-local-java");
+    expect(javaHtml).toContain('fill="#f44336"');
+    expect(javaHtml).not.toContain("#file-tree-local-java");
     expect(csharpHtml).toContain("text-[#68217a]");
-    expect(csharpHtml).toContain("#file-tree-local-csharp");
+    expect(csharpHtml).toContain('fill="#0288d1"');
     expect(phpHtml).toContain("text-[#777bb4]");
-    expect(phpHtml).toContain("#file-tree-local-php");
+    expect(phpHtml).toContain('fill="#1e88e5"');
   });
 
   it("falls back to muted text for unknown icon tokens", () => {
@@ -40,6 +41,6 @@ describe("file icons", () => {
     const html = renderToStaticMarkup(createElement(TreeIconSprite));
 
     expect(html).toContain("data-icon-sprite");
-    expect(html).toContain("file-tree-local-java");
+    expect(html).not.toContain("file-tree-local-java");
   });
 });

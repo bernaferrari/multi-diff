@@ -67,9 +67,11 @@ const LOCAL_ICON_SPRITE = `
   </symbol>
 `;
 
-const TREE_ICON_SPRITE_WITH_FALLBACKS = TREE_ICON_SPRITE.replace(
-  "</svg>",
-  `${LOCAL_ICON_SPRITE}\n</svg>`,
+const LOCAL_ICON_BODY_BY_ID: Record<string, string> = Object.fromEntries(
+  Array.from(
+    LOCAL_ICON_SPRITE.matchAll(/<symbol id="([^"]+)" viewBox="[^"]+">\s*([\s\S]*?)\s*<\/symbol>/g),
+    (match) => [match[1] ?? "", match[2] ?? ""],
+  ).filter(([id]) => id !== ""),
 );
 
 const TREE_ICON_RESOLVER = createFileTreeIconResolver({
@@ -78,6 +80,7 @@ const TREE_ICON_RESOLVER = createFileTreeIconResolver({
 });
 
 type FileIconView = {
+  body?: string;
   className: string;
   height: number;
   id: string;
@@ -189,6 +192,7 @@ function getLocalLanguageIcon(path: string): FileIconView | undefined {
   }
 
   return {
+    body: LOCAL_ICON_BODY_BY_ID[icon.id],
     className: fileIconClass(icon.token),
     height: 16,
     id: icon.id,
@@ -220,6 +224,19 @@ function getFileIconView(path: string): FileIconView {
 export function FileTypeIcon({ path }: { path: string }) {
   const icon = getFileIconView(path);
 
+  if (icon.body != null) {
+    return (
+      <svg
+        aria-hidden
+        className={cn("size-3.5 shrink-0", icon.className)}
+        viewBox={icon.viewBox}
+        width={icon.width}
+        height={icon.height}
+        dangerouslySetInnerHTML={{ __html: icon.body }}
+      />
+    );
+  }
+
   return (
     <svg
       aria-hidden
@@ -235,10 +252,6 @@ export function FileTypeIcon({ path }: { path: string }) {
 
 export function TreeIconSprite() {
   return (
-    <span
-      aria-hidden
-      className="hidden"
-      dangerouslySetInnerHTML={{ __html: TREE_ICON_SPRITE_WITH_FALLBACKS }}
-    />
+    <span aria-hidden className="hidden" dangerouslySetInnerHTML={{ __html: TREE_ICON_SPRITE }} />
   );
 }
