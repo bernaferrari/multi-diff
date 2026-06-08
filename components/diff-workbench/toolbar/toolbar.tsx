@@ -96,6 +96,7 @@ export function Toolbar({
             render={
               <a
                 href="https://github.com/bernaferrari/multi-diff"
+                aria-label="Open GitHub repository"
                 target="_blank"
                 rel="noreferrer"
               />
