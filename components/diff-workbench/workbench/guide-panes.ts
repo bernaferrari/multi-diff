@@ -1,4 +1,4 @@
-import { createPane, normalizePatchInput } from "../rendering/diff-data";
+import { createPane } from "../rendering/diff-data";
 import type { Pane } from "../shared/types";
 
 const guideSamples = [
@@ -6,7 +6,7 @@ const guideSamples = [
 index 4ac18d2..a41c6e8 100644
 --- a/src/search.ts
 +++ b/src/search.ts
-@@ -1,9 +1,12 @@
+@@ -1,9 +1,10 @@
  export function search(items: string[], query: string) {
 -  if (!query) return items
 +  const normalized = query.trim().toLowerCase()
@@ -19,13 +19,12 @@ index 4ac18d2..a41c6e8 100644
  }
  
 -export const resultLimit = 20
-+export const resultLimit = 50
-`,
++export const resultLimit = 50`,
   `diff --git a/src/search.ts b/src/search.ts
 index 4ac18d2..d1d864b 100644
 --- a/src/search.ts
 +++ b/src/search.ts
-@@ -1,9 +1,15 @@
+@@ -1,9 +1,13 @@
  export function search(items: string[], query: string) {
 -  if (!query) return items
 +  if (query.length < 2) return []
@@ -42,13 +41,12 @@ index 4ac18d2..d1d864b 100644
 +
 +export function describeSearch(query: string) {
 +  return \`Searching for \${query}\`
-+}
-`,
++}`,
   `diff --git a/src/search.ts b/src/search.ts
 index 4ac18d2..60b61c8 100644
 --- a/src/search.ts
 +++ b/src/search.ts
-@@ -1,9 +1,13 @@
+@@ -1,9 +1,12 @@
 -export function search(items: string[], query: string) {
 +import { auditSearch } from "./telemetry"
 +
@@ -67,20 +65,19 @@ new file mode 100644
 index 0000000..3f2a982
 --- /dev/null
 +++ b/src/telemetry.ts
-@@ -0,0 +1,5 @@
+@@ -0,0 +1,6 @@
 +export function auditSearch(userId: string, query: string) {
 +  return {
 +    userId,
 +    length: query.length,
 +  }
-+}
-`,
++}`,
 ];
 
 const guidePanes: Pane[] = [
-  createPane("a", normalizePatchInput(guideSamples[0]), "guide-precision.patch"),
-  createPane("b", normalizePatchInput(guideSamples[1]), "guide-limit.patch"),
-  createPane("c", normalizePatchInput(guideSamples[2]), "guide-audit.patch"),
+  createPane("a", guideSamples[0], "guide-precision.patch"),
+  createPane("b", guideSamples[1], "guide-limit.patch"),
+  createPane("c", guideSamples[2], "guide-audit.patch"),
 ];
 
 export const GUIDE_NOTES = `Guide

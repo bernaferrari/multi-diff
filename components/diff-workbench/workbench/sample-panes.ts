@@ -1,5 +1,5 @@
 import { LANE_ORDER } from "../lanes/lanes";
-import { createPane, normalizePatchInput } from "../rendering/diff-data";
+import { createPane } from "../rendering/diff-data";
 import type { Pane } from "../shared/types";
 
 const samples = [
@@ -7,7 +7,7 @@ const samples = [
 index 2a8f410..8c0b9d2 100644
 --- a/app/mission-control/page.tsx
 +++ b/app/mission-control/page.tsx
-@@ -1,16 +1,29 @@
+@@ -1,15 +1,19 @@
  import { LaunchTimeline } from "@/components/launch-timeline"
  import { MissionMap } from "@/components/mission-map"
  import { StatusStrip } from "@/components/status-strip"
@@ -35,7 +35,7 @@ diff --git a/components/status-strip.tsx b/components/status-strip.tsx
 index 6f43b0c..5a54a84 100644
 --- a/components/status-strip.tsx
 +++ b/components/status-strip.tsx
-@@ -1,11 +1,19 @@
+@@ -1,9 +1,16 @@
 -export function StatusStrip() {
 +type StatusStripProps = {
 +  tone?: "normal" | "launch"
@@ -75,13 +75,12 @@ index 0000000..78acd61
 +      </p>
 +    </section>
 +  )
-+}
-`,
++}`,
   `diff --git a/app/mission-control/page.tsx b/app/mission-control/page.tsx
 index 2a8f410..19ed2d0 100644
 --- a/app/mission-control/page.tsx
 +++ b/app/mission-control/page.tsx
-@@ -1,16 +1,28 @@
+@@ -1,15 +1,17 @@
  import { LaunchTimeline } from "@/components/launch-timeline"
  import { MissionMap } from "@/components/mission-map"
  import { StatusStrip } from "@/components/status-strip"
@@ -108,7 +107,7 @@ new file mode 100644
 index 0000000..8dfcf10
 --- /dev/null
 +++ b/components/crew-comms.tsx
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,26 @@
 +type CrewCommsProps = {
 +  channel: "dragon" | "orion"
 +}
@@ -139,7 +138,7 @@ diff --git a/components/status-strip.tsx b/components/status-strip.tsx
 index 6f43b0c..c82ea79 100644
 --- a/components/status-strip.tsx
 +++ b/components/status-strip.tsx
-@@ -1,11 +1,18 @@
+@@ -1,9 +1,14 @@
 -export function StatusStrip() {
 +type StatusStripProps = {
 +  compact?: boolean
@@ -162,7 +161,7 @@ diff --git a/components/launch-timeline.tsx b/components/launch-timeline.tsx
 index e038ce5..bcdb09e 100644
 --- a/components/launch-timeline.tsx
 +++ b/components/launch-timeline.tsx
-@@ -1,9 +1,17 @@
+@@ -1,9 +1,14 @@
 -export function LaunchTimeline() {
 +type LaunchTimelineProps = {
 +  showAbortChecks?: boolean
@@ -177,13 +176,12 @@ index e038ce5..bcdb09e 100644
        <li>T-0 ignition</li>
      </ol>
    )
- }
-`,
+ }`,
   `diff --git a/app/mission-control/page.tsx b/app/mission-control/page.tsx
 index 2a8f410..f704e91 100644
 --- a/app/mission-control/page.tsx
 +++ b/app/mission-control/page.tsx
-@@ -1,16 +1,31 @@
+@@ -1,15 +1,22 @@
  import { LaunchTimeline } from "@/components/launch-timeline"
  import { MissionMap } from "@/components/mission-map"
  import { StatusStrip } from "@/components/status-strip"
@@ -246,7 +244,7 @@ diff --git a/components/status-strip.tsx b/components/status-strip.tsx
 index 6f43b0c..723acf4 100644
 --- a/components/status-strip.tsx
 +++ b/components/status-strip.tsx
-@@ -1,11 +1,18 @@
+@@ -1,9 +1,18 @@
 -export function StatusStrip() {
 +type StatusStripProps = {
 +  alertCount?: number
@@ -272,20 +270,19 @@ new file mode 100644
 index 0000000..ff2f088
 --- /dev/null
 +++ b/lib/mission-audit.ts
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,6 @@
 +export async function recordMissionView(surface: string) {
 +  console.info("mission.view", {
 +    surface,
 +    at: new Date().toISOString(),
 +  })
-+}
-`,
++}`,
 ];
 
 const samplePanes: Pane[] = [
-  createPane("a", normalizePatchInput(samples[0]), "launch-weather.patch"),
-  createPane("b", normalizePatchInput(samples[1]), "crew-loop.patch"),
-  createPane("c", normalizePatchInput(samples[2]), "risk-watch.patch"),
+  createPane("a", samples[0], "launch-weather.patch"),
+  createPane("b", samples[1], "crew-loop.patch"),
+  createPane("c", samples[2], "risk-watch.patch"),
 ];
 
 export function createSamplePanes(): Pane[] {

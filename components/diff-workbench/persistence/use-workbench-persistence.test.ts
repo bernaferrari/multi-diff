@@ -20,7 +20,7 @@ describe("applyStoredWorkbenchState", () => {
       {
         id: "a",
         label: "Diff A",
-        text: "diff",
+        text: "",
       },
     ];
 
@@ -44,6 +44,20 @@ describe("applyStoredWorkbenchState", () => {
     expect(setters.setSidebarOpen).toHaveBeenCalledWith(false);
     expect(setters.setLayout).not.toHaveBeenCalled();
     expect(setters.setWrap).not.toHaveBeenCalled();
+  });
+
+  it("skips panes when every non-empty pane fails to parse", () => {
+    const setters = persistenceSetters();
+    const panes: Pane[] = [
+      { id: "a", label: "Diff A", text: "diff --git a/a.ts b/a.ts\n@@ bad" },
+      { id: "b", label: "Diff B", text: "not a patch" },
+      { id: "c", label: "Diff C", text: "" },
+    ];
+
+    applyStoredWorkbenchState({ panes, notes: "keep notes" }, setters);
+
+    expect(setters.setPanes).not.toHaveBeenCalled();
+    expect(setters.setNotes).toHaveBeenCalledWith("keep notes");
   });
 });
 

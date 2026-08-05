@@ -26,11 +26,16 @@ export function createPane(id: LaneId, text = "", filename?: string): Pane {
 }
 
 export function normalizePatchInput(patch: string) {
-  return patch
-    .replace(/\r\n?/g, "\n")
-    .split("\n")
-    .map((line) => (line === "" ? EMPTY_DIFF_LINE : line))
-    .join("\n");
+  // Normalize newlines, then map interior blank lines to a space-prefixed
+  // context line (unified-diff blank context). Drop a single trailing empty
+  // entry from a terminating newline so we do not invent an extra context
+  // line after the last real hunk line (pierre/diffs rejects that as a
+  // "hunk line count mismatch" / "more lines than expected").
+  const lines = patch.replace(/\r\n?/g, "\n").split("\n");
+  if (lines.length > 0 && lines[lines.length - 1] === "") {
+    lines.pop();
+  }
+  return lines.map((line) => (line === "" ? EMPTY_DIFF_LINE : line)).join("\n");
 }
 
 function getParseErrorMessage(error: unknown) {

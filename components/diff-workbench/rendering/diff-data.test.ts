@@ -23,7 +23,7 @@ index 1111111..2222222 100644
 
 describe("diff data helpers", () => {
   it("normalizes CRLF and empty raw lines before parser input", () => {
-    expect(normalizePatchInput("a\r\n\r\nb\r")).toBe("a\n \nb\n ");
+    expect(normalizePatchInput("a\r\n\r\nb\r")).toBe("a\n \nb");
   });
 
   it("creates canonical pane labels", () => {
